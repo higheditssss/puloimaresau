@@ -1,0 +1,6 @@
+{
+  "name": "kick-top-chatters",
+  "version": "1.0.0",
+  "description": "Top Chatters viewer for Kick.com",
+  "private": true
+}

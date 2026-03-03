@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>HIGHSB</title>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --s1:#111111;
+  --s2:#161616;
+  --s3:#1c1c1c;
+  --s4:#222222;
+  --acc:#53fc18;
+  --acc2:#3de010;
+  --glow:rgba(83,252,24,.35);
+  --glow2:rgba(83,252,24,.15);
+  --t:#ffffff;
+  --t2:#aaaaaa;
+  --t3:#555555;
+  --t4:#333333;
+  --red:#ff4444;
+  --gold:#ffb800;
+  --bd:rgba(255,255,255,.06);
+  --bda:rgba(83,252,24,.2);
+}
+html,body{width:100%;min-height:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif}
+
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:block}
+#s-landing.active,#s-submit.active,#s-wait.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 16px}
+#s-battle.active{display:flex;flex-direction:column;min-height:100vh}
+
+/* ── LOGO ── */
+.logo{font-size:clamp(30px,6vw,44px);font-weight:900;letter-spacing:4px;color:var(--acc);
+  text-shadow:0 0 40px var(--glow),0 0 80px rgba(83,252,24,.15);margin-bottom:2px;text-align:center}
+.logo-tag{font-size:10px;color:var(--t3);letter-spacing:6px;text-transform:uppercase;margin-bottom:32px;text-align:center}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:clamp(20px,4vw,28px);width:100%;max-width:440px}
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:rgba(0,0,0,.6);border-radius:8px;padding:3px;border:1px solid var(--bd)}
+.tab{flex:1;padding:9px;border:none;background:transparent;color:var(--t3);cursor:pointer;border-radius:6px;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;letter-spacing:.5px;text-transform:uppercase;transition:all .18s}
+.tab.on{background:var(--acc);color:#000}
+lbl{display:block;font-size:10px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.inp-wrap{margin-bottom:12px}
+input[type=text]{width:100%;padding:10px 14px;background:rgba(0,0,0,.5);border:1px solid var(--t4);border-radius:8px;color:var(--t);font-size:14px;outline:none;font-family:'Inter',sans-serif;transition:all .2s}
+input[type=text]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(83,252,24,.1)}
+input[type=text]::placeholder{color:var(--t4)}
+.sld-wrap{margin-bottom:18px}
+input[type=range]{-webkit-appearance:none;width:100%;height:2px;border-radius:2px;outline:none;cursor:pointer;background:var(--t4)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 10px var(--glow)}
+.s-val{text-align:right;font-size:12px;font-weight:700;color:var(--acc);margin-top:5px}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;padding:11px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all .18s;border:1px solid var(--bd);background:rgba(255,255,255,.03);color:var(--t2)}
+.btn:hover{background:rgba(83,252,24,.08);color:var(--t);border-color:var(--bda)}
+.btn.primary{background:var(--acc);border:none;color:#000;font-weight:800;box-shadow:0 4px 20px var(--glow2)}
+.btn.primary:hover{background:var(--acc2);box-shadow:0 6px 30px var(--glow);transform:translateY(-1px)}
+.btn:disabled{opacity:.25;cursor:not-allowed;transform:none!important}
+.err{color:#ff7070;font-size:12px;text-align:center;margin-bottom:10px;min-height:16px}
+.code-big{font-size:22px;letter-spacing:8px;text-align:center;font-weight:800}
+.warn{background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.18);border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:12px;color:#ff9090;text-align:center;max-width:440px;width:100%}
+
+/* ── AUTOCOMPLETE ── */
+.ac-list{position:absolute;top:calc(100% - 1px);left:0;right:0;z-index:300;background:var(--s2);border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.8)}
+.ac-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .1s}
+.ac-item:hover{background:rgba(83,252,24,.07)}
+.ac-av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--s3);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ac-av img{width:100%;height:100%;object-fit:cover}
+.ac-name{font-size:13px;color:var(--t);font-weight:600}
+.ac-sub{font-size:11px;color:var(--t3)}
+.ac-live{padding:2px 7px;border-radius:4px;background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.25);font-size:10px;color:var(--red);font-weight:700;letter-spacing:.5px}
+
+/* ── WAIT ── */
+.wait-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:clamp(22px,5vw,32px);width:100%;max-width:500px}
+.wait-h{text-align:center;margin-bottom:24px}
+.wait-h h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.wait-h p{font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase}
+.wcount-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:24px}
+.wcount{text-align:center;padding:14px 24px;background:rgba(83,252,24,.06);border:1px solid var(--bda);border-radius:10px}
+.wc-n{font-size:40px;font-weight:900;color:var(--acc);line-height:1}
+.wc-l{font-size:9px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.wsep{font-size:20px;color:var(--t3)}
+.wplayers-t{font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.prow{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:8px;margin-bottom:4px;font-size:13px;color:var(--t2)}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--glow);flex-shrink:0}
+.share-row{display:flex;gap:8px;margin-bottom:18px}
+.share-inp{flex:1;padding:9px 12px;background:rgba(0,0,0,.4);border:1px solid var(--t4);border-radius:8px;color:var(--t2);font-size:12px;font-family:monospace;outline:none;min-width:0}
+.copy-btn{padding:9px 14px;background:rgba(255,255,255,.03);border:1px solid var(--t4);border-radius:8px;color:var(--t2);font-size:11px;cursor:pointer;font-weight:700;white-space:nowrap;transition:all .18s;font-family:'Inter',sans-serif;letter-spacing:.5px}
+.copy-btn:hover{color:var(--acc);border-color:var(--bda)}
+.copy-btn.done{color:var(--acc);border-color:var(--bda)}
+.wait-note{font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px}
+
+/* ── BATTLE HEADER ── */
+.b-header{display:flex;align-items:center;justify-content:space-between;padding:12px clamp(14px,3vw,24px);
+  background:rgba(10,10,10,.97);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;
+  position:sticky;top:0;z-index:100}
+.h-logo{font-size:16px;font-weight:900;letter-spacing:4px;color:var(--acc);text-shadow:0 0 20px var(--glow)}
+.badges{display:flex;gap:5px;align-items:center}
+.badge{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:600;background:rgba(255,255,255,.03);border:1px solid var(--t4);color:var(--t3);letter-spacing:.5px}
+.badge.live{background:rgba(255,68,68,.08);border-color:rgba(255,68,68,.2);color:#ff9090}
+.badge.live::before{content:'● ';animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.h-share input{padding:7px 11px;background:rgba(0,0,0,.5);border:1px solid var(--t4);border-radius:7px;color:var(--t3);font-size:11px;font-family:monospace;outline:none;width:190px}
+
+/* ── BATTLE LAYOUT ── */
+.b-body{flex:1;display:grid;grid-template-columns:1fr 280px;max-width:1400px;width:100%;margin:0 auto}
+@media(max-width:960px){.b-body{grid-template-columns:1fr}}
+.b-main{padding:clamp(14px,3vw,24px);display:flex;flex-direction:column;gap:14px;min-width:0;border-right:1px solid var(--bd)}
+.b-side{padding:16px;display:flex;flex-direction:column;gap:12px;background:rgba(0,0,0,.2)}
+@media(max-width:960px){.b-side{display:none}}
+
+/* ── ROUND ── */
+.round-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.rlbl{font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:3px}
+.rtitle{font-size:clamp(20px,4vw,28px);font-weight:900;letter-spacing:.5px}
+.rtitle.final{color:var(--gold);text-shadow:0 0 30px rgba(255,184,0,.4)}
+.ctrls{display:flex;gap:5px}
+.ctrl{width:32px;height:32px;border-radius:7px;border:1px solid var(--t4);background:rgba(255,255,255,.02);color:var(--t3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.ctrl:hover,.ctrl.on{border-color:var(--bda);color:var(--acc);background:rgba(83,252,24,.07)}
+
+/* ── ARENA ── */
+.arena{display:grid;grid-template-columns:1fr 48px 1fr;gap:10px;align-items:start}
+@media(max-width:600px){
+  .arena{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  .vs-wrap{display:flex;justify-content:center}
+  .vs-pill{writing-mode:horizontal-tb!important;padding:6px 20px!important}
+}
+.vs-wrap{display:flex;align-items:center;justify-content:center}
+.vs-pill{writing-mode:vertical-rl;font-size:10px;font-weight:900;color:var(--t4);letter-spacing:3px;
+  padding:12px 6px;background:var(--s1);border:1px solid var(--bd);border-radius:8px}
+
+/* ══════════════════════════════════
+   SONG CARD — KICK STYLE
+══════════════════════════════════ */
+.scard{border-radius:10px;overflow:hidden;border:1px solid var(--bd);background:var(--s1);transition:border-color .3s,box-shadow .3s}
+.scard.lead{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 30px rgba(83,252,24,.18)}
+
+/* Thumbnail strip — full width, 16:9 ish */
+.sc-thumb-strip{position:relative;width:100%;padding-top:52%;overflow:hidden;background:var(--s3)}
+.sc-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.sc-thumb-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,var(--s3),var(--s4))}
+.sc-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 50%)}
+.sc-cmd-badge{position:absolute;top:10px;left:10px;background:var(--acc);color:#000;font-size:13px;font-weight:900;padding:4px 10px;border-radius:5px;letter-spacing:1px;line-height:1}
+.sc-plat-badge{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sc-thumb-info{position:absolute;bottom:10px;left:12px;right:12px}
+.sc-title{font-size:clamp(13px,2.2vw,16px);font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.sc-artist{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Card body below thumbnail */
+.sc-body{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--bd)}
+.sc-by{font-size:11px;color:var(--t3);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-by span{color:var(--t2)}
+.play-btn{width:34px;height:34px;border-radius:50%;background:var(--acc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;box-shadow:0 2px 10px var(--glow2)}
+.play-btn:hover{background:var(--acc2);transform:scale(1.1);box-shadow:0 4px 18px var(--glow)}
+.play-btn svg{width:14px;height:14px;fill:#000;margin-left:2px}
+.choose-btn{padding:6px 12px;background:rgba(255,255,255,.04);border:1px solid var(--t4);border-radius:6px;color:var(--t3);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.choose-btn:hover{background:rgba(83,252,24,.08);color:var(--acc);border-color:var(--bda)}
+
+/* Embed */
+.sc-embed{display:none}
+.sc-embed iframe{width:100%;border:none;display:block}
+
+/* Vote under card */
+.vote-strip{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--s2);border-top:1px solid var(--bd)}
+.v-num{font-size:clamp(24px,4vw,34px);font-weight:900;color:var(--t);line-height:1}
+.v-right{text-align:right}
+.v-pct{font-size:12px;color:var(--acc);font-weight:700}
+.v-lbl{font-size:9px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+
+/* ── VOTE BAR ── */
+.vbar-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.vbar{background:var(--s3);border-radius:4px;height:8px;display:flex;overflow:hidden;gap:2px;margin-bottom:10px}
+.vbl{background:var(--acc);transition:width .6s cubic-bezier(.4,0,.2,1);border-radius:4px 0 0 4px;min-width:3px;box-shadow:0 0 10px var(--glow2)}
+.vbr{background:var(--t4);transition:width .6s cubic-bezier(.4,0,.2,1);border-radius:0 4px 4px 0;min-width:3px}
+.vstats{display:flex;justify-content:space-between;align-items:center}
+.vc{font-size:clamp(16px,2.5vw,20px);font-weight:900;color:var(--t)}
+.vc.left{color:var(--acc)}
+.vpct{font-size:11px;color:var(--t3)}
+
+/* ── TOTAL ── */
+.total-box{text-align:center;padding:12px;background:var(--s1);border:1px solid var(--bd);border-radius:10px}
+.total-box strong{font-size:clamp(24px,4vw,32px);font-weight:900;color:var(--acc);display:block;text-shadow:0 0 20px var(--glow2)}
+.total-box span{font-size:11px;color:var(--t3)}
+
+/* ── POLL ── */
+.poll-row{display:flex;gap:8px;flex-wrap:wrap}
+.pb{padding:11px 22px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all .2s}
+.pb.start{background:var(--acc);border:none;color:#000;font-weight:800;box-shadow:0 4px 20px var(--glow2);flex:1}
+.pb.start:hover{background:var(--acc2);box-shadow:0 6px 28px var(--glow);transform:translateY(-1px)}
+.pb.end{background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.25);color:var(--red);flex:1}
+.pb.end:hover{background:rgba(255,68,68,.18)}
+.pb.next{background:rgba(255,255,255,.04);border:1px solid var(--t4);color:var(--t2);flex:1}
+.pb.next:hover{border-color:var(--bda);color:var(--acc)}
+.viewer-notice{text-align:center;padding:12px;font-size:13px;color:var(--t2);background:rgba(83,252,24,.04);border:1px solid rgba(83,252,24,.1);border-radius:8px;line-height:1.7}
+.viewer-notice strong{color:var(--acc)}
+
+/* ── WINNER ── */
+.winner-box{background:var(--s1);border:1px solid var(--bda);border-radius:12px;padding:clamp(22px,5vw,38px);text-align:center;box-shadow:0 0 60px rgba(83,252,24,.07)}
+.w-trophy{font-size:48px;margin-bottom:12px}
+.w-lbl{font-size:9px;color:var(--t3);letter-spacing:5px;text-transform:uppercase;margin-bottom:10px}
+.w-cmd{font-size:clamp(52px,10vw,78px);font-weight:900;color:var(--acc);line-height:1;margin-bottom:10px;text-shadow:0 0 40px var(--glow)}
+.w-title{font-size:clamp(15px,3vw,20px);font-weight:700;margin-bottom:4px}
+.w-artist{font-size:12px;color:var(--t3);margin-bottom:18px}
+.w-scores{display:flex;gap:20px;justify-content:center;font-size:12px;color:var(--t3);margin-bottom:20px}
+
+/* ── SIDEBAR ── */
+.sp{background:rgba(0,0,0,.3);border:1px solid var(--bd);border-radius:8px;padding:12px}
+.spt{font-size:9px;letter-spacing:3px;color:var(--t3);text-transform:uppercase;margin-bottom:10px;font-weight:700}
+.sb{max-height:180px;overflow-y:auto}
+.vrow{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:4px}
+.vbadge{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(83,252,24,.12);color:var(--acc);letter-spacing:.5px}
+.cline{font-size:11px;line-height:1.7;color:var(--t3)}
+.cline .cu{color:var(--t2);font-weight:600}
+.cline .cv{color:var(--acc);font-weight:700}
+.sdot{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t3);margin-top:8px;padding:5px 8px;background:rgba(0,0,0,.3);border-radius:6px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(0,0,0,.3);border-radius:6px;margin-bottom:3px;font-size:12px;color:var(--t2)}
+.hbadge{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(83,252,24,.12);color:var(--acc);font-weight:700}
+.empty{color:var(--t3);font-size:11px;text-align:center;padding:14px 0}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(83,252,24,.15);border-radius:2px}
+
+.hist-panel{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+
+/* ── MODAL ── */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(12px)}
+.mbg.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:22px;width:100%;max-width:440px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h3{font-size:15px;font-weight:700}
+.mcl{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer}
+.slist{display:flex;flex-direction:column;gap:5px;max-height:360px;overflow-y:auto}
+.sli{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,0,0,.4);border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:all .15s}
+.sli:hover{border-color:var(--bda);background:rgba(83,252,24,.05)}
+.sli-thumb{width:50px;height:32px;object-fit:cover;border-radius:5px;flex-shrink:0;background:var(--s3)}
+.sli-t{font-size:13px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sli-s{font-size:11px;color:var(--t3)}
+
+/* ── TUTORIAL ── */
+.tbg{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(16px)}
+.tbg.open{display:flex}
+.tbox{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:clamp(22px,5vw,32px);max-width:460px;width:100%}
+.tbox h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.tsub{font-size:10px;color:var(--t3);letter-spacing:4px;text-transform:uppercase;margin-bottom:22px}
+.vdemo{display:flex;gap:10px;margin-bottom:18px}
+.vd{flex:1;padding:16px;border:1px solid var(--bda);border-radius:8px;text-align:center;background:rgba(83,252,24,.05)}
+.vd-cmd{font-size:42px;font-weight:900;color:var(--acc);line-height:1}
+.vd-lbl{font-size:10px;color:var(--t3);margin-top:5px;letter-spacing:1px}
+.tstep{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.tn{width:22px;height:22px;border-radius:50%;background:rgba(83,252,24,.1);border:1px solid var(--bda);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--acc);flex-shrink:0;margin-top:2px;font-weight:700}
+.tstep p{font-size:12px;color:var(--t2);line-height:1.6}
+.tstep p strong{color:var(--t)}
+</style>
+</head>
+<body>
+
+<!-- TUTORIAL -->
+<div class="tbg" id="tbg">
+  <div class="tbox">
+    <h2>Cum funcționează</h2>
+    <div class="tsub">ghid rapid</div>
+    <div class="vdemo">
+      <div class="vd"><div class="vd-cmd">!1</div><div class="vd-lbl">Votează stânga</div></div>
+      <div class="vd"><div class="vd-cmd">!2</div><div class="vd-lbl">Votează dreapta</div></div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="tstep"><div class="tn">1</div><p>Trimite linkul battle-ului către participanți</p></div>
+      <div class="tstep"><div class="tn">2</div><p>Așteaptă să se adune toți în <strong>Waiting Room</strong></p></div>
+      <div class="tstep"><div class="tn">3</div><p>Apasă <strong>START BATTLE</strong> când toți sunt prezenți</p></div>
+      <div class="tstep"><div class="tn">4</div><p>Chat votează <strong>!1</strong> sau <strong>!2</strong>, tu apeși <strong>END POLL</strong></p></div>
+    </div>
+    <button class="btn primary" onclick="closeTut()">AM ÎNȚELES</button>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="s-landing" class="screen">
+  <div class="logo">HIGHSB</div>
+  <div class="logo-tag">Music Battle Platform</div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('create')">Create Battle</button>
+      <button class="tab" onclick="switchTab('join')">Join Battle</button>
+    </div>
+    <div id="tc">
+      <div class="inp-wrap"><lbl>Nume cameră</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
+      <div class="inp-wrap" style="position:relative">
+        <lbl>Kick Channel</lbl>
+        <input id="l-kick" type="text" placeholder="Caută username Kick..." autocomplete="off"
+          oninput="kickSearch(this.value)" onblur="setTimeout(hideAC,200)" onfocus="if(this.value.trim().length>=2)kickSearch(this.value)"/>
+        <div class="ac-list" id="kick-ac" style="display:none"></div>
+      </div>
+      <div class="sld-wrap">
+        <lbl>Câte persoane?</lbl>
+        <input type="range" id="sl-players" min="2" max="200" step="1" value="4" oninput="updateSliders()"/>
+        <div class="s-val" id="sv-p">4 persoane</div>
+      </div>
+      <div class="sld-wrap">
+        <lbl>Piese per participant?</lbl>
+        <input type="range" id="sl-spp" min="1" max="10" step="1" value="1" oninput="updateSliders()"/>
+        <div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span> în turneu</div>
+      </div>
+      <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
+    </div>
+    <div id="tj" style="display:none">
+      <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
+      <div class="err" id="jerr"></div>
+      <button class="btn primary" onclick="joinRoom()">JOIN BATTLE</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT -->
+<div id="s-submit" class="screen">
+  <div class="warn">Folosește același username ca în chat-ul Kick</div>
+  <div class="card">
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px">Trimite piesa ta</div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase">intrare în battle</div>
+    <div class="inp-wrap"><lbl>Kick Username</lbl><input id="su-user" type="text" placeholder="Același ca în chat!"/></div>
+    <div class="inp-wrap"><lbl>Song Link</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..."/></div>
+    <div class="err" id="serr"></div>
+    <button class="btn primary" onclick="submitSong()">ENTER THE BATTLE</button>
+  </div>
+</div>
+
+<!-- WAIT -->
+<div id="s-wait" class="screen">
+  <div class="wait-card">
+    <div class="wait-h"><h2>Waiting Room</h2><p id="wait-room-name">Battle Room</p></div>
+    <div class="wcount-row">
+      <div class="wcount"><div class="wc-n" id="wc-joined">0</div><div class="wc-l">joined</div></div>
+      <div class="wsep">/</div>
+      <div class="wcount"><div class="wc-n" id="wc-needed">4</div><div class="wc-l">needed</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:600">Link cameră</div>
+    <div class="share-row">
+      <input class="share-inp" id="wait-link" type="text" readonly onclick="this.select()"/>
+      <button class="copy-btn" id="wait-copy" onclick="copyWait()">Copy</button>
+    </div>
+    <div class="wplayers-t">Participanți</div>
+    <div id="wait-player-list" style="margin-bottom:14px"></div>
+    <div class="wait-note" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
+    <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
+    <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
+  </div>
+</div>
+
+<!-- BATTLE -->
+<div id="s-battle" class="screen">
+  <div class="b-header">
+    <div class="h-logo">HIGHSB</div>
+    <div class="badges">
+      <div class="badge live" id="h-live">LIVE</div>
+      <div class="badge" id="h-code">CODE: --</div>
+      <div class="badge" id="h-players">0 players</div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <input id="share-inp" type="text" readonly onclick="this.select()"/>
+      <button class="copy-btn" id="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+
+  <div class="b-body">
+    <div class="b-main">
+      <!-- Round -->
+      <div class="round-row">
+        <div>
+          <div class="rlbl" id="rlbl">ROUND 1 / 2</div>
+          <div class="rtitle" id="rtitle">BATTLE</div>
+        </div>
+        <div class="ctrls" id="host-ctrls" style="display:none">
+          <button class="ctrl" onclick="prevRound()">&#9664;</button>
+          <button class="ctrl" id="shuf-btn" onclick="toggleShuffle()">&#8644;</button>
+          <button class="ctrl on" id="auto-btn" onclick="toggleAuto()">&#9889;</button>
+        </div>
+      </div>
+
+      <!-- Arena -->
+      <div class="arena" id="arena">
+        <!-- LEFT -->
+        <div class="scard" id="card-l">
+          <div class="sc-thumb-strip">
+            <img class="sc-thumb-img" id="thumb-l" src="" alt="" style="display:none"/>
+            <div class="sc-thumb-ph" id="tph-l">🎵</div>
+            <div class="sc-thumb-overlay"></div>
+            <div class="sc-cmd-badge">!1</div>
+            <div class="sc-plat-badge" id="splat-l"></div>
+            <div class="sc-thumb-info">
+              <div class="sc-title" id="stitle-l">Song 1</div>
+              <div class="sc-artist" id="sartist-l">—</div>
+            </div>
+          </div>
+          <div class="sc-embed" id="embed-l">
+            <iframe id="iframe-l" height="152" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+          </div>
+          <div class="sc-body">
+            <div class="sc-by">by <span id="ssubby-l">—</span></div>
+            <button class="choose-btn" id="choose-l" onclick="openChooser('left')" style="display:none">CHOOSE</button>
+            <button class="play-btn" onclick="playCard('left')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <div class="vote-strip">
+            <div class="v-num" id="vcl">0</div>
+            <div class="v-right">
+              <div class="v-pct" id="pctl">0%</div>
+              <div class="v-lbl">voturi !1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VS -->
+        <div class="vs-wrap"><div class="vs-pill">VS</div></div>
+
+        <!-- RIGHT -->
+        <div class="scard" id="card-r">
+          <div class="sc-thumb-strip">
+            <img class="sc-thumb-img" id="thumb-r" src="" alt="" style="display:none"/>
+            <div class="sc-thumb-ph" id="tph-r">🎵</div>
+            <div class="sc-thumb-overlay"></div>
+            <div class="sc-cmd-badge">!2</div>
+            <div class="sc-plat-badge" id="splat-r"></div>
+            <div class="sc-thumb-info">
+              <div class="sc-title" id="stitle-r">Song 2</div>
+              <div class="sc-artist" id="sartist-r">—</div>
+            </div>
+          </div>
+          <div class="sc-embed" id="embed-r">
+            <iframe id="iframe-r" height="152" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+          </div>
+          <div class="sc-body">
+            <div class="sc-by">by <span id="ssubby-r">—</span></div>
+            <button class="choose-btn" id="choose-r" onclick="openChooser('right')" style="display:none">CHOOSE</button>
+            <button class="play-btn" onclick="playCard('right')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <div class="vote-strip">
+            <div class="v-num" id="vcr">0</div>
+            <div class="v-right">
+              <div class="v-pct" id="pctr">0%</div>
+              <div class="v-lbl">voturi !2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Winner -->
+      <div id="winner-wrap" style="display:none">
+        <div class="winner-box">
+          <div class="w-trophy">🏆</div>
+          <div class="w-lbl">WINNER</div>
+          <div class="w-cmd" id="wcmd">!1</div>
+          <div class="w-title" id="wtitle">--</div>
+          <div class="w-artist" id="wartist">--</div>
+          <div class="w-scores"><span id="wsl">!1: 0</span><span style="opacity:.2">|</span><span id="wsr">!2: 0</span></div>
+          <button class="pb next" id="winner-next-btn" onclick="nextRound()" style="display:none">NEXT BATTLE ▶</button>
+        </div>
+      </div>
+
+      <!-- Vote bar -->
+      <div class="vbar-wrap">
+        <div class="vbar"><div class="vbl" id="vbl" style="width:50%"></div><div class="vbr" id="vbr" style="width:50%"></div></div>
+        <div class="vstats">
+          <span class="vc left">0 <small style="font-size:10px;opacity:.4">!1</small></span>
+          <span class="vpct" id="vpct">50% — 50%</span>
+          <span class="vc"><small style="font-size:10px;opacity:.4">!2</small> 0</span>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-box">
+        <strong id="total-voters-num">0</strong>
+        <span>persoane au votat în total</span>
+      </div>
+
+      <!-- Poll -->
+      <div class="poll-row" id="host-poll" style="display:none">
+        <button class="pb start" id="btn-poll" onclick="togglePoll()">▶ START POLL</button>
+        <button class="pb next" id="btn-next" onclick="nextRound()" style="display:none">NEXT BATTLE ▶</button>
+      </div>
+      <div id="viewer-notice" class="viewer-notice" style="display:none">
+        Votează în chat cu <strong>!1</strong> sau <strong>!2</strong><br>
+        <span style="font-size:11px;color:var(--t3)">Așteaptă hostul să pornească poll-ul</span>
+      </div>
+
+      <!-- History -->
+      <div class="hist-panel">
+        <div class="spt">Previous Winners</div>
+        <div id="hist-list"><div class="empty">No battles yet</div></div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="b-side">
+      <div class="sp"><div class="spt">Live Voters</div><div class="sb" id="voters-list"><div class="empty">No votes yet</div></div></div>
+      <div class="sp">
+        <div class="spt">Kick Chat</div>
+        <div class="sb" id="chat-log"></div>
+        <div class="sdot" id="chat-status"><div class="dot"></div> Connecting...</div>
+      </div>
+      <div class="sp"><div class="spt">Top Voters</div><div id="top-voters"><div class="empty">No votes yet</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Chooser -->
+<div class="mbg" id="chooser-bg">
+  <div class="modal">
+    <div class="modal-head"><h3>Choose a Song</h3><button class="mcl" onclick="closeChooser()">✕</button></div>
+    <div class="slist" id="chooser-list"></div>
+  </div>
+</div>
+
+<script>
+const SP_SVG='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#1ed760"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>';
+const YT_SVG='<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#ff0000"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>';
+
+function setCardSong(side,song){
+  const sfx=side==='left'?'l':'r';
+  const thumb=song.thumb||'';
+  const ti=document.getElementById('thumb-'+sfx),ph=document.getElementById('tph-'+sfx);
+  if(thumb){ti.src=thumb;ti.style.display='block';ph.style.display='none';}
+  else{ti.style.display='none';ph.style.display='flex';}
+  document.getElementById('stitle-'+sfx).textContent=song.title||'Unknown';
+  document.getElementById('sartist-'+sfx).textContent=song.artist||'—';
+  document.getElementById('ssubby-'+sfx).textContent=song.submittedBy?'@'+song.submittedBy:'—';
+  const pl=document.getElementById('splat-'+sfx);
+  if(song.ytId){pl.innerHTML=YT_SVG;pl.style.background='rgba(255,0,0,.15)';}
+  else if(song.spId){pl.innerHTML=SP_SVG;pl.style.background='rgba(30,215,96,.12)';}
+  else pl.innerHTML='';
+  document.getElementById('embed-'+sfx).style.display='none';
+  document.getElementById('iframe-'+sfx).src='';
+}
+
+function playCard(side){
+  const sfx=side==='left'?'l':'r';
+  const pair=S.pairs[S.roundIdx];if(!pair)return;
+  const song=side==='left'?pair[0]:pair[1];
+  const embedEl=document.getElementById('embed-'+sfx);
+  const iframe=document.getElementById('iframe-'+sfx);
+  if(embedEl.style.display==='block'){embedEl.style.display='none';iframe.src='';return;}
+  if(song.ytId){iframe.src='https://www.youtube.com/embed/'+song.ytId+'?autoplay=1&rel=0';iframe.style.height='200px';embedEl.style.display='block';}
+  else if(song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';embedEl.style.display='block';}
+}
+
+const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],chatroomId:null,battleStarted:false,isHost:false});
+let S=mkState(),chooserSide=null,demoStarted=false,waitPoll=null,acTimer=null;
+const DEMOS=[
+  {id:'d1',title:'Blinding Lights',artist:'The Weeknd',thumb:'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg',url:'https://youtube.com/watch?v=4NRXx6U8ABQ',ytId:'4NRXx6U8ABQ',submittedBy:'xStreamer'},
+  {id:'d2',title:'Levitating',artist:'Dua Lipa',thumb:'https://img.youtube.com/vi/TUVcZfQe-Kw/hqdefault.jpg',url:'https://youtube.com/watch?v=TUVcZfQe-Kw',ytId:'TUVcZfQe-Kw',submittedBy:'ChatKing99'},
+  {id:'d3',title:'Stay',artist:'The Kid LAROI',thumb:'https://img.youtube.com/vi/kTJczUoc26U/hqdefault.jpg',url:'https://youtube.com/watch?v=kTJczUoc26U',ytId:'kTJczUoc26U',submittedBy:'NightOwl_RO'},
+  {id:'d4',title:'Heat Waves',artist:'Glass Animals',thumb:'https://img.youtube.com/vi/mRD0-GxqHVo/hqdefault.jpg',url:'https://youtube.com/watch?v=mRD0-GxqHVo',ytId:'mRD0-GxqHVo',submittedBy:'Viewer_42'},
+];
+
+function updateSliders(){
+  const np=parseInt(document.getElementById('sl-players').value)||4;
+  const spp=parseInt(document.getElementById('sl-spp').value)||1;
+  document.getElementById('sv-p').textContent=np+' persoane';
+  document.getElementById('sv-s').innerHTML=spp+(spp===1?' piesă':' piese')+' · max <span id="sv-total">'+(np*spp)+'</span> în turneu';
+  const pct1=((np-2)/198)*100,pct2=((spp-1)/9)*100;
+  document.getElementById('sl-players').style.background=`linear-gradient(to right,var(--acc) ${pct1}%,var(--t4) ${pct1}%)`;
+  document.getElementById('sl-spp').style.background=`linear-gradient(to right,var(--acc) ${pct2}%,var(--t4) ${pct2}%)`;
+}
+function save(){if(!S.room)return;try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}}
+function load(id){try{const r=localStorage.getItem('ksb_'+id);return r?JSON.parse(r):null;}catch(e){return null;}}
+function getRoomUrl(){return new URLSearchParams(window.location.search).get('room');}
+function buildUrl(id){return location.origin+location.pathname+'?room='+id;}
+function pushUrl(id){history.replaceState(null,'',location.pathname+'?room='+id);}
+function copyLink(){const el=document.getElementById('share-inp');if(!el)return;el.select();try{document.execCommand('copy');}catch(e){}flash('copy-btn');}
+function copyWait(){const el=document.getElementById('wait-link');if(!el)return;el.select();try{document.execCommand('copy');}catch(e){}flash('wait-copy');}
+function flash(id){const b=document.getElementById(id);if(!b)return;b.textContent='Copied!';b.classList.add('done');setTimeout(()=>{b.textContent='Copy';b.classList.remove('done');},2000);}
+async function kickSearch(q){
+  const ac=document.getElementById('kick-ac');q=(q||'').trim();
+  if(q.length<2){ac.style.display='none';return;}
+  clearTimeout(acTimer);
+  acTimer=setTimeout(async()=>{
+    try{const r=await fetch('/api/channel?user='+encodeURIComponent(q));
+      if(r.ok){const d=await r.json();if(d&&d.chatroomId){renderAC([{slug:q,avatar:d.avatar||null,isLive:d.isLive||false,viewers:d.viewers||0}]);return;}}
+      renderAC([{slug:q,avatar:null,isLive:false,viewers:0}]);
+    }catch(e){renderAC([{slug:q,avatar:null,isLive:false,viewers:0}]);}
+  },380);
+}
+function renderAC(results){
+  const ac=document.getElementById('kick-ac');
+  if(!results||!results.length){ac.style.display='none';return;}
+  ac.innerHTML=results.map(r=>`<div class="ac-item" onmousedown="pickKick('${r.slug}')"><div class="ac-av">${r.avatar?`<img src="${r.avatar}" alt=""/>`:'👤'}</div><div style="flex:1;min-width:0"><div class="ac-name">${r.slug}</div><div class="ac-sub">${r.isLive?'🔴 '+Number(r.viewers).toLocaleString()+' viewers':'kick.com/'+r.slug}</div></div>${r.isLive?'<div class="ac-live">LIVE</div>':''}</div>`).join('');
+  ac.style.display='block';
+}
+function pickKick(slug){document.getElementById('l-kick').value=slug;hideAC();}
+function hideAC(){const ac=document.getElementById('kick-ac');if(ac)ac.style.display='none';}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  updateSliders();
+  const rid=getRoomUrl();
+  if(rid){
+    const saved=load(rid);
+    if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
+    if(saved&&saved.room){S=saved;showScreen('s-submit');return;}
+    const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
+    S=tmp;showScreen('s-submit');return;
+  }
+  showScreen('s-landing');
+  if(!localStorage.getItem('ksb_tut'))showTut();
+});
+function showTut(){document.getElementById('tbg').classList.add('open');}
+function closeTut(){document.getElementById('tbg').classList.remove('open');localStorage.setItem('ksb_tut','1');}
+function switchTab(t){document.getElementById('tc').style.display=t==='create'?'':'none';document.getElementById('tj').style.display=t==='join'?'':'none';document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(t==='create'&&i===0)||(t==='join'&&i===1)));}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function createRoom(){
+  const name=document.getElementById('l-name').value.trim()||'Battle';
+  const kick=document.getElementById('l-kick').value.trim();
+  const np=parseInt(document.getElementById('sl-players').value)||4;
+  const spp=parseInt(document.getElementById('sl-spp').value)||1;
+  const id=Math.random().toString(36).slice(2,8).toUpperCase();
+  S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
+  pushUrl(id);save();showScreen('s-submit');
+}
+function joinRoom(){
+  const code=document.getElementById('l-code').value.trim().toUpperCase();
+  if(!code){document.getElementById('jerr').textContent='Introdu codul camerei';return;}
+  const saved=load(code);
+  if(saved&&saved.battleStarted){S=saved;S.isHost=false;pushUrl(code);showScreen('s-battle');initBattle();return;}
+  S=mkState();S.isHost=false;S.room={id:code,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
+  if(saved&&saved.room)S.room=saved.room;
+  pushUrl(code);save();showScreen('s-submit');
+}
+function submitSong(){
+  const user=document.getElementById('su-user').value.trim();
+  const url=document.getElementById('su-url').value.trim();
+  const err=document.getElementById('serr');
+  if(!user){err.textContent='Introdu username-ul tău Kick';return;}
+  if(!url){err.textContent='Introdu link-ul piesei';return;}
+  const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
+  if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
+  err.textContent='';
+  const existing=load(S.room.id);const songs=existing?existing.songs:[];
+  if(songs.find(s=>s.submittedBy===user)){S.songs=songs;S.room=existing.room||S.room;showScreen('s-wait');initWait();return;}
+  const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+    ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
+    thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
+  if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
+  songs.push(song);const state=existing||S;state.songs=songs;
+  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;showScreen('s-wait');initWait();
+}
+function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;}}
+function initWait(){document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';document.getElementById('wc-needed').textContent=S.room.playersNeeded||4;document.getElementById('wait-link').value=buildUrl(S.room.id);pollWait();waitPoll=setInterval(pollWait,2000);}
+function pollWait(){
+  const state=load(S.room.id);if(!state)return;S=state;
+  const joined=state.songs.length,needed=state.room.playersNeeded||4;
+  document.getElementById('wc-joined').textContent=joined;document.getElementById('wc-needed').textContent=needed;
+  document.getElementById('wait-missing').textContent=Math.max(0,needed-joined);
+  document.getElementById('wait-player-list').innerHTML=state.songs.map(s=>'<div class="prow"><div class="pdot"></div>@'+s.submittedBy+'</div>').join('');
+  const btn=document.getElementById('wait-start-btn');
+  if(joined>=needed){btn.disabled=false;document.getElementById('wait-note').textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;
+  if(state.battleStarted){clearInterval(waitPoll);S=state;showScreen('s-battle');initBattle();}
+}
+function forceLaunch(){
+  clearInterval(waitPoll);const state=load(S.room.id)||S;
+  if(!state.songs.length)state.songs=DEMOS.slice(0,state.room.playersNeeded||4);
+  state.battleStarted=true;localStorage.setItem('ksb_'+state.room.id,JSON.stringify(state));
+  S=state;S.isHost=true;showScreen('s-battle');initBattle();
+}
+function initBattle(){
+  document.getElementById('h-code').textContent='CODE: '+S.room.id;
+  document.getElementById('h-players').textContent=S.songs.length+' players';
+  document.getElementById('h-live').textContent=S.room.kickChannel?'LIVE — '+S.room.kickChannel:'OFFLINE';
+  document.getElementById('share-inp').value=buildUrl(S.room.id);
+  if(!S.pairs.length)buildPairs();
+  applyHostUI();renderRound(true);renderHist();connectChat();
+}
+function applyHostUI(){
+  const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
+  const hc=document.getElementById('host-ctrls'),cl=document.getElementById('choose-l'),cr=document.getElementById('choose-r');
+  const wnb=document.getElementById('winner-next-btn');
+  if(S.isHost){hp.style.display='flex';vn.style.display='none';hc.style.display='flex';cl.style.display='';cr.style.display='';if(wnb)wnb.style.display='';}
+  else{hp.style.display='none';vn.style.display='block';hc.style.display='none';cl.style.display='none';cr.style.display='none';if(wnb)wnb.style.display='none';}
+}
+function buildPairs(){const songs=[...S.songs];if(S.shuffleMode)songs.sort(()=>Math.random()-.5);S.pairs=[];for(let i=0;i<songs.length-1;i+=2)S.pairs.push([songs[i],songs[i+1]||songs[0]]);if(!S.pairs.length&&songs.length>=1)S.pairs=[[songs[0],songs[0]]];S.roundIdx=0;}
+function renderRound(reset){
+  const pair=S.pairs[S.roundIdx];if(!pair)return;
+  document.getElementById('rlbl').textContent='ROUND '+(S.roundIdx+1)+' / '+S.pairs.length;
+  const isFinal=S.roundIdx===S.pairs.length-1;
+  const rt=document.getElementById('rtitle');rt.textContent=isFinal?'FINAL BATTLE':'BATTLE';rt.className='rtitle'+(isFinal?' final':'');
+  if(reset){S.votes={left:0,right:0};S.voters={};S.phase='idle';S.pollActive=false;}
+  setCardSong('left',pair[0]);setCardSong('right',pair[1]);
+  updateBar();updateLead();
+  const ww=document.getElementById('winner-wrap'),ar=document.getElementById('arena');
+  const pb=document.getElementById('btn-poll'),nb=document.getElementById('btn-next');
+  if(S.phase==='result'){
+    ww.style.display='block';ar.style.display='none';
+    const ws=S.votes.left>=S.votes.right?'left':'right';showWinner(ws==='left'?pair[0]:pair[1],ws);
+    if(S.isHost){nb.style.display='';pb.style.display='none';}
+  }else{
+    ww.style.display='none';ar.style.display='grid';
+    if(S.isHost){pb.style.display='';pb.innerHTML=S.pollActive?'■ END POLL':'▶ START POLL';pb.className='pb '+(S.pollActive?'end':'start');nb.style.display='none';}
+  }
+  renderVoters();save();
+}
+function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.phase='polling';document.getElementById('btn-poll').innerHTML='■ END POLL';document.getElementById('btn-poll').className='pb end';}else{endPoll();}save();}
+function endPoll(){S.pollActive=false;S.phase='result';const pair=S.pairs[S.roundIdx];const ws=S.votes.left>=S.votes.right?'left':'right';const winner=ws==='left'?pair[0]:pair[1];S.winners.push(winner);showWinner(winner,ws);renderHist();save();if(S.autoNext&&S.isHost){document.getElementById('btn-next').style.display='';document.getElementById('btn-poll').style.display='none';}}
+function showWinner(song,side){
+  document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';
+  document.getElementById('wcmd').textContent=side==='left'?'!1':'!2';
+  document.getElementById('wtitle').textContent=song.title;
+  document.getElementById('wartist').textContent=(song.artist?song.artist+' · ':'')+('@'+song.submittedBy);
+  document.getElementById('wsl').textContent='!1: '+S.votes.left;document.getElementById('wsr').textContent='!2: '+S.votes.right;
+  document.getElementById('btn-poll').style.display='none';
+  const wnb=document.getElementById('winner-next-btn');if(wnb)wnb.style.display=S.isHost?'':'none';
+}
+function nextRound(){if(!S.isHost)return;if(S.roundIdx+1>=S.pairs.length){showDone();return;}S.roundIdx++;renderRound(false);}
+function prevRound(){if(!S.isHost)return;if(S.roundIdx>0){S.roundIdx--;renderRound(false);}}
+function showDone(){document.getElementById('winner-wrap').innerHTML='<div class="winner-box"><div style="font-size:48px;margin-bottom:12px">🎊</div><div style="font-size:22px;font-weight:900;margin-bottom:6px">Battle Complete!</div><div style="font-size:12px;color:var(--t3)">GG everyone!</div></div>';document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';document.getElementById('btn-next').style.display='none';document.getElementById('btn-poll').style.display='none';save();}
+function castVote(user,side){if(S.voters[user]||S.phase!=='polling')return;S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();}
+function updateBar(){
+  const{left,right}=S.votes,total=left+right||1;
+  const p1=Math.round(left/total*100),p2=100-p1;
+  document.getElementById('vbl').style.width=p1+'%';document.getElementById('vbr').style.width=p2+'%';
+  document.getElementById('vpct').textContent=p1+'% — '+p2+'%';
+  document.getElementById('vcl').textContent=left;document.getElementById('vcr').textContent=right;
+  document.getElementById('pctl').textContent=p1+'%';document.getElementById('pctr').textContent=p2+'%';
+  document.getElementById('total-voters-num').textContent=Object.keys(S.voters).length;
+  const vl=document.querySelector('.vstats .vc.left');const vr=document.querySelector('.vstats .vc:last-child');
+  if(vl)vl.innerHTML=left+' <small style="font-size:10px;opacity:.4">!1</small>';
+  if(vr)vr.innerHTML='<small style="font-size:10px;opacity:.4">!2</small> '+right;
+}
+function updateLead(){document.getElementById('card-l').className='scard'+(S.votes.left>S.votes.right?' lead':'');document.getElementById('card-r').className='scard'+(S.votes.right>S.votes.left?' lead':'');}
+function renderHist(){const el=document.getElementById('hist-list');if(!S.winners.length){el.innerHTML='<div class="empty">No battles yet</div>';return;}el.innerHTML=S.winners.map((w,i)=>'<div class="hrow"><span>'+w.title+' <span style="color:var(--t3)">@'+w.submittedBy+'</span></span><span class="hbadge">R'+(i+1)+'</span></div>').join('');}
+function renderVoters(){
+  const el=document.getElementById('voters-list');const entries=Object.entries(S.voters);
+  if(!entries.length){el.innerHTML='<div class="empty">No votes yet</div>';return;}
+  el.innerHTML=entries.slice(-20).map(([u,s])=>'<div class="vrow"><span style="font-size:11px">@'+u+'</span><span class="vbadge">'+(s==='left'?'!1':'!2')+'</span></div>').join('');el.scrollTop=el.scrollHeight;
+  const tv=document.getElementById('top-voters');const sorted=Object.entries(S.voterCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!sorted.length){tv.innerHTML='<div class="empty">No votes yet</div>';return;}
+  tv.innerHTML=sorted.map(([u,n],i)=>'<div class="vrow"><span style="font-size:11px">'+['🥇','🥈','🥉','4th','5th'][i]+' @'+u+'</span><span style="color:var(--acc);font-weight:700;font-size:12px">'+n+'</span></div>').join('');
+}
+function addChat(user,msg,isVote){const el=document.getElementById('chat-log');if(!el)return;const d=document.createElement('div');d.className='cline';d.innerHTML='<span class="cu">'+user+':</span> <span class="'+(isVote?'cv':'')+'">'+msg+'</span>';el.appendChild(d);if(el.children.length>40)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
+async function connectChat(){const kick=S.room&&S.room.kickChannel;if(!kick){setStatus('No channel');return;}setStatus('Connecting...');try{const r=await fetch('/api/channel?user='+encodeURIComponent(kick));if(!r.ok)throw new Error();const d=await r.json();S.chatroomId=d.chatroomId;initPusher(d.chatroomId);}catch(e){setStatus('Demo mode');startDemo();}}
+function setStatus(msg){const el=document.getElementById('chat-status');if(!el)return;const ok=msg.includes('Connected');el.innerHTML='<div class="dot" style="background:'+(ok?'var(--acc)':'var(--t3)')+(ok?';box-shadow:0 0 6px var(--glow)':'')+'"></div> '+msg;}
+function initPusher(id){if(typeof Pusher==='undefined'){setStatus('Demo mode');startDemo();return;}try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);p.connection.bind('connected',()=>setStatus('Connected'));p.connection.bind('error',()=>{setStatus('Reconnecting...');startDemo();});}catch(e){setStatus('Demo mode');startDemo();}}
+function onMsg(data){const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';const msg=((data&&data.content)||'').trim();addChat(user,msg,msg==='!1'||msg==='!2');if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
+function startDemo(){if(demoStarted)return;demoStarted=true;const ns=['Fan1','LiveGuy','ChatKing','Viewer9','NightOwl','BeatFan','MatrixGuy','KickFan'];let i=0;setInterval(()=>{if(S.phase!=='polling')return;const u=ns[i%ns.length]+'_'+Math.floor(Math.random()*99);i++;const side=Math.random()>.5?'left':'right';addChat(u,side==='left'?'!1':'!2',true);castVote(u,side);},2200);}
+function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
+function closeChooser(){document.getElementById('chooser-bg').classList.remove('open');}
+function pickSong(id){const song=S.songs.find(s=>s.id===id);if(!song)return;const pair=S.pairs[S.roundIdx];if(chooserSide==='left')pair[0]=song;else pair[1]=song;setCardSong(chooserSide,song);save();closeChooser();}
+function toggleShuffle(){if(!S.isHost)return;S.shuffleMode=!S.shuffleMode;document.getElementById('shuf-btn').classList.toggle('on',S.shuffleMode);if(S.shuffleMode)buildPairs();save();}
+function toggleAuto(){if(!S.isHost)return;S.autoNext=!S.autoNext;document.getElementById('auto-btn').classList.toggle('on',S.autoNext);save();}
+</script>
+</body>
+</html>
