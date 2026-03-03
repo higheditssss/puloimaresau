@@ -509,7 +509,7 @@ async function redisSet(key, value) {
       signal: ctrl.signal
     });
     clearTimeout(t);
-  } catch(e) { console.warn('redisSet failed:', e.message); }
+  } catch(e) {}
 }
 
 async function redisGet(key) {
@@ -526,7 +526,7 @@ async function redisGet(key) {
     if (!r.ok) return null;
     const d = await r.json();
     return d.result ?? null;
-  } catch(e) { console.warn('redisGet failed:', e.message); return null; }
+  } catch(e) { return null; }
 }
 
 async function redisDel(key) {
@@ -536,7 +536,7 @@ async function redisDel(key) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cmd: 'del', key })
     });
-  } catch(e) { console.warn('redisDel failed:', e.message); }
+  } catch(e) {}
 }
 
 function save() {
@@ -725,8 +725,7 @@ async function submitSong(){
     try{localStorage.setItem('ksb_user_'+S.room.id, user);}catch(e){}
     err.textContent='';showScreen('s-wait');initWait();
   } catch(e) {
-    console.error('submitSong error:', e);
-    err.textContent='Eroare: '+e.message+'. Încearcă din nou.';
+    err.textContent='Eroare la salvare. Încearcă din nou.';
   }
 }
 function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
@@ -845,7 +844,6 @@ function showDone(){
   }
 }
 function castVote(user,side){
-  console.log('[castVote]', user, side, 'phase='+S.phase, 'pollActive='+S.pollActive, 'alreadyVoted='+!!S.voters[user]);
   if(S.voters[user]||S.phase!=='polling')return;
   S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();
 }
@@ -874,38 +872,31 @@ function renderVoters(){
 function addChat(user,msg,isVote){if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
 async function connectChat(){
   const kick=S.room&&S.room.kickChannel;
-  console.log('[connectChat] kickChannel=', kick, 'room=', S.room);
   if(!kick)return;
   try{
     const r=await fetch('/api/channel?user='+encodeURIComponent(kick));
-    console.log('[connectChat] /api/channel status=', r.status);
     if(!r.ok)throw new Error('channel '+r.status);
     const d=await r.json();
-    console.log('[connectChat] chatroomId=', d.chatroomId);
     S.chatroomId=d.chatroomId;initPusher(d.chatroomId);
-  }catch(e){console.error('[connectChat] failed:', e.message);}
+  }catch(e){}
 }
 function setStatus(msg){}
 function initPusher(id){
-  if(typeof Pusher==='undefined'){console.error('[Pusher] not loaded');return;}
+  if(typeof Pusher==='undefined')return;
   try{
     // Try both known Kick Pusher app keys
     const keys=['eb1d5f283081a78b932c','32cbd69e4b950bf97679'];
     keys.forEach(key=>{
       const p=new Pusher(key,{cluster:'us2'});
-      p.connection.bind('connected',()=>console.log('[Pusher] connected key='+key));
-      const ch=p.subscribe('chatrooms.'+id+'.v2');
-      ch.bind_global((event,data)=>console.log('[Pusher] key='+key+' event=',event,'data=',JSON.stringify(data).slice(0,200)));
+        const ch=p.subscribe('chatrooms.'+id+'.v2');
       ch.bind('App\\Events\\ChatMessageSentEvent',onMsg);
       ch.bind('App\\Events\\ChatMessageEvent',onMsg);
     });
-    console.log('[Pusher] subscribed to chatrooms.'+id+'.v2');
-  }catch(e){console.error('[Pusher] init error',e);}
+  }catch(e){}
 }
 function onMsg(data){
   const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';
   const msg=((data&&data.content)||'').trim();
-  console.log('[onMsg]', user, msg);
   if(msg==='!1')castVote(user,'left');
   if(msg==='!2')castVote(user,'right');
 }
