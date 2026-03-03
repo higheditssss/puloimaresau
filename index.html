@@ -664,25 +664,33 @@ async function submitSong(){
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
   err.textContent='Se salvează...';
-  // Always read latest state from Redis so we don't overwrite other participants
-  const remote=await redisGet('room_'+S.room.id);
-  const existing=remote||load(S.room.id);
-  const songs=existing?existing.songs:[];
-  if(songs.find(s=>s.submittedBy===user)){
-    const wasHost=S.isHost;S=Object.assign({},existing,{isHost:wasHost});
-    err.textContent='';showScreen('s-wait');initWait();return;
+  try {
+    // Read latest state from Redis
+    const remote=await redisGet('room_'+S.room.id);
+    const existing=remote||load(S.room.id);
+    const songs=(existing&&existing.songs)?[...existing.songs]:[];
+    if(songs.find(s=>s.submittedBy===user)){
+      const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
+      err.textContent='';showScreen('s-wait');initWait();return;
+    }
+    const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+      ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
+      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
+    // Fire-and-forget YouTube title fetch
+    if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
+    songs.push(song);
+    const wasHost=S.isHost;
+    const base=existing||S;
+    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],chatroomId:base.chatroomId||null,battleStarted:base.battleStarted||false,isHost:wasHost};
+    S=state;
+    try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
+    // Save to Redis (non-blocking — don't await, just fire)
+    redisSet('room_'+S.room.id,state);
+    err.textContent='';showScreen('s-wait');initWait();
+  } catch(e) {
+    console.error('submitSong error:', e);
+    err.textContent='Eroare: '+e.message+'. Încearcă din nou.';
   }
-  const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
-    ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
-    thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
-  if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
-  songs.push(song);
-  const wasHost=S.isHost;
-  const state=Object.assign({},existing||S,{songs,isHost:wasHost});
-  S=state;
-  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));
-  await redisSet('room_'+S.room.id,state);
-  err.textContent='';showScreen('s-wait');initWait();
 }
 function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
 function initWait(){
