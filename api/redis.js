@@ -13,25 +13,35 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Missing env vars' });
   }
 
+  const headers = {
+    Authorization: `Bearer ${UPSTASH_TOKEN}`,
+    'Content-Type': 'application/json'
+  };
+
   try {
     if (cmd === 'set') {
-      await fetch(`${UPSTASH_URL}/set/${encodeURIComponent(key)}`, {
+      // Upstash REST: POST /pipeline with [SET, key, value]
+      // value must be a string — stringify the object
+      const serialized = JSON.stringify(value);
+      const r = await fetch(`${UPSTASH_URL}/pipeline`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${UPSTASH_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(JSON.stringify(value))
+        headers,
+        body: JSON.stringify([['SET', key, serialized, 'EX', 86400]])
       });
-      return res.status(200).json({ ok: true });
+      const d = await r.json();
+      return res.status(200).json({ ok: true, d });
     }
 
     if (cmd === 'get') {
       const r = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
-        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+        headers
       });
       const d = await r.json();
-      const result = d.result ? JSON.parse(d.result) : null;
+      // d.result is the stored string — parse it back to object
+      let result = null;
+      if (d.result) {
+        try { result = JSON.parse(d.result); } catch(e) { result = d.result; }
+      }
       return res.status(200).json({ result });
     }
 
@@ -39,4 +49,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};
