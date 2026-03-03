@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>HIGHSB</title>
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -300,16 +299,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="wsep">/</div>
       <div class="wcount"><div class="wc-n" id="wc-needed">4</div><div class="wc-l">needed</div></div>
     </div>
-    <div style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:600">Link cameră</div>
-    <div class="share-row">
-      <input class="share-inp" id="wait-link" type="text" readonly onclick="this.select()"/>
-      <button class="copy-btn" id="wait-copy" onclick="copyWait()">Copy</button>
+    <div id="wait-host-only">
+      <div style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:600">Link cameră</div>
+      <div class="share-row">
+        <input class="share-inp" id="wait-link" type="text" readonly onclick="this.select()"/>
+        <button class="copy-btn" id="wait-copy" onclick="copyWait()">Copy</button>
+      </div>
     </div>
     <div class="wplayers-t">Participanți</div>
     <div id="wait-player-list" style="margin-bottom:14px"></div>
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
-    <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
-    <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
+    <div id="wait-host-btns">
+      <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
+      <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
+    </div>
   </div>
 </div>
 
@@ -404,7 +407,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         </div>
       </div>
 
-      <div class="total-box">
+      <div class="total-box" id="total-box-wrap">
         <strong id="total-voters-num">0</strong>
         <span>persoane au votat</span>
       </div>
@@ -427,11 +430,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <!-- SIDEBAR -->
     <div class="b-side">
       <div class="sp"><div class="spt">Live Voters</div><div class="sb" id="voters-list"><div class="empty">No votes yet</div></div></div>
-      <div class="sp">
-        <div class="spt">Kick Chat</div>
-        <div class="sb" id="chat-log"></div>
-        <div class="sdot" id="chat-status"><div class="dot"></div> Connecting...</div>
-      </div>
       <div class="sp"><div class="spt">Top Voters</div><div id="top-voters"><div class="empty">No votes yet</div></div></div>
     </div>
   </div>
@@ -476,13 +474,8 @@ function playCard(side){
 }
 
 const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],chatroomId:null,battleStarted:false,isHost:false});
-let S=mkState(),chooserSide=null,demoStarted=false,waitPoll=null,acTimer=null;
-const DEMOS=[
-  {id:'d1',title:'Blinding Lights',artist:'The Weeknd',thumb:'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg',url:'https://youtube.com/watch?v=4NRXx6U8ABQ',ytId:'4NRXx6U8ABQ',submittedBy:'xStreamer'},
-  {id:'d2',title:'Levitating',artist:'Dua Lipa',thumb:'https://img.youtube.com/vi/TUVcZfQe-Kw/hqdefault.jpg',url:'https://youtube.com/watch?v=TUVcZfQe-Kw',ytId:'TUVcZfQe-Kw',submittedBy:'ChatKing99'},
-  {id:'d3',title:'Stay',artist:'The Kid LAROI',thumb:'https://img.youtube.com/vi/kTJczUoc26U/hqdefault.jpg',url:'https://youtube.com/watch?v=kTJczUoc26U',ytId:'kTJczUoc26U',submittedBy:'NightOwl_RO'},
-  {id:'d4',title:'Heat Waves',artist:'Glass Animals',thumb:'https://img.youtube.com/vi/mRD0-GxqHVo/hqdefault.jpg',url:'https://youtube.com/watch?v=mRD0-GxqHVo',ytId:'mRD0-GxqHVo',submittedBy:'Viewer_42'},
-];
+let S=mkState(),chooserSide=null,waitPoll=null,acTimer=null;
+
 
 function updateSliders(){
   const np=parseInt(document.getElementById('sl-players').value)||4;
@@ -494,8 +487,83 @@ function updateSliders(){
   document.getElementById('sl-players').style.background=`linear-gradient(to right,var(--acc) ${pct1}%,var(--t4) ${pct1}%)`;
   document.getElementById('sl-spp').style.background=`linear-gradient(to right,var(--acc) ${pct2}%,var(--t4) ${pct2}%)`;
 }
-function save(){if(!S.room)return;try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}}
-function load(id){try{const r=localStorage.getItem('ksb_'+id);return r?JSON.parse(r):null;}catch(e){return null;}}
+// ── REAL-TIME SYNC via Upstash (prin proxy /api/redis) ───────
+let _saveTimer = null, _pollTimer = null;
+
+async function redisSet(key, value) {
+  try {
+    await fetch('/api/redis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: 'set', key, value })
+    });
+  } catch(e) {}
+}
+
+async function redisGet(key) {
+  try {
+    const r = await fetch('/api/redis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: 'get', key })
+    });
+    const d = await r.json();
+    return d.result ?? null;
+  } catch(e) { return null; }
+}
+
+function save() {
+  if (!S.room) return;
+  try { localStorage.setItem('ksb_' + S.room.id, JSON.stringify(S)); } catch(e) {}
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, S), 300);
+}
+
+function load(id) {
+  try { const r = localStorage.getItem('ksb_' + id); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+
+async function loadRemote(roomId) {
+  const data = await redisGet('room_' + roomId);
+  return data;
+}
+
+function applyRemoteState(data, roomId) {
+  if (!data || !data.room) return;
+  const prevStarted = S.battleStarted;
+  const wasHost = S.isHost;
+  S = Object.assign({}, data);
+  S.isHost = wasHost;
+  try { localStorage.setItem('ksb_' + roomId, JSON.stringify(S)); } catch(e) {}
+  if (!prevStarted && S.battleStarted && !S.isHost) {
+    clearInterval(waitPoll); clearInterval(_pollTimer);
+    showScreen('s-battle'); initBattle(); return;
+  }
+  const ws = document.getElementById('s-wait');
+  if (ws && ws.classList.contains('active')) {
+    const joined = S.songs ? S.songs.length : 0, needed = S.room.playersNeeded || 4;
+    document.getElementById('wc-joined').textContent = joined;
+    document.getElementById('wait-player-list').innerHTML = (S.songs || []).map(s => '<div class="prow"><div class="pdot"></div>@' + s.submittedBy + '</div>').join('');
+    document.getElementById('wait-note').innerHTML = joined >= needed ? 'Toți sunt prezenți! Poți începe.' : 'Așteptăm <span>' + Math.max(0, needed - joined) + '</span> persoane...';
+    if (S.isHost) { const btn = document.getElementById('wait-start-btn'); if (btn) btn.disabled = joined < needed; }
+  }
+  const bs = document.getElementById('s-battle');
+  if (bs && bs.classList.contains('active')) {
+    updateBar(); updateLead(); renderVoters(); renderHist();
+  }
+}
+
+function startPolling(roomId) {
+  clearInterval(_pollTimer);
+  _pollTimer = setInterval(async () => {
+    const remote = await redisGet('room_' + roomId);
+    if (remote) applyRemoteState(remote, roomId);
+  }, 1500);
+}
+
+function initSync(roomId) {
+  startPolling(roomId);
+}
 function getRoomUrl(){return new URLSearchParams(window.location.search).get('room');}
 function buildUrl(id){return location.origin+location.pathname+'?room='+id;}
 function pushUrl(id){history.replaceState(null,'',location.pathname+'?room='+id);}
@@ -521,18 +589,21 @@ function renderAC(results){
 }
 function pickKick(slug){document.getElementById('l-kick').value=slug;hideAC();}
 function hideAC(){const ac=document.getElementById('kick-ac');if(ac)ac.style.display='none';}
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',async ()=>{
   updateSliders();
   const rid=getRoomUrl();
   if(rid){
-    const saved=load(rid);
+    initSync(rid);
+    // Try remote first, fallback to localStorage
+    let saved=await loadRemote(rid);
+    if(!saved)saved=load(rid);
     if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
     if(saved&&saved.room){
       S=saved;
-      // If this tab is the host, skip submit and go to wait
       if(S.isHost){showScreen('s-wait');initWait();return;}
       showScreen('s-submit');return;
     }
+    // No data — fresh viewer joining
     const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
     S=tmp;showScreen('s-submit');return;
   }
@@ -551,6 +622,7 @@ function createRoom(){
   const id=Math.random().toString(36).slice(2,8).toUpperCase();
   S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
   pushUrl(id);save();
+  initSync(id);
   showScreen('s-wait');initWait();
 }
 function joinRoom(){
@@ -579,10 +651,22 @@ function submitSong(){
     thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
   if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
   songs.push(song);const state=existing||S;state.songs=songs;
-  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;showScreen('s-wait');initWait();
+  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;
+  
+  save();showScreen('s-wait');initWait();
 }
 function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;}}
-function initWait(){document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';document.getElementById('wc-needed').textContent=S.room.playersNeeded||4;document.getElementById('wait-link').value=buildUrl(S.room.id);pollWait();waitPoll=setInterval(pollWait,2000);}
+function initWait(){
+  document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';
+  document.getElementById('wc-needed').textContent=S.room.playersNeeded||4;
+  document.getElementById('wait-link').value=buildUrl(S.room.id);
+  // Show/hide host-only elements
+  const hostOnly=document.getElementById('wait-host-only');
+  const hostBtns=document.getElementById('wait-host-btns');
+  if(S.isHost){hostOnly.style.display='';hostBtns.style.display='';}
+  else{hostOnly.style.display='none';hostBtns.style.display='none';}
+  pollWait();waitPoll=setInterval(pollWait,2000);
+}
 function pollWait(){
   const state=load(S.room.id);if(!state)return;S=state;
   const joined=state.songs.length,needed=state.room.playersNeeded||4;
@@ -595,7 +679,6 @@ function pollWait(){
 }
 function forceLaunch(){
   clearInterval(waitPoll);const state=load(S.room.id)||S;
-  if(!state.songs.length)state.songs=DEMOS.slice(0,state.room.playersNeeded||4);
   state.battleStarted=true;localStorage.setItem('ksb_'+state.room.id,JSON.stringify(state));
   S=state;S.isHost=true;showScreen('s-battle');initBattle();
 }
@@ -631,6 +714,8 @@ function renderRound(reset){
     if(S.isHost){nb.style.display='';pb.style.display='none';}
   }else{
     ww.style.display='none';ar.style.display='grid';
+    document.getElementById('vbar-section').style.display='';
+    document.getElementById('total-box-wrap').style.display='';
     if(S.isHost){pb.style.display='';pb.innerHTML=S.pollActive?'■ END POLL':'▶ START POLL';pb.className='pb '+(S.pollActive?'end':'start');nb.style.display='none';}
   }
   renderVoters();save();
@@ -639,6 +724,10 @@ function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.
 function endPoll(){S.pollActive=false;S.phase='result';const pair=S.pairs[S.roundIdx];const ws=S.votes.left>=S.votes.right?'left':'right';const winner=ws==='left'?pair[0]:pair[1];S.winners.push(winner);showWinner(winner,ws);renderHist();save();if(S.autoNext&&S.isHost){document.getElementById('btn-next').style.display='';document.getElementById('btn-poll').style.display='none';}}
 function showWinner(song,side){
   document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';
+  document.getElementById('vbar-section').style.display='none';
+  document.getElementById('total-box-wrap').style.display='none';
+  const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
+  if(hp)hp.style.display='none';if(vn)vn.style.display='none';
   document.getElementById('wcmd').textContent=side==='left'?'!1':'!2';
   document.getElementById('wtitle').textContent=song.title;
   document.getElementById('wartist').textContent=(song.artist?song.artist+' · ':'')+('@'+song.submittedBy);
@@ -648,7 +737,16 @@ function showWinner(song,side){
 }
 function nextRound(){if(!S.isHost)return;if(S.roundIdx+1>=S.pairs.length){showDone();return;}S.roundIdx++;renderRound(false);}
 function prevRound(){if(!S.isHost)return;if(S.roundIdx>0){S.roundIdx--;renderRound(false);}}
-function showDone(){document.getElementById('winner-wrap').innerHTML='<div class="winner-box"><div style="font-size:46px;margin-bottom:10px">🎊</div><div style="font-size:22px;font-weight:900;margin-bottom:6px">Battle Complete!</div><div style="font-size:12px;color:var(--t3)">GG everyone!</div></div>';document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';document.getElementById('btn-next').style.display='none';document.getElementById('btn-poll').style.display='none';save();}
+function showDone(){
+  document.getElementById('winner-wrap').innerHTML='<div class="winner-box"><div style="font-size:46px;margin-bottom:10px">🎊</div><div style="font-size:22px;font-weight:900;margin-bottom:6px">Battle Complete!</div><div style="font-size:12px;color:var(--t3)">GG everyone!</div></div>';
+  document.getElementById('winner-wrap').style.display='block';
+  document.getElementById('arena').style.display='none';
+  document.getElementById('vbar-section').style.display='none';
+  document.getElementById('total-box-wrap').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('btn-poll').style.display='none';
+  save();
+}
 function castVote(user,side){if(S.voters[user]||S.phase!=='polling')return;S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();}
 function updateBar(){
   const{left,right}=S.votes,total=left+right||1;
@@ -672,12 +770,11 @@ function renderVoters(){
   if(!sorted.length){tv.innerHTML='<div class="empty">No votes yet</div>';return;}
   tv.innerHTML=sorted.map(([u,n],i)=>'<div class="vrow"><span style="font-size:11px">'+['🥇','🥈','🥉','4th','5th'][i]+' @'+u+'</span><span style="color:var(--acc);font-weight:700">'+n+'</span></div>').join('');
 }
-function addChat(user,msg,isVote){const el=document.getElementById('chat-log');if(!el)return;const d=document.createElement('div');d.className='cline';d.innerHTML='<span class="cu">'+user+':</span> <span class="'+(isVote?'cv':'')+'">'+msg+'</span>';el.appendChild(d);if(el.children.length>40)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
-async function connectChat(){const kick=S.room&&S.room.kickChannel;if(!kick){setStatus('No channel');return;}setStatus('Connecting...');try{const r=await fetch('/api/channel?user='+encodeURIComponent(kick));if(!r.ok)throw new Error();const d=await r.json();S.chatroomId=d.chatroomId;initPusher(d.chatroomId);}catch(e){setStatus('Demo mode');startDemo();}}
-function setStatus(msg){const el=document.getElementById('chat-status');if(!el)return;const ok=msg.includes('Connected');el.innerHTML='<div class="dot" style="background:'+(ok?'var(--acc)':'var(--t3)')+(ok?';box-shadow:0 0 6px var(--glow)':'')+'"></div> '+msg;}
-function initPusher(id){if(typeof Pusher==='undefined'){setStatus('Demo mode');startDemo();return;}try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);p.connection.bind('connected',()=>setStatus('Connected'));p.connection.bind('error',()=>{setStatus('Reconnecting...');startDemo();});}catch(e){setStatus('Demo mode');startDemo();}}
-function onMsg(data){const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';const msg=((data&&data.content)||'').trim();addChat(user,msg,msg==='!1'||msg==='!2');if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
-function startDemo(){if(demoStarted)return;demoStarted=true;const ns=['Fan1','LiveGuy','ChatKing','Viewer9','NightOwl','BeatFan','MatrixGuy','KickFan'];let i=0;setInterval(()=>{if(S.phase!=='polling')return;const u=ns[i%ns.length]+'_'+Math.floor(Math.random()*99);i++;const side=Math.random()>.5?'left':'right';addChat(u,side==='left'?'!1':'!2',true);castVote(u,side);},2200);}
+function addChat(user,msg,isVote){if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
+async function connectChat(){const kick=S.room&&S.room.kickChannel;if(!kick)return;try{const r=await fetch('/api/channel?user='+encodeURIComponent(kick));if(!r.ok)throw new Error();const d=await r.json();S.chatroomId=d.chatroomId;initPusher(d.chatroomId);}catch(e){}}
+function setStatus(msg){}
+function initPusher(id){if(typeof Pusher==='undefined')return;try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);}catch(e){}}
+function onMsg(data){const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';const msg=((data&&data.content)||'').trim();if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
 function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
 function closeChooser(){document.getElementById('chooser-bg').classList.remove('open');}
 function pickSong(id){const song=S.songs.find(s=>s.id===id);if(!song)return;const pair=S.pairs[S.roundIdx];if(chooserSide==='left')pair[0]=song;else pair[1]=song;setCardSong(chooserSide,song);save();closeChooser();}
