@@ -225,6 +225,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .tn{width:22px;height:22px;border-radius:50%;background:rgba(46,204,74,.1);border:1px solid var(--bda);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--acc);flex-shrink:0;margin-top:2px;font-weight:700}
 .tstep p{font-size:12px;color:var(--t2);line-height:1.6}
 .tstep p strong{color:var(--t)}
+
+/* ── BRACKET ── */
+#bracket-modal{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:500;display:none;flex-direction:column;overflow:auto;padding:20px}
+#bracket-modal.open{display:flex}
+.bracket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0}
+.bracket-header h2{font-size:16px;font-weight:900;letter-spacing:3px;color:var(--acc)}
+.bracket-close{background:none;border:1px solid var(--t4);color:var(--t3);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
+.bracket-tree{display:flex;flex-direction:row-reverse;gap:0;align-items:center;min-width:max-content;padding:10px 20px}
+.bracket-round{display:flex;flex-direction:column;justify-content:space-around;align-items:center;position:relative}
+.bracket-round-label{font-size:9px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:16px;font-weight:700}
+.bracket-match{display:flex;flex-direction:column;position:relative;margin:0}
+.bracket-slot{width:140px;padding:6px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:4px;font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;transition:all .2s}
+.bracket-slot.winner{background:rgba(46,204,74,.08);border-color:rgba(46,204,74,.3);color:var(--acc);font-weight:700}
+.bracket-slot.current{border-color:var(--acc);box-shadow:0 0 8px var(--glow2)}
+.bracket-slot.tbd{color:var(--t4);font-style:italic}
+.bracket-connector{width:28px;position:relative;flex-shrink:0}
+.bracket-pair{display:flex;flex-direction:column;gap:2px;position:relative}
+.bracket-pair::after{content:'';position:absolute;right:-28px;top:50%;width:28px;height:1px;background:var(--t4)}
+
+/* ── DUPLICATE WARNING ── */
+.dup-warn{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ffd060;display:none}
+.dup-warn.show{display:block}
+.dup-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px}
+.dup-thumb{width:40px;height:26px;object-fit:cover;border-radius:3px;background:var(--s3);flex-shrink:0}
+.dup-info{flex:1;min-width:0}
+.dup-title{font-size:11px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dup-sub{font-size:10px;color:var(--t3)}
+.dup-remove{padding:3px 8px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .15s}
+.dup-remove:hover{background:rgba(255,68,68,.2)}
 </style>
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 </head>
@@ -285,7 +314,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px">Trimite piesa ta</div>
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase">intrare în battle</div>
     <div class="inp-wrap"><lbl>Kick Username</lbl><input id="su-user" type="text" placeholder="Același ca în chat!"/></div>
-    <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..."/></div>
+    <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value)"/></div>
+    <div class="dup-warn" id="dup-warn">
+      <div style="font-weight:700;margin-bottom:6px">⚠️ Piesă similară deja înregistrată:</div>
+      <div id="dup-list"></div>
+    </div>
     <div class="err" id="serr"></div>
     <button class="btn primary" onclick="submitSong()">ENTER THE BATTLE</button>
   </div>
@@ -309,6 +342,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     </div>
     <div class="wplayers-t">Participanți</div>
     <div id="wait-player-list" style="margin-bottom:14px"></div>
+    <div id="dup-host-section" style="display:none;margin-bottom:14px">
+      <div style="font-size:9px;color:#ffd060;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">⚠️ Duplicate detectate</div>
+      <div id="dup-host-list"></div>
+    </div>
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
     <div id="wait-host-btns">
       <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
@@ -327,6 +364,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="badge" id="h-players">0 players</div>
     </div>
     <div style="display:flex;gap:7px;align-items:center">
+      <button class="copy-btn" onclick="openBracket()" style="border-color:var(--bda);color:var(--acc)">🏆 BRACKET</button>
       <input id="share-inp" type="text" readonly onclick="this.select()"/>
       <button class="copy-btn" id="copy-btn" onclick="copyLink()">Copy</button>
     </div>
@@ -436,6 +474,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
 </div>
 
+
+<!-- BRACKET MODAL -->
+<div id="bracket-modal">
+  <div class="bracket-header">
+    <h2>🏆 TOURNAMENT BRACKET</h2>
+    <button class="bracket-close" onclick="closeBracket()">✕ CLOSE</button>
+  </div>
+  <div id="bracket-tree" class="bracket-tree"></div>
+</div>
+
 <!-- CHOOSER -->
 <div class="mbg" id="chooser-bg">
   <div class="modal">
@@ -474,7 +522,7 @@ function playCard(side){
   else if(song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';}
 }
 
-const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],chatroomId:null,battleStarted:false,isHost:false});
+const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],tournamentRounds:[],currentTournamentRound:0,chatroomId:null,battleStarted:false,isHost:false});
 let S=mkState(),chooserSide=null,waitPoll=null,acTimer=null;
 
 
@@ -589,7 +637,7 @@ function applyRemoteState(data, roomId) {
   if (ws && ws.classList.contains('active')) {
     const joined = S.songs ? S.songs.length : 0, needed = S.room.playersNeeded || 4;
     document.getElementById('wc-joined').textContent = joined;
-    document.getElementById('wait-player-list').innerHTML = (S.songs || []).map(s => '<div class="prow"><div class="pdot"></div>@' + s.submittedBy + '</div>').join('');
+    renderWaitPlayerList(S.songs||[]);
     document.getElementById('wait-note').innerHTML = joined >= needed ? 'Toți sunt prezenți! Poți începe.' : 'Așteptăm <span>' + Math.max(0, needed - joined) + '</span> persoane...';
     if (S.isHost) { const btn = document.getElementById('wait-start-btn'); if (btn) btn.disabled = joined < needed; }
   }
@@ -760,7 +808,7 @@ async function pollWait(){
   const elNote=document.getElementById('wait-note');const btn=document.getElementById('wait-start-btn');
   if(elJ)elJ.textContent=joined;if(elN)elN.textContent=needed;
   if(elM)elM.textContent=Math.max(0,needed-joined);
-  if(elP)elP.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div>@'+s.submittedBy+'</div>').join('');
+  renderWaitPlayerList(songs);
   if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
   if(state.battleStarted){clearInterval(waitPoll);showScreen('s-battle');initBattle();}
 }
@@ -787,7 +835,38 @@ function applyHostUI(){
   if(S.isHost){hp.style.display='flex';vn.style.display='none';hc.style.display='flex';cl.style.display='';cr.style.display='';if(wnb)wnb.style.display='';}
   else{hp.style.display='none';vn.style.display='block';hc.style.display='none';cl.style.display='none';cr.style.display='none';if(wnb)wnb.style.display='none';}
 }
-function buildPairs(){const songs=[...S.songs];if(S.shuffleMode)songs.sort(()=>Math.random()-.5);S.pairs=[];for(let i=0;i<songs.length-1;i+=2)S.pairs.push([songs[i],songs[i+1]||songs[0]]);if(!S.pairs.length&&songs.length>=1)S.pairs=[[songs[0],songs[0]]];S.roundIdx=0;}
+function buildPairs(){
+  // Build full tournament bracket
+  let songs=[...S.songs];
+  if(S.shuffleMode)songs.sort(()=>Math.random()-.5);
+  // Pad to power of 2
+  let size=1;while(size<songs.length)size*=2;
+  while(songs.length<size)songs.push(null); // byes
+  S.tournamentRounds=[];
+  // Round 1 pairs
+  const r1=[];
+  for(let i=0;i<songs.length;i+=2)r1.push([songs[i],songs[i+1]]);
+  S.tournamentRounds.push(r1);
+  // Placeholder future rounds
+  let n=r1.length;
+  while(n>1){
+    n=Math.ceil(n/2);
+    const round=[];
+    for(let i=0;i<n;i++)round.push([null,null]);
+    S.tournamentRounds.push(round);
+  }
+  S.currentTournamentRound=0;
+  // Set current pairs from round 0, skip byes automatically
+  S.pairs=S.tournamentRounds[0].filter(p=>p[0]&&p[1]);
+  // Auto-advance byes (one side is null)
+  const byeWinners=S.tournamentRounds[0].filter(p=>p[0]&&!p[1]).map(p=>p[0]);
+  byeWinners.forEach((w,i)=>{
+    const nextRoundIdx=Math.floor(i/2);
+    const slot=i%2;
+    if(S.tournamentRounds[1])S.tournamentRounds[1][nextRoundIdx][slot]=w;
+  });
+  S.roundIdx=0;
+}
 function renderRound(reset){
   const pair=S.pairs[S.roundIdx];if(!pair)return;
   document.getElementById('rlbl').textContent='ROUND '+(S.roundIdx+1)+' / '+S.pairs.length;
@@ -811,7 +890,41 @@ function renderRound(reset){
   renderVoters();save();
 }
 function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.phase='polling';document.getElementById('btn-poll').innerHTML='■ END POLL';document.getElementById('btn-poll').className='pb end';}else{endPoll();}save();}
-function endPoll(){S.pollActive=false;S.phase='result';const pair=S.pairs[S.roundIdx];const ws=S.votes.left>=S.votes.right?'left':'right';const winner=ws==='left'?pair[0]:pair[1];S.winners.push(winner);showWinner(winner,ws);renderHist();save();if(S.autoNext&&S.isHost){document.getElementById('btn-next').style.display='';document.getElementById('btn-poll').style.display='none';}}
+function endPoll(){
+  S.pollActive=false;S.phase='result';
+  const pair=S.pairs[S.roundIdx];
+  const ws=S.votes.left>=S.votes.right?'left':'right';
+  const winner=ws==='left'?pair[0]:pair[1];
+  S.winners.push(winner);
+  // Place winner into next tournament round slot
+  advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
+  showWinner(winner,ws);renderHist();save();
+  if(S.autoNext&&S.isHost){document.getElementById('btn-next').style.display='';document.getElementById('btn-poll').style.display='none';}
+}
+
+function advanceWinnerInBracket(winner,roundIdx,matchIdx){
+  const nextRound=roundIdx+1;
+  if(!S.tournamentRounds[nextRound])return;
+  // Each pair of matches feeds into one slot of next round
+  const nextMatchIdx=Math.floor(matchIdx/2);
+  const nextSlot=matchIdx%2;
+  // Find position in full tournament round (accounting for byes)
+  const fullRound=S.tournamentRounds[roundIdx];
+  // Count which non-bye match this is
+  let nonByeCount=0;
+  for(let i=0;i<fullRound.length;i++){
+    if(fullRound[i][0]&&fullRound[i][1]){
+      if(nonByeCount===matchIdx){
+        const nextMatchGlobal=Math.floor(i/2);
+        const nextSlotGlobal=i%2;
+        if(S.tournamentRounds[nextRound][nextMatchGlobal])
+          S.tournamentRounds[nextRound][nextMatchGlobal][nextSlotGlobal]=winner;
+        break;
+      }
+      nonByeCount++;
+    }
+  }
+}
 function showWinner(song,side){
   document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';
   document.getElementById('vbar-section').style.display='none';
@@ -825,7 +938,35 @@ function showWinner(song,side){
   document.getElementById('btn-poll').style.display='none';
   const wnb=document.getElementById('winner-next-btn');if(wnb)wnb.style.display=S.isHost?'':'none';
 }
-function nextRound(){if(!S.isHost)return;if(S.roundIdx+1>=S.pairs.length){showDone();return;}S.roundIdx++;renderRound(false);}
+function nextRound(){
+  if(!S.isHost)return;
+  if(S.roundIdx+1>=S.pairs.length){
+    // End of this tournament round — advance to next round
+    advanceTournamentRound();
+    return;
+  }
+  S.roundIdx++;
+  renderRound(false);
+  save();
+}
+
+function advanceTournamentRound(){
+  const nextRnd=S.currentTournamentRound+1;
+  if(!S.tournamentRounds[nextRnd]||S.tournamentRounds[nextRnd].length===0){
+    showDone();return;
+  }
+  // Check if next round has actual matches
+  const nextPairs=S.tournamentRounds[nextRnd].filter(p=>p[0]&&p[1]);
+  if(nextPairs.length===0){
+    // Only 1 winner — tournament over
+    showDone();return;
+  }
+  S.currentTournamentRound=nextRnd;
+  S.pairs=nextPairs;
+  S.roundIdx=0;
+  renderRound(true);
+  save();
+}
 function prevRound(){if(!S.isHost)return;if(S.roundIdx>0){S.roundIdx--;renderRound(false);}}
 function showDone(){
   document.getElementById('winner-wrap').innerHTML='<div class="winner-box"><div style="font-size:46px;margin-bottom:10px">🎊</div><div style="font-size:22px;font-weight:900;margin-bottom:6px">Battle Complete!</div><div style="font-size:12px;color:var(--t3)">GG everyone!</div></div>';
@@ -860,7 +1001,39 @@ function updateBar(){
   if(vr)vr.innerHTML='<small style="font-size:10px;opacity:.4">!2</small> '+right;
 }
 function updateLead(){document.getElementById('card-l').className='scard'+(S.votes.left>S.votes.right?' lead':'');document.getElementById('card-r').className='scard'+(S.votes.right>S.votes.left?' lead':'');}
-function renderHist(){const el=document.getElementById('hist-list');if(!S.winners.length){el.innerHTML='<div class="empty">No battles yet</div>';return;}el.innerHTML=S.winners.map((w,i)=>'<div class="hrow"><span>'+w.title+' <span style="color:var(--t3)">@'+w.submittedBy+'</span></span><span class="hbadge">R'+(i+1)+'</span></div>').join('');}
+function renderHist(){
+  const el=document.getElementById('hist-list');
+  if(!S.winners.length){el.innerHTML='<div class="empty">No battles yet</div>';return;}
+  const roundNames=getRoundNames();
+  // Group winners by tournament round
+  let html='',rnd=0,matchInRound=0;
+  const roundSizes=S.tournamentRounds.map(r=>r.filter(p=>p[0]&&p[1]).length);
+  let cumulative=0;
+  S.winners.forEach((w,i)=>{
+    // Find which round this winner belongs to
+    let r=0,cum=0;
+    for(let ri=0;ri<roundSizes.length;ri++){
+      if(i<cum+roundSizes[ri]){r=ri;break;}
+      cum+=roundSizes[ri];
+    }
+    const rname=roundNames[r]||('Round '+(r+1));
+    html+='<div class="hrow"><span style="font-size:10px;color:var(--acc);font-weight:700;margin-right:6px">'+rname+'</span><span>'+w.title+' <span style="color:var(--t3)">@'+w.submittedBy+'</span></span></div>';
+  });
+  el.innerHTML=html;
+}
+
+function getRoundNames(){
+  if(!S.tournamentRounds||!S.tournamentRounds.length)return[];
+  const total=S.tournamentRounds.length;
+  return S.tournamentRounds.map((_,i)=>{
+    const fromEnd=total-1-i;
+    if(fromEnd===0)return'Final';
+    if(fromEnd===1)return'Semi-Final';
+    if(fromEnd===2)return'Quarter-Final';
+    const matchCount=Math.pow(2,fromEnd);
+    return'Round of '+matchCount*2;
+  });
+}
 function renderVoters(){
   const el=document.getElementById('voters-list');const entries=Object.entries(S.voters);
   if(!entries.length){el.innerHTML='<div class="empty">No votes yet</div>';return;}
@@ -905,6 +1078,127 @@ function closeChooser(){document.getElementById('chooser-bg').classList.remove('
 function pickSong(id){const song=S.songs.find(s=>s.id===id);if(!song)return;const pair=S.pairs[S.roundIdx];if(chooserSide==='left')pair[0]=song;else pair[1]=song;setCardSong(chooserSide,song);save();closeChooser();}
 function toggleShuffle(){if(!S.isHost)return;S.shuffleMode=!S.shuffleMode;document.getElementById('shuf-btn').classList.toggle('on',S.shuffleMode);if(S.shuffleMode)buildPairs();save();}
 function toggleAuto(){if(!S.isHost)return;S.autoNext=!S.autoNext;document.getElementById('auto-btn').classList.toggle('on',S.autoNext);save();}
+
+// ── BRACKET RENDERING ──────────────────────────────
+function openBracket(){
+  renderBracket();
+  document.getElementById('bracket-modal').classList.add('open');
+}
+function closeBracket(){document.getElementById('bracket-modal').classList.remove('open');}
+
+function renderBracket(){
+  const container=document.getElementById('bracket-tree');
+  if(!S.tournamentRounds||!S.tournamentRounds.length){container.innerHTML='<div style="color:var(--t3);padding:40px">Battle-ul nu a început încă.</div>';return;}
+  const roundNames=getRoundNames();
+  let html='';
+  // Render from last round (Final) to first, left to right visually = reversed array
+  const rounds=[...S.tournamentRounds].reverse();
+  const namesRev=[...roundNames].reverse();
+  rounds.forEach((round,ri)=>{
+    const allMatches=round; // includes byes
+    const nonByeMatches=allMatches.filter(p=>p[0]&&p[1]);
+    const pairs=nonByeMatches.length?nonByeMatches:allMatches.filter(p=>p[0]||p[1]);
+    html+='<div class="bracket-round" style="gap:'+(Math.pow(2,ri)*8+4)+'px">';
+    html+='<div class="bracket-round-label">'+namesRev[ri]+'</div>';
+    pairs.forEach((pair,pi)=>{
+      const rndIdx=S.tournamentRounds.length-1-ri;
+      const isCurrentRound=rndIdx===S.currentTournamentRound;
+      html+='<div class="bracket-pair">';
+      [0,1].forEach(si=>{
+        const song=pair[si];
+        const isWinner=S.winners.some(w=>w&&song&&w.id===song.id);
+        const isCurrent=isCurrentRound&&S.pairs[S.roundIdx]&&(S.pairs[S.roundIdx][si]&&S.pairs[S.roundIdx][si].id===song?.id);
+        const cls='bracket-slot'+(isWinner?' winner':'')+(isCurrent?' current':'')+(song?'':' tbd');
+        const label=song?(song.title.slice(0,18)+(song.title.length>18?'…':'')):'TBD';
+        html+='<div class="'+cls+'" title="'+(song?song.title+' — @'+song.submittedBy:'')+'">'+label+'</div>';
+      });
+      html+='</div>';
+    });
+    html+='</div>';
+    // Add connector lines
+    if(ri<rounds.length-1){
+      html+='<div class="bracket-connector" style="height:'+(pairs.length*60)+'px;position:relative">';
+      // Draw SVG lines
+      html+='<svg width="28" height="100%" style="position:absolute;inset:0"><g stroke="var(--t4)" stroke-width="1" fill="none">';
+      for(let i=0;i<Math.ceil(pairs.length/2);i++){
+        const y1=((i*2+0.5)/(pairs.length))*100;
+        const y2=((i*2+1.5)/(pairs.length))*100;
+        const ym=(y1+y2)/2;
+        html+=`<line x1="0" y1="${y1}%" x2="14" y2="${y1}%"/>`;
+        html+=`<line x1="0" y1="${y2}%" x2="14" y2="${y2}%"/>`;
+        html+=`<line x1="14" y1="${y1}%" x2="14" y2="${y2}%"/>`;
+        html+=`<line x1="14" y1="${ym}%" x2="28" y2="${ym}%"/>`;
+      }
+      html+='</g></svg></div>';
+    }
+  });
+  container.innerHTML=html;
+}
+
+// ── DUPLICATE DETECTION ────────────────────────────
+function getSimilarSongs(ytId,spId,existingSongs){
+  if(!existingSongs||!existingSongs.length)return[];
+  return existingSongs.filter(s=>{
+    if(ytId&&s.ytId&&s.ytId===ytId)return true;
+    if(spId&&s.spId&&s.spId===spId)return true;
+    return false;
+  });
+}
+
+async function checkDuplicate(urlVal){
+  const warn=document.getElementById('dup-warn');
+  const list=document.getElementById('dup-list');
+  const ytMatch=(urlVal||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const spMatch=(urlVal||'').match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
+  if(!ytMatch&&!spMatch){warn.classList.remove('show');return;}
+  const remote=await redisGet('room_'+S.room.id);
+  const existing=remote||load(S.room.id);
+  const songs=(existing&&existing.songs)||[];
+  const dups=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
+  if(!dups.length){warn.classList.remove('show');return;}
+  warn.classList.add('show');
+  list.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div></div>').join('');
+}
+
+function renderWaitPlayerList(songs){
+  const el=document.getElementById('wait-player-list');
+  if(!el)return;
+  const isHost=S.isHost;
+  el.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div><span style="flex:1">@'+s.submittedBy+' <span style="color:var(--t3);font-size:10px">— '+s.title.slice(0,24)+'</span></span>'+(isHost?'<button onclick="removeSong(\''+s.id+'\');" style="padding:2px 7px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕</button>':'')+' </div>').join('');
+  // Show duplicate host section
+  if(isHost){
+    const groups={};
+    songs.forEach(s=>{
+      const key=s.ytId||s.spId||s.url;
+      if(!groups[key])groups[key]=[];
+      groups[key].push(s);
+    });
+    const dups=Object.values(groups).filter(g=>g.length>1).flat();
+    const dupSection=document.getElementById('dup-host-section');
+    const dupList=document.getElementById('dup-host-list');
+    if(dups.length&&dupSection&&dupList){
+      dupSection.style.display='';
+      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
+    }else if(dupSection){dupSection.style.display='none';}
+  }
+}
+
+async function removeSong(songId){
+  const remote=await redisGet('room_'+S.room.id);
+  const state=remote||load(S.room.id)||S;
+  state.songs=(state.songs||[]).filter(s=>s.id!==songId);
+  const wasHost=S.isHost;
+  S=Object.assign({},state,{isHost:wasHost});
+  try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}
+  redisSet('room_'+S.room.id,Object.assign({},S,{isHost:false}));
+  // Re-render wait room
+  const songs=S.songs||[];
+  const joined=songs.length,needed=S.room.playersNeeded||4;
+  const elJ=document.getElementById('wc-joined');if(elJ)elJ.textContent=joined;
+  renderWaitPlayerList(songs);
+  const btn=document.getElementById('wait-start-btn');
+  if(btn)btn.disabled=joined<needed;
+}
 </script>
 </body>
 </html>
