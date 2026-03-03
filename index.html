@@ -632,16 +632,20 @@ function createRoom(){
   initSync(id);
   showScreen('s-wait');initWait();
 }
-function joinRoom(){
+async function joinRoom(){
   const code=document.getElementById('l-code').value.trim().toUpperCase();
   if(!code){document.getElementById('jerr').textContent='Introdu codul camerei';return;}
-  const saved=load(code);
-  if(saved&&saved.battleStarted){S=saved;S.isHost=false;pushUrl(code);showScreen('s-battle');initBattle();return;}
+  document.getElementById('jerr').textContent='Se caută camera...';
+  const remote=await redisGet('room_'+code);
+  const saved=remote||load(code);
+  if(saved&&saved.battleStarted){S=Object.assign({},saved,{isHost:false});pushUrl(code);showScreen('s-battle');initBattle();return;}
   S=mkState();S.isHost=false;S.room={id:code,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
   if(saved&&saved.room)S.room=saved.room;
-  pushUrl(code);save();showScreen('s-submit');
+  if(!saved){document.getElementById('jerr').textContent='Camera nu a fost găsită';return;}
+  document.getElementById('jerr').textContent='';
+  pushUrl(code);initSync(code);showScreen('s-submit');
 }
-function submitSong(){
+async function submitSong(){
   const user=document.getElementById('su-user').value.trim();
   const url=document.getElementById('su-url').value.trim();
   const err=document.getElementById('serr');
@@ -650,17 +654,26 @@ function submitSong(){
   const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
-  err.textContent='';
-  const existing=load(S.room.id);const songs=existing?existing.songs:[];
-  if(songs.find(s=>s.submittedBy===user)){S.songs=songs;S.room=existing.room||S.room;showScreen('s-wait');initWait();return;}
+  err.textContent='Se salvează...';
+  // Always read latest state from Redis so we don't overwrite other participants
+  const remote=await redisGet('room_'+S.room.id);
+  const existing=remote||load(S.room.id);
+  const songs=existing?existing.songs:[];
+  if(songs.find(s=>s.submittedBy===user)){
+    const wasHost=S.isHost;S=Object.assign({},existing,{isHost:wasHost});
+    err.textContent='';showScreen('s-wait');initWait();return;
+  }
   const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
     ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
     thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
   if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
-  songs.push(song);const state=existing||S;state.songs=songs;
-  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;
-  
-  save();showScreen('s-wait');initWait();
+  songs.push(song);
+  const wasHost=S.isHost;
+  const state=Object.assign({},existing||S,{songs,isHost:wasHost});
+  S=state;
+  localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));
+  await redisSet('room_'+S.room.id,state);
+  err.textContent='';showScreen('s-wait');initWait();
 }
 function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
 function initWait(){
