@@ -532,7 +532,9 @@ function save() {
   if (!S.room) return;
   try { localStorage.setItem('ksb_' + S.room.id, JSON.stringify(S)); } catch(e) {}
   clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, S), 300);
+  // Strip isHost before saving to Redis — isHost is local-only
+  const toSave = Object.assign({}, S, {isHost: false});
+  _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, toSave), 300);
 }
 
 function load(id) {
@@ -615,8 +617,14 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     if(!saved)saved=load(rid);
     if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
     if(saved&&saved.room){
-      S=saved;
-      if(S.isHost){showScreen('s-wait');initWait();return;}
+      // isHost is LOCAL only — check localStorage, never trust Redis for this
+      const localState=load(rid);
+      const amHost=!!(localState&&localState.isHost);
+      S=Object.assign({},saved,{isHost:amHost});
+      if(amHost){showScreen('s-wait');initWait();return;}
+      // Viewer: if already submitted, go to wait
+      const myUser=localStorage.getItem('ksb_user_'+rid);
+      if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();return;}
       showScreen('s-submit');return;
     }
     // No data — fresh viewer joining
@@ -686,6 +694,7 @@ async function submitSong(){
     try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
     // Save to Redis (non-blocking — don't await, just fire)
     redisSet('room_'+S.room.id,state);
+    try{localStorage.setItem('ksb_user_'+S.room.id, user);}catch(e){}
     err.textContent='';showScreen('s-wait');initWait();
   } catch(e) {
     console.error('submitSong error:', e);
