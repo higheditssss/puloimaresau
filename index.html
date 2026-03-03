@@ -528,6 +528,16 @@ async function redisGet(key) {
   } catch(e) { console.warn('redisGet failed:', e.message); return null; }
 }
 
+async function redisDel(key) {
+  try {
+    await fetch('/api/redis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: 'del', key })
+    });
+  } catch(e) { console.warn('redisDel failed:', e.message); }
+}
+
 function save() {
   if (!S.room) return;
   try { localStorage.setItem('ksb_' + S.room.id, JSON.stringify(S)); } catch(e) {}
@@ -801,7 +811,13 @@ function showDone(){
   document.getElementById('total-box-wrap').style.display='none';
   document.getElementById('btn-next').style.display='none';
   document.getElementById('btn-poll').style.display='none';
-  save();
+  // Sesiune terminată — curăță Redis și localStorage
+  if(S.isHost && S.room) {
+    const roomId = S.room.id;
+    redisDel('room_' + roomId);
+    try { localStorage.removeItem('ksb_' + roomId); } catch(e) {}
+    try { localStorage.removeItem('ksb_user_' + roomId); } catch(e) {}
+  }
 }
 function castVote(user,side){if(S.voters[user]||S.phase!=='polling')return;S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();}
 function updateBar(){

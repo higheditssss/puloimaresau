@@ -45,6 +45,14 @@ module.exports = async (req, res) => {
       return res.status(200).json({ result });
     }
 
+    if (cmd === 'del') {
+      await fetch(`${UPSTASH_URL}/del/${encodeURIComponent(key)}`, {
+        method: 'POST',
+        headers
+      });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: 'Unknown command' });
   } catch (e) {
     return res.status(500).json({ error: e.message });
