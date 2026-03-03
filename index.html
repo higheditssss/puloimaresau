@@ -151,6 +151,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 /* hide old classes not used anymore */
 .sc-top,.sc-art-wrap,.sc-art-img,.sc-art-ph,.sc-info,.sc-bottom,.play-btn,.sc-cmd-bar{display:none!important}
 
+/* ── SONG SPOILER OVERLAY ── */
+.sc-embed{position:relative;min-height:200px}
+.sc-embed iframe{width:100%;border:none;display:block}
+.song-spoiler{position:absolute;inset:0;background:var(--s2);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:0 0 10px 10px}
+.song-spoiler.hidden{display:none}
+.show-song-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:#3d35a8;border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(61,53,168,.45)}
+.show-song-btn:hover{background:#4e44c8;transform:translateY(-1px)}
+.show-song-btn svg{width:18px;height:18px;flex-shrink:0}
+
 /* VOTE BAR */
 .vbar-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:13px 16px}
 .vbar{background:var(--s3);border-radius:4px;height:7px;display:flex;overflow:hidden;gap:2px;margin-bottom:10px}
@@ -227,22 +236,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .tstep p strong{color:var(--t)}
 
 /* ── BRACKET ── */
-#bracket-modal{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:500;display:none;flex-direction:column;overflow:auto;padding:20px}
+#bracket-modal{position:fixed;inset:0;background:rgba(5,5,5,.98);z-index:500;display:none;flex-direction:column;overflow:auto;padding:24px 32px}
 #bracket-modal.open{display:flex}
-.bracket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0}
+.bracket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0}
 .bracket-header h2{font-size:16px;font-weight:900;letter-spacing:3px;color:var(--acc)}
 .bracket-close{background:none;border:1px solid var(--t4);color:var(--t3);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
-.bracket-tree{display:flex;flex-direction:row-reverse;gap:0;align-items:center;min-width:max-content;padding:10px 20px}
-.bracket-round{display:flex;flex-direction:column;justify-content:space-around;align-items:center;position:relative}
-.bracket-round-label{font-size:9px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:16px;font-weight:700}
-.bracket-match{display:flex;flex-direction:column;position:relative;margin:0}
-.bracket-slot{width:140px;padding:6px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:4px;font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;transition:all .2s}
-.bracket-slot.winner{background:rgba(46,204,74,.08);border-color:rgba(46,204,74,.3);color:var(--acc);font-weight:700}
-.bracket-slot.current{border-color:var(--acc);box-shadow:0 0 8px var(--glow2)}
+/* Horizontal bracket — left=early rounds, right=final */
+.bracket-tree{display:flex;flex-direction:row;gap:0;align-items:stretch;min-width:max-content;flex:1;overflow-x:auto;overflow-y:auto}
+.bracket-col{display:flex;flex-direction:column;min-width:180px}
+.bracket-col-label{font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;text-align:center;padding:0 16px 16px;font-weight:700;flex-shrink:0}
+.bracket-col-slots{display:flex;flex-direction:column;flex:1;justify-content:space-around;padding:0 0 0 0}
+.bracket-match-wrap{display:flex;flex-direction:row;align-items:stretch;flex:1;margin-bottom:12px}
+.bracket-pair{display:flex;flex-direction:column;gap:3px;padding:0 8px 0 0}
+.bracket-slot{padding:9px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;font-size:13px;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;transition:all .2s;min-width:140px}
+.bracket-slot.winner{background:rgba(46,204,74,.1);border-color:rgba(46,204,74,.4);color:var(--acc);font-weight:800}
+.bracket-slot.current{border-color:var(--acc);box-shadow:0 0 10px var(--glow2)}
 .bracket-slot.tbd{color:var(--t4);font-style:italic}
-.bracket-connector{width:28px;position:relative;flex-shrink:0}
-.bracket-pair{display:flex;flex-direction:column;gap:2px;position:relative}
-.bracket-pair::after{content:'';position:absolute;right:-28px;top:50%;width:28px;height:1px;background:var(--t4)}
+.bracket-conn-h{width:24px;flex-shrink:0;align-self:stretch;display:flex}
+.bracket-conn-h svg{flex:1;height:100%}
 
 /* ── DUPLICATE WARNING ── */
 .dup-warn{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ffd060;display:none}
@@ -298,6 +309,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="sld-wrap"><lbl>Câte persoane?</lbl><input type="range" id="sl-players" min="2" max="200" step="1" value="4" oninput="updateSliders()"/><div class="s-val" id="sv-p">4 persoane</div></div>
       <div class="sld-wrap"><lbl>Piese per participant?</lbl><input type="range" id="sl-spp" min="1" max="10" step="1" value="1" oninput="updateSliders()"/><div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div></div>
       <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
+      <div style="margin-top:10px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:1px">SAU</div>
+      <button class="btn" onclick="startDemo()" style="margin-top:8px;border-color:rgba(255,184,0,.25);color:#ffd060">🎵 DEMO — Porneste cu piese exemplu</button>
     </div>
     <div id="tj" style="display:none">
       <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
@@ -395,10 +408,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="display:none" id="splat-l"></div>
           <div class="sc-card-top">
             <span class="sc-badge">!1</span>
-            <div class="sc-vote-mini"><span id="vcl">0</span> voturi · <span class="sc-pct-mini" id="pctl">0%</span></div>
-            <button class="choose-btn" id="choose-l" onclick="openChooser('left')" style="display:none">CHOOSE</button>
+            <div class="sc-vote-mini">
+              <span class="sc-submitter" id="subby-show-l" style="color:var(--acc);font-weight:700;font-size:12px"></span>
+              <span style="color:var(--t3);margin:0 4px">·</span>
+              <span id="vcl">0</span> voturi · <span class="sc-pct-mini" id="pctl">0%</span>
+            </div>
+            <button class="choose-btn" id="choose-l" onclick="manualWin('left')" style="display:none">CHOOSE</button>
           </div>
           <div class="sc-embed" id="embed-l" style="display:block">
+            <div class="song-spoiler" id="spoiler-l">
+              <button class="show-song-btn" onclick="revealSong('l')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                SHOW SONG
+              </button>
+            </div>
             <iframe id="iframe-l" height="320" allow="autoplay;encrypted-media" allowfullscreen></iframe>
           </div>
         </div>
@@ -414,10 +437,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="display:none" id="splat-r"></div>
           <div class="sc-card-top">
             <span class="sc-badge">!2</span>
-            <div class="sc-vote-mini"><span id="vcr">0</span> voturi · <span class="sc-pct-mini" id="pctr">0%</span></div>
-            <button class="choose-btn" id="choose-r" onclick="openChooser('right')" style="display:none">CHOOSE</button>
+            <div class="sc-vote-mini">
+              <span class="sc-submitter" id="subby-show-r" style="color:var(--acc);font-weight:700;font-size:12px"></span>
+              <span style="color:var(--t3);margin:0 4px">·</span>
+              <span id="vcr">0</span> voturi · <span class="sc-pct-mini" id="pctr">0%</span>
+            </div>
+            <button class="choose-btn" id="choose-r" onclick="manualWin('right')" style="display:none">CHOOSE</button>
           </div>
           <div class="sc-embed" id="embed-r" style="display:block">
+            <div class="song-spoiler" id="spoiler-r">
+              <button class="show-song-btn" onclick="revealSong('r')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                SHOW SONG
+              </button>
+            </div>
             <iframe id="iframe-r" height="320" allow="autoplay;encrypted-media" allowfullscreen></iframe>
           </div>
         </div>
@@ -501,24 +534,39 @@ function setCardSong(side,song){
   document.getElementById('stitle-'+s).textContent=song.title||'Unknown';
   document.getElementById('sartist-'+s).textContent=song.artist||'—';
   document.getElementById('ssubby-'+s).textContent=song.submittedBy?'@'+song.submittedBy:'—';
+  // Show username in card header, hide title until revealed
+  const subbyEl=document.getElementById('subby-show-'+s);
+  if(subbyEl)subbyEl.textContent=song.submittedBy?'@'+song.submittedBy:'';
   const pl=document.getElementById('splat-'+s);
   if(pl){
     if(song.ytId){pl.innerHTML=YT_SVG;pl.style.background='rgba(255,0,0,.12)';}
     else if(song.spId){pl.innerHTML=SP_SVG;pl.style.background='rgba(30,215,96,.1)';}
     else pl.innerHTML='';
   }
-  // Auto-load the player immediately
   const iframe=document.getElementById('iframe-'+s);
-  if(song.ytId){iframe.src='https://www.youtube.com/embed/'+song.ytId+'?rel=0';iframe.style.height="320px";}
-  else if(song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';}
-  else{iframe.src='';}
+  iframe.src='';
+  if(song.ytId){iframe.style.height='320px';}
+  else if(song.spId){iframe.style.height='152px';}
+  const spoiler=document.getElementById('spoiler-'+s);
+  if(spoiler)spoiler.classList.remove('hidden');
+}
+function revealSong(s){
+  const spoiler=document.getElementById('spoiler-'+s);
+  if(spoiler)spoiler.classList.add('hidden');
+  const pair=S.pairs[S.roundIdx];if(!pair)return;
+  const song=s==='l'?pair[0]:pair[1];
+  const iframe=document.getElementById('iframe-'+s);
+  if(song&&song.ytId){iframe.src='https://www.youtube.com/embed/'+song.ytId+'?autoplay=1&rel=0';iframe.style.height='320px';}
+  else if(song&&song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';}
 }
 function playCard(side){
   const s=side==='left'?'l':'r';
   const pair=S.pairs[S.roundIdx];if(!pair)return;
   const song=side==='left'?pair[0]:pair[1];
+  const spoiler=document.getElementById('spoiler-'+s);
+  if(spoiler)spoiler.classList.add('hidden');
   const iframe=document.getElementById('iframe-'+s);
-  if(song.ytId){iframe.src='https://www.youtube.com/embed/'+song.ytId+'?autoplay=1&rel=0';iframe.style.height="320px";}
+  if(song.ytId){iframe.src='https://www.youtube.com/embed/'+song.ytId+'?autoplay=1&rel=0';iframe.style.height='320px';}
   else if(song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';}
 }
 
@@ -683,6 +731,273 @@ function renderAC(results){
 }
 function pickKick(slug){document.getElementById('l-kick').value=slug;hideAC();}
 function hideAC(){const ac=document.getElementById('kick-ac');if(ac)ac.style.display='none';}
+function startDemo(){
+  var DEMO_SONGS=[
+    {id:'d1',title:'Blinding Lights',artist:'The Weeknd',submittedBy:'derANA',ytId:'4NRXx6U8ABQ'},
+    {id:'d2',title:'HUMBLE.',artist:'Kendrick Lamar',submittedBy:'beto_dtb',ytId:'tvTRZJ-4EyI'},
+    {id:'d3',title:'God\'s Plan',artist:'Drake',submittedBy:'aleee',ytId:'xpVfcZ0ZcFM'},
+    {id:'d4',title:'SICKO MODE',artist:'Travis Scott',submittedBy:'Ovicultistul',ytId:'6ONRf7h3Mdk'},
+    {id:'d5',title:'Shape of You',artist:'Ed Sheeran',submittedBy:'IL_SUG_PE_DARK',ytId:'JGwWNGJdvx8'},
+    {id:'d6',title:'rockstar',artist:'Post Malone',submittedBy:'Florin_Mitroi',ytId:'UceaB4D0jpo'},
+    {id:'d7',title:'Levitating',artist:'Dua Lipa',submittedBy:'mihal_48',ytId:'TUVcZfQe-Kw'},
+    {id:'d8',title:'As It Was',artist:'Harry Styles',submittedBy:'host_demo',ytId:'H5v3kku4y6Q'},
+    {id:'d9',title:'Stay',artist:'The Kid LAROI',submittedBy:'xStefanx',ytId:'kTJczUoc26U'},
+    {id:'d10',title:'Industry Baby',artist:'Lil Nas X',submittedBy:'Razvan_G',ytId:'UTHLKHL_whs'},
+    {id:'d11',title:'Bad Guy',artist:'Billie Eilish',submittedBy:'cosminn_',ytId:'DyDfgMOUjCI'},
+    {id:'d12',title:'Starboy',artist:'The Weeknd',submittedBy:'Andrei_TV',ytId:'34Na4j8AVgA'},
+    {id:'d13',title:'HIGHEST IN THE ROOM',artist:'Travis Scott',submittedBy:'tavi_beats',ytId:'hi3MNAc1rH8'},
+    {id:'d14',title:'Sunflower',artist:'Post Malone',submittedBy:'ionut_ro',ytId:'ApXoWvfEYVU'},
+    {id:'d15',title:'Anti-Hero',artist:'Taylor Swift',submittedBy:'daiana_m',ytId:'b1kbLwvqugk'},
+    {id:'d16',title:'Flowers',artist:'Miley Cyrus',submittedBy:'cristi_k',ytId:'G7KNmW9a75Y'},
+    {id:'d17',title:'Watermelon Sugar',artist:'Harry Styles',submittedBy:'bogdan_x',ytId:'E07s5ZYygMg'},
+    {id:'d18',title:'Peaches',artist:'Justin Bieber',submittedBy:'marius99',ytId:'tQ0yjYMHvAs'},
+    {id:'d19',title:'Montero',artist:'Lil Nas X',submittedBy:'elena_pop',ytId:'SXO-3g0Cams'},
+    {id:'d20',title:'Good 4 U',artist:'Olivia Rodrigo',submittedBy:'vlad_k',ytId:'gNi_6U5Pm_o'},
+    {id:'d21',title:'Kiss Me More',artist:'Doja Cat',submittedBy:'adi_music',ytId:'0EYzWnmqDoc'},
+    {id:'d22',title:'Leave The Door Open',artist:'Silk Sonic',submittedBy:'nicu_flow',ytId:'adLGIB-E77w'},
+    {id:'d23',title:'Butter',artist:'BTS',submittedBy:'sorin_vip',ytId:'WMweEpGlu_U'},
+    {id:'d24',title:'Positions',artist:'Ariana Grande',submittedBy:'larisa_b',ytId:'tcYodQoapMg'},
+    {id:'d25',title:'Save Your Tears',artist:'The Weeknd',submittedBy:'dani_ro',ytId:'XXYlFuWEuKI'},
+    {id:'d26',title:'Mood',artist:'24kGoldn',submittedBy:'paul_yt',ytId:'IODxDxX7oi4'},
+    {id:'d27',title:'drivers license',artist:'Olivia Rodrigo',submittedBy:'george_m',ytId:'ZmDBbnmKpqQ'},
+    {id:'d28',title:'Dynamite',artist:'BTS',submittedBy:'alex_f',ytId:'gdZLi9oWNZg'},
+    {id:'d29',title:'Hawái',artist:'Maluma',submittedBy:'ioana_c',ytId:'UbMdBDFAZgY'},
+    {id:'d30',title:'Dakiti',artist:'Bad Bunny',submittedBy:'radu_beats',ytId:'G9fJHAiwFkE'},
+    {id:'d31',title:'Telepatía',artist:'Kali Uchis',submittedBy:'stefan_d',ytId:'IcFkjnS1HMc'},
+    {id:'d32',title:'Astronaut In The Ocean',artist:'Masked Wolf',submittedBy:'ana_pop',ytId:'Pqk-c_9fDzQ'},
+    {id:'d33',title:'Blinding Lights 2',artist:'The Weeknd',submittedBy:'victor_g',ytId:'4NRXx6U8ABQ'},
+    {id:'d34',title:'HUMBLE. 2',artist:'Kendrick Lamar',submittedBy:'cristina_m',ytId:'tvTRZJ-4EyI'},
+    {id:'d35',title:'God\'s Plan 2',artist:'Drake',submittedBy:'mihai_b',ytId:'xpVfcZ0ZcFM'},
+    {id:'d36',title:'SICKO MODE 2',artist:'Travis Scott',submittedBy:'andreea_v',ytId:'6ONRf7h3Mdk'},
+    {id:'d37',title:'Shape of You 2',artist:'Ed Sheeran',submittedBy:'gabriel_n',ytId:'JGwWNGJdvx8'},
+    {id:'d38',title:'rockstar 2',artist:'Post Malone',submittedBy:'diana_s',ytId:'UceaB4D0jpo'},
+    {id:'d39',title:'Levitating 2',artist:'Dua Lipa',submittedBy:'robert_p',ytId:'TUVcZfQe-Kw'},
+    {id:'d40',title:'As It Was 2',artist:'Harry Styles',submittedBy:'iulia_t',ytId:'H5v3kku4y6Q'},
+    {id:'d41',title:'Stay 2',artist:'The Kid LAROI',submittedBy:'cosmin_r',ytId:'kTJczUoc26U'},
+    {id:'d42',title:'Industry Baby 2',artist:'Lil Nas X',submittedBy:'roxana_b',ytId:'UTHLKHL_whs'},
+    {id:'d43',title:'Bad Guy 2',artist:'Billie Eilish',submittedBy:'florin_c',ytId:'DyDfgMOUjCI'},
+    {id:'d44',title:'Starboy 2',artist:'The Weeknd',submittedBy:'denisa_m',ytId:'34Na4j8AVgA'},
+    {id:'d45',title:'HIGHEST IN THE ROOM 2',artist:'Travis Scott',submittedBy:'catalin_v',ytId:'hi3MNAc1rH8'},
+    {id:'d46',title:'Sunflower 2',artist:'Post Malone',submittedBy:'bianca_n',ytId:'ApXoWvfEYVU'},
+    {id:'d47',title:'Anti-Hero 2',artist:'Taylor Swift',submittedBy:'marian_g',ytId:'b1kbLwvqugk'},
+    {id:'d48',title:'Flowers 2',artist:'Miley Cyrus',submittedBy:'loredana_p',ytId:'G7KNmW9a75Y'},
+    {id:'d49',title:'Watermelon Sugar 2',artist:'Harry Styles',submittedBy:'silviu_b',ytId:'E07s5ZYygMg'},
+    {id:'d50',title:'Peaches 2',artist:'Justin Bieber',submittedBy:'claudia_m',ytId:'tQ0yjYMHvAs'},
+    {id:'d51',title:'Montero 2',artist:'Lil Nas X',submittedBy:'bogdan_r',ytId:'SXO-3g0Cams'},
+    {id:'d52',title:'Good 4 U 2',artist:'Olivia Rodrigo',submittedBy:'maria_c',ytId:'gNi_6U5Pm_o'},
+    {id:'d53',title:'Kiss Me More 2',artist:'Doja Cat',submittedBy:'daniel_v',ytId:'0EYzWnmqDoc'},
+    {id:'d54',title:'Leave The Door Open 2',artist:'Silk Sonic',submittedBy:'elena_b',ytId:'adLGIB-E77w'},
+    {id:'d55',title:'Butter 2',artist:'BTS',submittedBy:'andrei_m',ytId:'WMweEpGlu_U'},
+    {id:'d56',title:'Positions 2',artist:'Ariana Grande',submittedBy:'ioana_v',ytId:'tcYodQoapMg'},
+    {id:'d57',title:'Save Your Tears 2',artist:'The Weeknd',submittedBy:'razvan_c',ytId:'XXYlFuWEuKI'},
+    {id:'d58',title:'Mood 2',artist:'24kGoldn',submittedBy:'paula_m',ytId:'IODxDxX7oi4'},
+    {id:'d59',title:'drivers license 2',artist:'Olivia Rodrigo',submittedBy:'liviu_b',ytId:'ZmDBbnmKpqQ'},
+    {id:'d60',title:'Dynamite 2',artist:'BTS',submittedBy:'simona_r',ytId:'gdZLi9oWNZg'},
+    {id:'d61',title:'Hawái 2',artist:'Maluma',submittedBy:'ciprian_v',ytId:'UbMdBDFAZgY'},
+    {id:'d62',title:'Dakiti 2',artist:'Bad Bunny',submittedBy:'nicoleta_m',ytId:'G9fJHAiwFkE'},
+    {id:'d63',title:'Telepatía 2',artist:'Kali Uchis',submittedBy:'sorin_b',ytId:'IcFkjnS1HMc'},
+    {id:'d64',title:'Astronaut In The Ocean 2',artist:'Masked Wolf',submittedBy:'alina_c',ytId:'Pqk-c_9fDzQ'},
+    {id:'d65',title:'Blinding Lights 3',artist:'The Weeknd',submittedBy:'dragos_m',ytId:'4NRXx6U8ABQ'},
+    {id:'d66',title:'HUMBLE. 3',artist:'Kendrick Lamar',submittedBy:'andreea_b',ytId:'tvTRZJ-4EyI'},
+    {id:'d67',title:'God\'s Plan 3',artist:'Drake',submittedBy:'nicu_v',ytId:'xpVfcZ0ZcFM'},
+    {id:'d68',title:'SICKO MODE 3',artist:'Travis Scott',submittedBy:'diana_m',ytId:'6ONRf7h3Mdk'},
+    {id:'d69',title:'Shape of You 3',artist:'Ed Sheeran',submittedBy:'paul_b',ytId:'JGwWNGJdvx8'},
+    {id:'d70',title:'rockstar 3',artist:'Post Malone',submittedBy:'cristina_v',ytId:'UceaB4D0jpo'},
+    {id:'d71',title:'Levitating 3',artist:'Dua Lipa',submittedBy:'marius_c',ytId:'TUVcZfQe-Kw'},
+    {id:'d72',title:'As It Was 3',artist:'Harry Styles',submittedBy:'elena_g',ytId:'H5v3kku4y6Q'},
+    {id:'d73',title:'Stay 3',artist:'The Kid LAROI',submittedBy:'alex_b',ytId:'kTJczUoc26U'},
+    {id:'d74',title:'Industry Baby 3',artist:'Lil Nas X',submittedBy:'bianca_m',ytId:'UTHLKHL_whs'},
+    {id:'d75',title:'Bad Guy 3',artist:'Billie Eilish',submittedBy:'george_v',ytId:'DyDfgMOUjCI'},
+    {id:'d76',title:'Starboy 3',artist:'The Weeknd',submittedBy:'ioana_b',ytId:'34Na4j8AVgA'},
+    {id:'d77',title:'HIGHEST IN THE ROOM 3',artist:'Travis Scott',submittedBy:'stefan_c',ytId:'hi3MNAc1rH8'},
+    {id:'d78',title:'Sunflower 3',artist:'Post Malone',submittedBy:'roxana_m',ytId:'ApXoWvfEYVU'},
+    {id:'d79',title:'Anti-Hero 3',artist:'Taylor Swift',submittedBy:'florin_v',ytId:'b1kbLwvqugk'},
+    {id:'d80',title:'Flowers 3',artist:'Miley Cyrus',submittedBy:'denisa_b',ytId:'G7KNmW9a75Y'},
+    {id:'d81',title:'Watermelon Sugar 3',artist:'Harry Styles',submittedBy:'catalin_m',ytId:'E07s5ZYygMg'},
+    {id:'d82',title:'Peaches 3',artist:'Justin Bieber',submittedBy:'andreea_c',ytId:'tQ0yjYMHvAs'},
+    {id:'d83',title:'Montero 3',artist:'Lil Nas X',submittedBy:'victor_b',ytId:'SXO-3g0Cams'},
+    {id:'d84',title:'Good 4 U 3',artist:'Olivia Rodrigo',submittedBy:'iulia_m',ytId:'gNi_6U5Pm_o'},
+    {id:'d85',title:'Kiss Me More 3',artist:'Doja Cat',submittedBy:'cosmin_v',ytId:'0EYzWnmqDoc'},
+    {id:'d86',title:'Leave The Door Open 3',artist:'Silk Sonic',submittedBy:'loredana_b',ytId:'adLGIB-E77w'},
+    {id:'d87',title:'Butter 3',artist:'BTS',submittedBy:'silviu_m',ytId:'WMweEpGlu_U'},
+    {id:'d88',title:'Positions 3',artist:'Ariana Grande',submittedBy:'claudia_v',ytId:'tcYodQoapMg'},
+    {id:'d89',title:'Save Your Tears 3',artist:'The Weeknd',submittedBy:'bogdan_c',ytId:'XXYlFuWEuKI'},
+    {id:'d90',title:'Mood 3',artist:'24kGoldn',submittedBy:'maria_b',ytId:'IODxDxX7oi4'},
+    {id:'d91',title:'drivers license 3',artist:'Olivia Rodrigo',submittedBy:'daniel_m',ytId:'ZmDBbnmKpqQ'},
+    {id:'d92',title:'Dynamite 3',artist:'BTS',submittedBy:'elena_v',ytId:'gdZLi9oWNZg'},
+    {id:'d93',title:'Hawái 3',artist:'Maluma',submittedBy:'andrei_b',ytId:'UbMdBDFAZgY'},
+    {id:'d94',title:'Dakiti 3',artist:'Bad Bunny',submittedBy:'ioana_m',ytId:'G9fJHAiwFkE'},
+    {id:'d95',title:'Telepatía 3',artist:'Kali Uchis',submittedBy:'razvan_v',ytId:'IcFkjnS1HMc'},
+    {id:'d96',title:'Astronaut In The Ocean 3',artist:'Masked Wolf',submittedBy:'paula_b',ytId:'Pqk-c_9fDzQ'},
+    {id:'d97',title:'Blinding Lights 4',artist:'The Weeknd',submittedBy:'liviu_m',ytId:'4NRXx6U8ABQ'},
+    {id:'d98',title:'HUMBLE. 4',artist:'Kendrick Lamar',submittedBy:'simona_v',ytId:'tvTRZJ-4EyI'},
+    {id:'d99',title:'God\'s Plan 4',artist:'Drake',submittedBy:'ciprian_b',ytId:'xpVfcZ0ZcFM'},
+    {id:'d100',title:'SICKO MODE 4',artist:'Travis Scott',submittedBy:'nicoleta_v',ytId:'6ONRf7h3Mdk'},
+    {id:'d101',title:'Shape of You 4',artist:'Ed Sheeran',submittedBy:'sorin_m',ytId:'JGwWNGJdvx8'},
+    {id:'d102',title:'rockstar 4',artist:'Post Malone',submittedBy:'alina_b',ytId:'UceaB4D0jpo'},
+    {id:'d103',title:'Levitating 4',artist:'Dua Lipa',submittedBy:'dragos_v',ytId:'TUVcZfQe-Kw'},
+    {id:'d104',title:'As It Was 4',artist:'Harry Styles',submittedBy:'andreea_m2',ytId:'H5v3kku4y6Q'},
+    {id:'d105',title:'Stay 4',artist:'The Kid LAROI',submittedBy:'nicu_b',ytId:'kTJczUoc26U'},
+    {id:'d106',title:'Industry Baby 4',artist:'Lil Nas X',submittedBy:'diana_v',ytId:'UTHLKHL_whs'},
+    {id:'d107',title:'Bad Guy 4',artist:'Billie Eilish',submittedBy:'paul_m',ytId:'DyDfgMOUjCI'},
+    {id:'d108',title:'Starboy 4',artist:'The Weeknd',submittedBy:'cristina_b',ytId:'34Na4j8AVgA'},
+    {id:'d109',title:'HIGHEST IN THE ROOM 4',artist:'Travis Scott',submittedBy:'marius_v',ytId:'hi3MNAc1rH8'},
+    {id:'d110',title:'Sunflower 4',artist:'Post Malone',submittedBy:'elena_c',ytId:'ApXoWvfEYVU'},
+    {id:'d111',title:'Anti-Hero 4',artist:'Taylor Swift',submittedBy:'alex_m',ytId:'b1kbLwvqugk'},
+    {id:'d112',title:'Flowers 4',artist:'Miley Cyrus',submittedBy:'bianca_v',ytId:'G7KNmW9a75Y'},
+    {id:'d113',title:'Watermelon Sugar 4',artist:'Harry Styles',submittedBy:'george_b',ytId:'E07s5ZYygMg'},
+    {id:'d114',title:'Peaches 4',artist:'Justin Bieber',submittedBy:'ioana_v2',ytId:'tQ0yjYMHvAs'},
+    {id:'d115',title:'Montero 4',artist:'Lil Nas X',submittedBy:'stefan_m',ytId:'SXO-3g0Cams'},
+    {id:'d116',title:'Good 4 U 4',artist:'Olivia Rodrigo',submittedBy:'roxana_v',ytId:'gNi_6U5Pm_o'},
+    {id:'d117',title:'Kiss Me More 4',artist:'Doja Cat',submittedBy:'florin_b',ytId:'0EYzWnmqDoc'},
+    {id:'d118',title:'Leave The Door Open 4',artist:'Silk Sonic',submittedBy:'denisa_v',ytId:'adLGIB-E77w'},
+    {id:'d119',title:'Butter 4',artist:'BTS',submittedBy:'catalin_b',ytId:'WMweEpGlu_U'},
+    {id:'d120',title:'Positions 4',artist:'Ariana Grande',submittedBy:'andreea_v2',ytId:'tcYodQoapMg'},
+    {id:'d121',title:'Save Your Tears 4',artist:'The Weeknd',submittedBy:'user117',ytId:'XXYlFuWEuKI'},
+    {id:'d122',title:'Mood 4',artist:'24kGoldn',submittedBy:'user118',ytId:'IODxDxX7oi4'},
+    {id:'d123',title:'drivers license 4',artist:'Olivia Rodrigo',submittedBy:'user119',ytId:'ZmDBbnmKpqQ'},
+    {id:'d124',title:'Dynamite 4',artist:'BTS',submittedBy:'user120',ytId:'gdZLi9oWNZg'},
+    {id:'d125',title:'Hawái 4',artist:'Maluma',submittedBy:'user121',ytId:'UbMdBDFAZgY'},
+    {id:'d126',title:'Dakiti 4',artist:'Bad Bunny',submittedBy:'user122',ytId:'G9fJHAiwFkE'},
+    {id:'d127',title:'Telepatía 4',artist:'Kali Uchis',submittedBy:'user123',ytId:'IcFkjnS1HMc'},
+    {id:'d128',title:'Astronaut In The Ocean 4',artist:'Masked Wolf',submittedBy:'user124',ytId:'Pqk-c_9fDzQ'},
+    {id:'d129',title:'Blinding Lights 5',artist:'The Weeknd',submittedBy:'user125',ytId:'4NRXx6U8ABQ'},
+    {id:'d130',title:'HUMBLE. 5',artist:'Kendrick Lamar',submittedBy:'user126',ytId:'tvTRZJ-4EyI'},
+    {id:'d131',title:'God\'s Plan 5',artist:'Drake',submittedBy:'user127',ytId:'xpVfcZ0ZcFM'},
+    {id:'d132',title:'SICKO MODE 5',artist:'Travis Scott',submittedBy:'user128',ytId:'6ONRf7h3Mdk'},
+    {id:'d133',title:'Shape of You 5',artist:'Ed Sheeran',submittedBy:'user129',ytId:'JGwWNGJdvx8'},
+    {id:'d134',title:'rockstar 5',artist:'Post Malone',submittedBy:'user130',ytId:'UceaB4D0jpo'},
+    {id:'d135',title:'Levitating 5',artist:'Dua Lipa',submittedBy:'user131',ytId:'TUVcZfQe-Kw'},
+    {id:'d136',title:'As It Was 5',artist:'Harry Styles',submittedBy:'user132',ytId:'H5v3kku4y6Q'},
+    {id:'d137',title:'Stay 5',artist:'The Kid LAROI',submittedBy:'user133',ytId:'kTJczUoc26U'},
+    {id:'d138',title:'Industry Baby 5',artist:'Lil Nas X',submittedBy:'user134',ytId:'UTHLKHL_whs'},
+    {id:'d139',title:'Bad Guy 5',artist:'Billie Eilish',submittedBy:'user135',ytId:'DyDfgMOUjCI'},
+    {id:'d140',title:'Starboy 5',artist:'The Weeknd',submittedBy:'user136',ytId:'34Na4j8AVgA'},
+    {id:'d141',title:'HIGHEST IN THE ROOM 5',artist:'Travis Scott',submittedBy:'user137',ytId:'hi3MNAc1rH8'},
+    {id:'d142',title:'Sunflower 5',artist:'Post Malone',submittedBy:'user138',ytId:'ApXoWvfEYVU'},
+    {id:'d143',title:'Anti-Hero 5',artist:'Taylor Swift',submittedBy:'user139',ytId:'b1kbLwvqugk'},
+    {id:'d144',title:'Flowers 5',artist:'Miley Cyrus',submittedBy:'user140',ytId:'G7KNmW9a75Y'},
+    {id:'d145',title:'Watermelon Sugar 5',artist:'Harry Styles',submittedBy:'user141',ytId:'E07s5ZYygMg'},
+    {id:'d146',title:'Peaches 5',artist:'Justin Bieber',submittedBy:'user142',ytId:'tQ0yjYMHvAs'},
+    {id:'d147',title:'Montero 5',artist:'Lil Nas X',submittedBy:'user143',ytId:'SXO-3g0Cams'},
+    {id:'d148',title:'Good 4 U 5',artist:'Olivia Rodrigo',submittedBy:'user144',ytId:'gNi_6U5Pm_o'},
+    {id:'d149',title:'Kiss Me More 5',artist:'Doja Cat',submittedBy:'user145',ytId:'0EYzWnmqDoc'},
+    {id:'d150',title:'Leave The Door Open 5',artist:'Silk Sonic',submittedBy:'user146',ytId:'adLGIB-E77w'},
+    {id:'d151',title:'Butter 5',artist:'BTS',submittedBy:'user147',ytId:'WMweEpGlu_U'},
+    {id:'d152',title:'Positions 5',artist:'Ariana Grande',submittedBy:'user148',ytId:'tcYodQoapMg'},
+    {id:'d153',title:'Save Your Tears 5',artist:'The Weeknd',submittedBy:'user149',ytId:'XXYlFuWEuKI'},
+    {id:'d154',title:'Mood 5',artist:'24kGoldn',submittedBy:'user150',ytId:'IODxDxX7oi4'},
+    {id:'d155',title:'drivers license 5',artist:'Olivia Rodrigo',submittedBy:'user151',ytId:'ZmDBbnmKpqQ'},
+    {id:'d156',title:'Dynamite 5',artist:'BTS',submittedBy:'user152',ytId:'gdZLi9oWNZg'},
+    {id:'d157',title:'Hawái 5',artist:'Maluma',submittedBy:'user153',ytId:'UbMdBDFAZgY'},
+    {id:'d158',title:'Dakiti 5',artist:'Bad Bunny',submittedBy:'user154',ytId:'G9fJHAiwFkE'},
+    {id:'d159',title:'Telepatía 5',artist:'Kali Uchis',submittedBy:'user155',ytId:'IcFkjnS1HMc'},
+    {id:'d160',title:'Astronaut In The Ocean 5',artist:'Masked Wolf',submittedBy:'user156',ytId:'Pqk-c_9fDzQ'},
+    {id:'d161',title:'Blinding Lights 6',artist:'The Weeknd',submittedBy:'user157',ytId:'4NRXx6U8ABQ'},
+    {id:'d162',title:'HUMBLE. 6',artist:'Kendrick Lamar',submittedBy:'user158',ytId:'tvTRZJ-4EyI'},
+    {id:'d163',title:'God\'s Plan 6',artist:'Drake',submittedBy:'user159',ytId:'xpVfcZ0ZcFM'},
+    {id:'d164',title:'SICKO MODE 6',artist:'Travis Scott',submittedBy:'user160',ytId:'6ONRf7h3Mdk'},
+    {id:'d165',title:'Shape of You 6',artist:'Ed Sheeran',submittedBy:'user161',ytId:'JGwWNGJdvx8'},
+    {id:'d166',title:'rockstar 6',artist:'Post Malone',submittedBy:'user162',ytId:'UceaB4D0jpo'},
+    {id:'d167',title:'Levitating 6',artist:'Dua Lipa',submittedBy:'user163',ytId:'TUVcZfQe-Kw'},
+    {id:'d168',title:'As It Was 6',artist:'Harry Styles',submittedBy:'user164',ytId:'H5v3kku4y6Q'},
+    {id:'d169',title:'Stay 6',artist:'The Kid LAROI',submittedBy:'user165',ytId:'kTJczUoc26U'},
+    {id:'d170',title:'Industry Baby 6',artist:'Lil Nas X',submittedBy:'user166',ytId:'UTHLKHL_whs'},
+    {id:'d171',title:'Bad Guy 6',artist:'Billie Eilish',submittedBy:'user167',ytId:'DyDfgMOUjCI'},
+    {id:'d172',title:'Starboy 6',artist:'The Weeknd',submittedBy:'user168',ytId:'34Na4j8AVgA'},
+    {id:'d173',title:'HIGHEST IN THE ROOM 6',artist:'Travis Scott',submittedBy:'user169',ytId:'hi3MNAc1rH8'},
+    {id:'d174',title:'Sunflower 6',artist:'Post Malone',submittedBy:'user170',ytId:'ApXoWvfEYVU'},
+    {id:'d175',title:'Anti-Hero 6',artist:'Taylor Swift',submittedBy:'user171',ytId:'b1kbLwvqugk'},
+    {id:'d176',title:'Flowers 6',artist:'Miley Cyrus',submittedBy:'user172',ytId:'G7KNmW9a75Y'},
+    {id:'d177',title:'Watermelon Sugar 6',artist:'Harry Styles',submittedBy:'user173',ytId:'E07s5ZYygMg'},
+    {id:'d178',title:'Peaches 6',artist:'Justin Bieber',submittedBy:'user174',ytId:'tQ0yjYMHvAs'},
+    {id:'d179',title:'Montero 6',artist:'Lil Nas X',submittedBy:'user175',ytId:'SXO-3g0Cams'},
+    {id:'d180',title:'Good 4 U 6',artist:'Olivia Rodrigo',submittedBy:'user176',ytId:'gNi_6U5Pm_o'},
+    {id:'d181',title:'Kiss Me More 6',artist:'Doja Cat',submittedBy:'user177',ytId:'0EYzWnmqDoc'},
+    {id:'d182',title:'Leave The Door Open 6',artist:'Silk Sonic',submittedBy:'user178',ytId:'adLGIB-E77w'},
+    {id:'d183',title:'Butter 6',artist:'BTS',submittedBy:'user179',ytId:'WMweEpGlu_U'},
+    {id:'d184',title:'Positions 6',artist:'Ariana Grande',submittedBy:'user180',ytId:'tcYodQoapMg'},
+    {id:'d185',title:'Save Your Tears 6',artist:'The Weeknd',submittedBy:'user181',ytId:'XXYlFuWEuKI'},
+    {id:'d186',title:'Mood 6',artist:'24kGoldn',submittedBy:'user182',ytId:'IODxDxX7oi4'},
+    {id:'d187',title:'drivers license 6',artist:'Olivia Rodrigo',submittedBy:'user183',ytId:'ZmDBbnmKpqQ'},
+    {id:'d188',title:'Dynamite 6',artist:'BTS',submittedBy:'user184',ytId:'gdZLi9oWNZg'},
+    {id:'d189',title:'Hawái 6',artist:'Maluma',submittedBy:'user185',ytId:'UbMdBDFAZgY'},
+    {id:'d190',title:'Dakiti 6',artist:'Bad Bunny',submittedBy:'user186',ytId:'G9fJHAiwFkE'},
+    {id:'d191',title:'Telepatía 6',artist:'Kali Uchis',submittedBy:'user187',ytId:'IcFkjnS1HMc'},
+    {id:'d192',title:'Astronaut In The Ocean 6',artist:'Masked Wolf',submittedBy:'user188',ytId:'Pqk-c_9fDzQ'},
+    {id:'d193',title:'Blinding Lights 7',artist:'The Weeknd',submittedBy:'user189',ytId:'4NRXx6U8ABQ'},
+    {id:'d194',title:'HUMBLE. 7',artist:'Kendrick Lamar',submittedBy:'user190',ytId:'tvTRZJ-4EyI'},
+    {id:'d195',title:'God\'s Plan 7',artist:'Drake',submittedBy:'user191',ytId:'xpVfcZ0ZcFM'},
+    {id:'d196',title:'SICKO MODE 7',artist:'Travis Scott',submittedBy:'user192',ytId:'6ONRf7h3Mdk'},
+    {id:'d197',title:'Shape of You 7',artist:'Ed Sheeran',submittedBy:'user193',ytId:'JGwWNGJdvx8'},
+    {id:'d198',title:'rockstar 7',artist:'Post Malone',submittedBy:'user194',ytId:'UceaB4D0jpo'},
+    {id:'d199',title:'Levitating 7',artist:'Dua Lipa',submittedBy:'user195',ytId:'TUVcZfQe-Kw'},
+    {id:'d200',title:'As It Was 7',artist:'Harry Styles',submittedBy:'user196',ytId:'H5v3kku4y6Q'},
+    {id:'d201',title:'Stay 7',artist:'The Kid LAROI',submittedBy:'user197',ytId:'kTJczUoc26U'},
+    {id:'d202',title:'Industry Baby 7',artist:'Lil Nas X',submittedBy:'user198',ytId:'UTHLKHL_whs'},
+    {id:'d203',title:'Bad Guy 7',artist:'Billie Eilish',submittedBy:'user199',ytId:'DyDfgMOUjCI'},
+    {id:'d204',title:'Starboy 7',artist:'The Weeknd',submittedBy:'user200',ytId:'34Na4j8AVgA'},
+    {id:'d205',title:'HIGHEST IN THE ROOM 7',artist:'Travis Scott',submittedBy:'derANA',ytId:'hi3MNAc1rH8'},
+    {id:'d206',title:'Sunflower 7',artist:'Post Malone',submittedBy:'beto_dtb',ytId:'ApXoWvfEYVU'},
+    {id:'d207',title:'Anti-Hero 7',artist:'Taylor Swift',submittedBy:'aleee',ytId:'b1kbLwvqugk'},
+    {id:'d208',title:'Flowers 7',artist:'Miley Cyrus',submittedBy:'Ovicultistul',ytId:'G7KNmW9a75Y'},
+    {id:'d209',title:'Watermelon Sugar 7',artist:'Harry Styles',submittedBy:'IL_SUG_PE_DARK',ytId:'E07s5ZYygMg'},
+    {id:'d210',title:'Peaches 7',artist:'Justin Bieber',submittedBy:'Florin_Mitroi',ytId:'tQ0yjYMHvAs'},
+    {id:'d211',title:'Montero 7',artist:'Lil Nas X',submittedBy:'mihal_48',ytId:'SXO-3g0Cams'},
+    {id:'d212',title:'Good 4 U 7',artist:'Olivia Rodrigo',submittedBy:'host_demo',ytId:'gNi_6U5Pm_o'},
+    {id:'d213',title:'Kiss Me More 7',artist:'Doja Cat',submittedBy:'xStefanx',ytId:'0EYzWnmqDoc'},
+    {id:'d214',title:'Leave The Door Open 7',artist:'Silk Sonic',submittedBy:'Razvan_G',ytId:'adLGIB-E77w'},
+    {id:'d215',title:'Butter 7',artist:'BTS',submittedBy:'cosminn_',ytId:'WMweEpGlu_U'},
+    {id:'d216',title:'Positions 7',artist:'Ariana Grande',submittedBy:'Andrei_TV',ytId:'tcYodQoapMg'},
+    {id:'d217',title:'Save Your Tears 7',artist:'The Weeknd',submittedBy:'tavi_beats',ytId:'XXYlFuWEuKI'},
+    {id:'d218',title:'Mood 7',artist:'24kGoldn',submittedBy:'ionut_ro',ytId:'IODxDxX7oi4'},
+    {id:'d219',title:'drivers license 7',artist:'Olivia Rodrigo',submittedBy:'daiana_m',ytId:'ZmDBbnmKpqQ'},
+    {id:'d220',title:'Dynamite 7',artist:'BTS',submittedBy:'cristi_k',ytId:'gdZLi9oWNZg'},
+    {id:'d221',title:'Hawái 7',artist:'Maluma',submittedBy:'bogdan_x',ytId:'UbMdBDFAZgY'},
+    {id:'d222',title:'Dakiti 7',artist:'Bad Bunny',submittedBy:'marius99',ytId:'G9fJHAiwFkE'},
+    {id:'d223',title:'Telepatía 7',artist:'Kali Uchis',submittedBy:'elena_pop',ytId:'IcFkjnS1HMc'},
+    {id:'d224',title:'Astronaut In The Ocean 7',artist:'Masked Wolf',submittedBy:'vlad_k',ytId:'Pqk-c_9fDzQ'},
+    {id:'d225',title:'Blinding Lights 8',artist:'The Weeknd',submittedBy:'adi_music',ytId:'4NRXx6U8ABQ'},
+    {id:'d226',title:'HUMBLE. 8',artist:'Kendrick Lamar',submittedBy:'nicu_flow',ytId:'tvTRZJ-4EyI'},
+    {id:'d227',title:'God\'s Plan 8',artist:'Drake',submittedBy:'sorin_vip',ytId:'xpVfcZ0ZcFM'},
+    {id:'d228',title:'SICKO MODE 8',artist:'Travis Scott',submittedBy:'larisa_b',ytId:'6ONRf7h3Mdk'},
+    {id:'d229',title:'Shape of You 8',artist:'Ed Sheeran',submittedBy:'dani_ro',ytId:'JGwWNGJdvx8'},
+    {id:'d230',title:'rockstar 8',artist:'Post Malone',submittedBy:'paul_yt',ytId:'UceaB4D0jpo'},
+    {id:'d231',title:'Levitating 8',artist:'Dua Lipa',submittedBy:'george_m',ytId:'TUVcZfQe-Kw'},
+    {id:'d232',title:'As It Was 8',artist:'Harry Styles',submittedBy:'alex_f',ytId:'H5v3kku4y6Q'},
+    {id:'d233',title:'Stay 8',artist:'The Kid LAROI',submittedBy:'ioana_c',ytId:'kTJczUoc26U'},
+    {id:'d234',title:'Industry Baby 8',artist:'Lil Nas X',submittedBy:'radu_beats',ytId:'UTHLKHL_whs'},
+    {id:'d235',title:'Bad Guy 8',artist:'Billie Eilish',submittedBy:'stefan_d',ytId:'DyDfgMOUjCI'},
+    {id:'d236',title:'Starboy 8',artist:'The Weeknd',submittedBy:'ana_pop',ytId:'34Na4j8AVgA'},
+    {id:'d237',title:'HIGHEST IN THE ROOM 8',artist:'Travis Scott',submittedBy:'victor_g',ytId:'hi3MNAc1rH8'},
+    {id:'d238',title:'Sunflower 8',artist:'Post Malone',submittedBy:'cristina_m',ytId:'ApXoWvfEYVU'},
+    {id:'d239',title:'Anti-Hero 8',artist:'Taylor Swift',submittedBy:'mihai_b',ytId:'b1kbLwvqugk'},
+    {id:'d240',title:'Flowers 8',artist:'Miley Cyrus',submittedBy:'andreea_v',ytId:'G7KNmW9a75Y'},
+    {id:'d241',title:'Watermelon Sugar 8',artist:'Harry Styles',submittedBy:'gabriel_n',ytId:'E07s5ZYygMg'},
+    {id:'d242',title:'Peaches 8',artist:'Justin Bieber',submittedBy:'diana_s',ytId:'tQ0yjYMHvAs'},
+    {id:'d243',title:'Montero 8',artist:'Lil Nas X',submittedBy:'robert_p',ytId:'SXO-3g0Cams'},
+    {id:'d244',title:'Good 4 U 8',artist:'Olivia Rodrigo',submittedBy:'iulia_t',ytId:'gNi_6U5Pm_o'},
+    {id:'d245',title:'Kiss Me More 8',artist:'Doja Cat',submittedBy:'cosmin_r',ytId:'0EYzWnmqDoc'},
+    {id:'d246',title:'Leave The Door Open 8',artist:'Silk Sonic',submittedBy:'roxana_b',ytId:'adLGIB-E77w'},
+    {id:'d247',title:'Butter 8',artist:'BTS',submittedBy:'florin_c',ytId:'WMweEpGlu_U'},
+    {id:'d248',title:'Positions 8',artist:'Ariana Grande',submittedBy:'denisa_m',ytId:'tcYodQoapMg'},
+    {id:'d249',title:'Save Your Tears 8',artist:'The Weeknd',submittedBy:'catalin_v',ytId:'XXYlFuWEuKI'},
+    {id:'d250',title:'Mood 8',artist:'24kGoldn',submittedBy:'bianca_n',ytId:'IODxDxX7oi4'},
+    {id:'d251',title:'drivers license 8',artist:'Olivia Rodrigo',submittedBy:'marian_g',ytId:'ZmDBbnmKpqQ'},
+    {id:'d252',title:'Dynamite 8',artist:'BTS',submittedBy:'loredana_p',ytId:'gdZLi9oWNZg'},
+    {id:'d253',title:'Hawái 8',artist:'Maluma',submittedBy:'silviu_b',ytId:'UbMdBDFAZgY'},
+    {id:'d254',title:'Dakiti 8',artist:'Bad Bunny',submittedBy:'claudia_m',ytId:'G9fJHAiwFkE'},
+    {id:'d255',title:'Telepatía 8',artist:'Kali Uchis',submittedBy:'bogdan_r',ytId:'IcFkjnS1HMc'},
+    {id:'d256',title:'Astronaut In The Ocean 8',artist:'Masked Wolf',submittedBy:'maria_c',ytId:'Pqk-c_9fDzQ'}
+  ];
+  S=mkState();
+  S.isHost=true;
+  S.room={id:'DEMO',name:'Demo Battle',kickChannel:'',playersNeeded:256,songsPerPlayer:1};
+  S.songs=DEMO_SONGS;
+  S.battleStarted=true;
+  showScreen('s-battle');
+  initBattle();
+}
 document.addEventListener('DOMContentLoaded',async ()=>{
   updateSliders();
   const rid=getRoomUrl();
@@ -946,7 +1261,7 @@ function nextRound(){
     return;
   }
   S.roundIdx++;
-  renderRound(false);
+  renderRound(true);
   save();
 }
 
@@ -1073,6 +1388,16 @@ function onMsg(data){
   if(msg==='!1')castVote(user,'left');
   if(msg==='!2')castVote(user,'right');
 }
+function manualWin(side){
+  if(!S.isHost)return;
+  // Force votes so that chosen side wins
+  const big=9999;
+  if(side==='left'){S.votes={left:big,right:0};}
+  else{S.votes={left:0,right:big};}
+  endPoll();
+  renderRound(false);
+  save();
+}
 function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
 function closeChooser(){document.getElementById('chooser-bg').classList.remove('open');}
 function pickSong(id){const song=S.songs.find(s=>s.id===id);if(!song)return;const pair=S.pairs[S.roundIdx];if(chooserSide==='left')pair[0]=song;else pair[1]=song;setCardSong(chooserSide,song);save();closeChooser();}
@@ -1088,50 +1413,65 @@ function closeBracket(){document.getElementById('bracket-modal').classList.remov
 
 function renderBracket(){
   const container=document.getElementById('bracket-tree');
-  if(!S.tournamentRounds||!S.tournamentRounds.length){container.innerHTML='<div style="color:var(--t3);padding:40px">Battle-ul nu a început încă.</div>';return;}
+  if(!S.tournamentRounds||!S.tournamentRounds.length){
+    container.innerHTML='<div style="color:var(--t3);padding:40px">Battle-ul nu a inceput inca.</div>';return;
+  }
   const roundNames=getRoundNames();
+  const rounds=S.tournamentRounds; // [0]=earliest, [last]=Final
+  const SLOT_H=44; // px per slot including gap
+  const PAIR_GAP=16; // gap between pairs in a column
   let html='';
-  // Render from last round (Final) to first, left to right visually = reversed array
-  const rounds=[...S.tournamentRounds].reverse();
-  const namesRev=[...roundNames].reverse();
+
   rounds.forEach((round,ri)=>{
-    const allMatches=round; // includes byes
-    const nonByeMatches=allMatches.filter(p=>p[0]&&p[1]);
-    const pairs=nonByeMatches.length?nonByeMatches:allMatches.filter(p=>p[0]||p[1]);
-    html+='<div class="bracket-round" style="gap:'+(Math.pow(2,ri)*8+4)+'px">';
-    html+='<div class="bracket-round-label">'+namesRev[ri]+'</div>';
+    const name=roundNames[ri]||('Round '+(ri+1));
+    const pairs=round.filter(p=>p[0]||p[1]);
+    const isLast=ri===rounds.length-1;
+
+    // Each column: label on top, then pairs spaced evenly
+    html+='<div class="bracket-col">';
+    html+='<div class="bracket-col-label">'+name+'</div>';
+    html+='<div class="bracket-col-slots">';
+
     pairs.forEach((pair,pi)=>{
-      const rndIdx=S.tournamentRounds.length-1-ri;
-      const isCurrentRound=rndIdx===S.currentTournamentRound;
+      const isCurrentRound=ri===S.currentTournamentRound;
       html+='<div class="bracket-pair">';
       [0,1].forEach(si=>{
         const song=pair[si];
         const isWinner=S.winners.some(w=>w&&song&&w.id===song.id);
-        const isCurrent=isCurrentRound&&S.pairs[S.roundIdx]&&(S.pairs[S.roundIdx][si]&&S.pairs[S.roundIdx][si].id===song?.id);
+        const isCurrent=isCurrentRound&&S.pairs[S.roundIdx]&&S.pairs[S.roundIdx][si]&&S.pairs[S.roundIdx][si].id===song?.id;
         const cls='bracket-slot'+(isWinner?' winner':'')+(isCurrent?' current':'')+(song?'':' tbd');
-        const label=song?(song.title.slice(0,18)+(song.title.length>18?'…':'')):'TBD';
-        html+='<div class="'+cls+'" title="'+(song?song.title+' — @'+song.submittedBy:'')+'">'+label+'</div>';
+        const label=song?('@'+(song.submittedBy||'?')):'TBD';
+        const tip=song?'@'+song.submittedBy+' \u2014 '+song.title:'';
+        html+='<div class="'+cls+'" title="'+tip+'">'+label+'</div>';
       });
-      html+='</div>';
-    });
-    html+='</div>';
-    // Add connector lines
-    if(ri<rounds.length-1){
-      html+='<div class="bracket-connector" style="height:'+(pairs.length*60)+'px;position:relative">';
-      // Draw SVG lines
-      html+='<svg width="28" height="100%" style="position:absolute;inset:0"><g stroke="var(--t4)" stroke-width="1" fill="none">';
-      for(let i=0;i<Math.ceil(pairs.length/2);i++){
-        const y1=((i*2+0.5)/(pairs.length))*100;
-        const y2=((i*2+1.5)/(pairs.length))*100;
-        const ym=(y1+y2)/2;
-        html+=`<line x1="0" y1="${y1}%" x2="14" y2="${y1}%"/>`;
-        html+=`<line x1="0" y1="${y2}%" x2="14" y2="${y2}%"/>`;
-        html+=`<line x1="14" y1="${y1}%" x2="14" y2="${y2}%"/>`;
-        html+=`<line x1="14" y1="${ym}%" x2="28" y2="${ym}%"/>`;
+      html+='</div>'; // bracket-pair
+
+      // Connector line to next round (right side)
+      if(!isLast){
+        const isTop=pi%2===0;
+        // Line going right from center, then vertical to meet partner, then right
+        html+='<div class="bracket-conn-h" data-top="'+isTop+'">';
+        if(isTop){
+          // top of pair: line right + line down (50%->100%)
+          html+='<svg width="24" height="100%" style="display:block;overflow:visible"><g stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none">';
+          html+='<line x1="0" y1="25%" x2="12" y2="25%"/>';
+          html+='<line x1="12" y1="25%" x2="12" y2="75%"/>';
+          html+='</g></svg>';
+        } else {
+          // bottom of pair: line right + line up (50%->0%) + line right
+          html+='<svg width="24" height="100%" style="display:block;overflow:visible"><g stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none">';
+          html+='<line x1="0" y1="75%" x2="12" y2="75%"/>';
+          html+='<line x1="12" y1="75%" x2="12" y2="25%"/>';
+          html+='<line x1="12" y1="50%" x2="24" y2="50%"/>';
+          html+='</g></svg>';
+        }
+        html+='</div>';
       }
-      html+='</g></svg></div>';
-    }
+    });
+
+    html+='</div></div>'; // col-slots + col
   });
+
   container.innerHTML=html;
 }
 
