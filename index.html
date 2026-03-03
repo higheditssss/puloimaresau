@@ -499,24 +499,33 @@ let _saveTimer = null, _pollTimer = null;
 
 async function redisSet(key, value) {
   try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
     await fetch('/api/redis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cmd: 'set', key, value })
+      body: JSON.stringify({ cmd: 'set', key, value }),
+      signal: ctrl.signal
     });
-  } catch(e) {}
+    clearTimeout(t);
+  } catch(e) { console.warn('redisSet failed:', e.message); }
 }
 
 async function redisGet(key) {
   try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
     const r = await fetch('/api/redis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cmd: 'get', key })
+      body: JSON.stringify({ cmd: 'get', key }),
+      signal: ctrl.signal
     });
+    clearTimeout(t);
+    if (!r.ok) return null;
     const d = await r.json();
     return d.result ?? null;
-  } catch(e) { return null; }
+  } catch(e) { console.warn('redisGet failed:', e.message); return null; }
 }
 
 function save() {
