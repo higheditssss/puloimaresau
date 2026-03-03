@@ -6,8 +6,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { cmd, key, value } = req.body;
-  const UPSTASH_URL   = process.env.UPSTASH_URL;
-  const UPSTASH_TOKEN = process.env.UPSTASH_TOKEN;
+  const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
+  const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
     return res.status(500).json({ error: 'Missing env vars' });
