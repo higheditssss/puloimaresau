@@ -885,7 +885,22 @@ async function connectChat(){
   }catch(e){console.error('[connectChat] failed:', e.message);}
 }
 function setStatus(msg){}
-function initPusher(id){if(typeof Pusher==='undefined')return;try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);}catch(e){}}
+function initPusher(id){
+  if(typeof Pusher==='undefined'){console.error('[Pusher] not loaded');return;}
+  try{
+    // Try both known Kick Pusher app keys
+    const keys=['eb1d5f283081a78b932c','32cbd69e4b950bf97679'];
+    keys.forEach(key=>{
+      const p=new Pusher(key,{cluster:'us2'});
+      p.connection.bind('connected',()=>console.log('[Pusher] connected key='+key));
+      const ch=p.subscribe('chatrooms.'+id+'.v2');
+      ch.bind_global((event,data)=>console.log('[Pusher] key='+key+' event=',event,'data=',JSON.stringify(data).slice(0,200)));
+      ch.bind('App\\Events\\ChatMessageSentEvent',onMsg);
+      ch.bind('App\\Events\\ChatMessageEvent',onMsg);
+    });
+    console.log('[Pusher] subscribed to chatrooms.'+id+'.v2');
+  }catch(e){console.error('[Pusher] init error',e);}
+}
 function onMsg(data){
   const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';
   const msg=((data&&data.content)||'').trim();
