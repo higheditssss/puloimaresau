@@ -487,7 +487,14 @@ function updateSliders(){
   document.getElementById('sl-players').style.background=`linear-gradient(to right,var(--acc) ${pct1}%,var(--t4) ${pct1}%)`;
   document.getElementById('sl-spp').style.background=`linear-gradient(to right,var(--acc) ${pct2}%,var(--t4) ${pct2}%)`;
 }
-// ── REAL-TIME SYNC via Upstash (prin proxy /api/redis) ───────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  UPSTASH — pune credențialele în Vercel Environment Vars    ║
+// ║  Settings → Environment Variables → Add New:               ║
+// ║    UPSTASH_URL    = https://xxxxx.upstash.io                ║
+// ║    UPSTASH_TOKEN  = AXxx...                                 ║
+// ║                                                             ║
+// ║  NU pune nimic aici — codul e corect așa                   ║
+// ╚══════════════════════════════════════════════════════════════╝
 let _saveTimer = null, _pollTimer = null;
 
 async function redisSet(key, value) {
@@ -655,7 +662,7 @@ function submitSong(){
   
   save();showScreen('s-wait');initWait();
 }
-function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;}}
+function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
 function initWait(){
   document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';
   document.getElementById('wc-needed').textContent=S.room.playersNeeded||4;
@@ -667,20 +674,29 @@ function initWait(){
   else{hostOnly.style.display='none';hostBtns.style.display='none';}
   pollWait();waitPoll=setInterval(pollWait,2000);
 }
-function pollWait(){
-  const state=load(S.room.id);if(!state)return;S=state;
+async function pollWait(){
+  if(!S.room)return;
+  const remote=await redisGet('room_'+S.room.id);
+  const state=remote||load(S.room.id);
+  if(!state)return;
+  try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
+  const wasHost=S.isHost;
+  S=Object.assign({},state,{isHost:wasHost});
   const joined=state.songs.length,needed=state.room.playersNeeded||4;
   document.getElementById('wc-joined').textContent=joined;document.getElementById('wc-needed').textContent=needed;
   document.getElementById('wait-missing').textContent=Math.max(0,needed-joined);
   document.getElementById('wait-player-list').innerHTML=state.songs.map(s=>'<div class="prow"><div class="pdot"></div>@'+s.submittedBy+'</div>').join('');
   const btn=document.getElementById('wait-start-btn');
   if(joined>=needed){btn.disabled=false;document.getElementById('wait-note').textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;
-  if(state.battleStarted){clearInterval(waitPoll);S=state;showScreen('s-battle');initBattle();}
+  if(state.battleStarted){clearInterval(waitPoll);showScreen('s-battle');initBattle();}
 }
 function forceLaunch(){
   clearInterval(waitPoll);const state=load(S.room.id)||S;
-  state.battleStarted=true;localStorage.setItem('ksb_'+state.room.id,JSON.stringify(state));
-  S=state;S.isHost=true;showScreen('s-battle');initBattle();
+  state.battleStarted=true;
+  const wasHost=S.isHost;
+  S=Object.assign({},state,{isHost:wasHost});
+  save();
+  showScreen('s-battle');initBattle();
 }
 function initBattle(){
   document.getElementById('h-code').textContent='CODE: '+S.room.id;
