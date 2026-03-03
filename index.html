@@ -836,7 +836,11 @@ function showDone(){
     try { localStorage.removeItem('ksb_user_' + roomId); } catch(e) {}
   }
 }
-function castVote(user,side){if(S.voters[user]||S.phase!=='polling')return;S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();}
+function castVote(user,side){
+  console.log('[castVote]', user, side, 'phase='+S.phase, 'pollActive='+S.pollActive, 'alreadyVoted='+!!S.voters[user]);
+  if(S.voters[user]||S.phase!=='polling')return;
+  S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();
+}
 function updateBar(){
   const{left,right}=S.votes,total=left+right||1;
   const p1=Math.round(left/total*100),p2=100-p1;
@@ -863,7 +867,13 @@ function addChat(user,msg,isVote){if(msg==='!1')castVote(user,'left');if(msg==='
 async function connectChat(){const kick=S.room&&S.room.kickChannel;if(!kick)return;try{const r=await fetch('/api/channel?user='+encodeURIComponent(kick));if(!r.ok)throw new Error();const d=await r.json();S.chatroomId=d.chatroomId;initPusher(d.chatroomId);}catch(e){}}
 function setStatus(msg){}
 function initPusher(id){if(typeof Pusher==='undefined')return;try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);}catch(e){}}
-function onMsg(data){const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';const msg=((data&&data.content)||'').trim();if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
+function onMsg(data){
+  const user=(data&&data.sender&&(data.sender.username||data.sender.slug))||'user';
+  const msg=((data&&data.content)||'').trim();
+  console.log('[onMsg]', user, msg);
+  if(msg==='!1')castVote(user,'left');
+  if(msg==='!2')castVote(user,'right');
+}
 function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
 function closeChooser(){document.getElementById('chooser-bg').classList.remove('open');}
 function pickSong(id){const song=S.songs.find(s=>s.id===id);if(!song)return;const pair=S.pairs[S.roundIdx];if(chooserSide==='left')pair[0]=song;else pair[1]=song;setCardSong(chooserSide,song);save();closeChooser();}
