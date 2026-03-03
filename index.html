@@ -742,19 +742,26 @@ function initWait(){
 }
 async function pollWait(){
   if(!S.room)return;
+  // Stop if we left the waiting room
+  const ws=document.getElementById('s-wait');
+  if(!ws||!ws.classList.contains('active')){clearInterval(waitPoll);return;}
   const remote=await redisGet('room_'+S.room.id);
   const state=remote||load(S.room.id);
   if(!state||!state.room)return;
+  // Check again after async — may have navigated away
+  if(!document.getElementById('s-wait').classList.contains('active')){clearInterval(waitPoll);return;}
   const songs=Array.isArray(state.songs)?state.songs:[];
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
   const wasHost=S.isHost;
   S=Object.assign({},state,{songs,isHost:wasHost});
   const joined=songs.length,needed=state.room.playersNeeded||4;
-  document.getElementById('wc-joined').textContent=joined;document.getElementById('wc-needed').textContent=needed;
-  document.getElementById('wait-missing').textContent=Math.max(0,needed-joined);
-  document.getElementById('wait-player-list').innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div>@'+s.submittedBy+'</div>').join('');
-  const btn=document.getElementById('wait-start-btn');
-  if(joined>=needed){btn.disabled=false;document.getElementById('wait-note').textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;
+  const elJ=document.getElementById('wc-joined');const elN=document.getElementById('wc-needed');
+  const elM=document.getElementById('wait-missing');const elP=document.getElementById('wait-player-list');
+  const elNote=document.getElementById('wait-note');const btn=document.getElementById('wait-start-btn');
+  if(elJ)elJ.textContent=joined;if(elN)elN.textContent=needed;
+  if(elM)elM.textContent=Math.max(0,needed-joined);
+  if(elP)elP.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div>@'+s.submittedBy+'</div>').join('');
+  if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
   if(state.battleStarted){clearInterval(waitPoll);showScreen('s-battle');initBattle();}
 }
 function forceLaunch(){
@@ -864,7 +871,19 @@ function renderVoters(){
   tv.innerHTML=sorted.map(([u,n],i)=>'<div class="vrow"><span style="font-size:11px">'+['🥇','🥈','🥉','4th','5th'][i]+' @'+u+'</span><span style="color:var(--acc);font-weight:700">'+n+'</span></div>').join('');
 }
 function addChat(user,msg,isVote){if(msg==='!1')castVote(user,'left');if(msg==='!2')castVote(user,'right');}
-async function connectChat(){const kick=S.room&&S.room.kickChannel;if(!kick)return;try{const r=await fetch('/api/channel?user='+encodeURIComponent(kick));if(!r.ok)throw new Error();const d=await r.json();S.chatroomId=d.chatroomId;initPusher(d.chatroomId);}catch(e){}}
+async function connectChat(){
+  const kick=S.room&&S.room.kickChannel;
+  console.log('[connectChat] kickChannel=', kick, 'room=', S.room);
+  if(!kick)return;
+  try{
+    const r=await fetch('/api/channel?user='+encodeURIComponent(kick));
+    console.log('[connectChat] /api/channel status=', r.status);
+    if(!r.ok)throw new Error('channel '+r.status);
+    const d=await r.json();
+    console.log('[connectChat] chatroomId=', d.chatroomId);
+    S.chatroomId=d.chatroomId;initPusher(d.chatroomId);
+  }catch(e){console.error('[connectChat] failed:', e.message);}
+}
 function setStatus(msg){}
 function initPusher(id){if(typeof Pusher==='undefined')return;try{const p=new Pusher('32cbd69e4b950bf97679',{cluster:'us2'});const ch=p.subscribe('chatrooms.'+id+'.v2');ch.bind('App\\Events\\ChatMessageEvent',onMsg);}catch(e){}}
 function onMsg(data){
