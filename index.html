@@ -527,7 +527,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(rid){
     const saved=load(rid);
     if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
-    if(saved&&saved.room){S=saved;showScreen('s-submit');return;}
+    if(saved&&saved.room){
+      S=saved;
+      // If this tab is the host, skip submit and go to wait
+      if(S.isHost){showScreen('s-wait');initWait();return;}
+      showScreen('s-submit');return;
+    }
     const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
     S=tmp;showScreen('s-submit');return;
   }
@@ -545,7 +550,8 @@ function createRoom(){
   const spp=parseInt(document.getElementById('sl-spp').value)||1;
   const id=Math.random().toString(36).slice(2,8).toUpperCase();
   S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
-  pushUrl(id);save();showScreen('s-submit');
+  pushUrl(id);save();
+  showScreen('s-wait');initWait();
 }
 function joinRoom(){
   const code=document.getElementById('l-code').value.trim().toUpperCase();
