@@ -560,10 +560,27 @@ function applyRemoteState(data, roomId) {
   if (!data || !data.room) return;
   const prevStarted = S.battleStarted;
   const wasHost = S.isHost;
-  S = Object.assign({}, data);
-  S.isHost = wasHost;
+
+  // If host is in battle: keep local votes/voters (they come from Pusher chat, not Redis)
+  // Only sync structural fields — roundIdx, phase, pollActive, pairs, winners
+  const inBattle = wasHost && document.getElementById('s-battle') && document.getElementById('s-battle').classList.contains('active');
+  if (inBattle) {
+    // Preserve local votes — only sync non-vote fields from remote
+    S = Object.assign({}, data, {
+      isHost: wasHost,
+      votes: S.votes,
+      voters: S.voters,
+      voterCount: S.voterCount,
+      phase: S.phase,
+      pollActive: S.pollActive
+    });
+  } else {
+    S = Object.assign({}, data);
+    S.isHost = wasHost;
+  }
+
   try { localStorage.setItem('ksb_' + roomId, JSON.stringify(S)); } catch(e) {}
-  if (!prevStarted && S.battleStarted && !S.isHost) {
+  if (!prevStarted && S.battleStarted && !wasHost) {
     clearInterval(waitPoll); clearInterval(_pollTimer);
     showScreen('s-battle'); initBattle(); return;
   }
