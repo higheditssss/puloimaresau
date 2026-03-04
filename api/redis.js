@@ -20,13 +20,12 @@ module.exports = async (req, res) => {
 
   try {
     if (cmd === 'set') {
-      // Upstash REST: POST /pipeline with [SET, key, value]
-      // value must be a string — stringify the object
       const serialized = JSON.stringify(value);
+      const ttl = req.body.ttl || 7200; // default 2 ore
       const r = await fetch(`${UPSTASH_URL}/pipeline`, {
         method: 'POST',
         headers,
-        body: JSON.stringify([['SET', key, serialized, 'EX', 86400]])
+        body: JSON.stringify([['SET', key, serialized, 'EX', ttl]])
       });
       const d = await r.json();
       return res.status(200).json({ ok: true, d });

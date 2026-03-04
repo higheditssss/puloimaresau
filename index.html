@@ -68,9 +68,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .wplayers-t{font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
 .prow{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:8px;margin-bottom:4px;font-size:13px;color:var(--t2)}
 .pdot{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--glow);flex-shrink:0}
-.song-spoiler-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 7px;font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s;user-select:none;font-style:italic}
-.song-spoiler-tag:hover{background:rgba(255,255,255,.09);color:rgba(255,255,255,.5)}
-.song-spoiler-tag.revealed{background:rgba(46,204,74,.07);border-color:rgba(46,204,74,.25);color:var(--acc);font-style:normal;font-weight:600;cursor:default}
 .share-row{display:flex;gap:8px;margin-bottom:18px}
 .share-inp{flex:1;padding:9px 12px;background:rgba(0,0,0,.4);border:1px solid var(--t4);border-radius:8px;color:var(--t2);font-size:12px;font-family:monospace;outline:none;min-width:0}
 .copy-btn{padding:9px 14px;background:rgba(255,255,255,.03);border:1px solid var(--t4);border-radius:8px;color:var(--t2);font-size:11px;cursor:pointer;font-weight:700;white-space:nowrap;transition:all .18s;font-family:'Inter',sans-serif}
@@ -261,11 +258,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .bk-vline{width:1px;height:10px;background:rgba(255,255,255,.13);margin:0 auto}
 
 /* ── DUPLICATE WARNING ── */
-.dup-warn{border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;display:none}
+.dup-warn{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ffd060;display:none}
 .dup-warn.show{display:block}
-.dup-warn.exact{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.35);color:#ff8080}
-.dup-warn.similar{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.3);color:#ffd060}
-.dup-warn-title{font-weight:800;margin-bottom:6px;font-size:13px;display:flex;align-items:center;gap:6px}
 .dup-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px}
 .dup-thumb{width:40px;height:26px;object-fit:cover;border-radius:3px;background:var(--s3);flex-shrink:0}
 .dup-info{flex:1;min-width:0}
@@ -273,16 +267,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .dup-sub{font-size:10px;color:var(--t3)}
 .dup-remove{padding:3px 8px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .15s}
 .dup-remove:hover{background:rgba(255,68,68,.2)}
-#dup-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none;max-width:460px;white-space:nowrap}
-#dup-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-#dup-toast.exact{background:#1a0606;border:1px solid rgba(255,68,68,.55);color:#ff8080}
-#dup-toast.similar{background:#1a1200;border:1px solid rgba(255,184,0,.45);color:#ffd060}
-#dup-toast .t-icon{font-size:18px;flex-shrink:0}
 </style>
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 </head>
 <body>
-<div id="dup-toast"><span class="t-icon"></span><span id="dup-toast-msg"></span></div>
 
 <!-- TUTORIAL -->
 <div class="tbg" id="tbg">
@@ -346,7 +334,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       </div>
     <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value)"/></div>
     <div class="dup-warn" id="dup-warn">
-      <div class="dup-warn-title"><span id="dup-warn-icon"></span><span id="dup-warn-label"></span></div>
+      <div style="font-weight:700;margin-bottom:6px">⚠️ Piesă similară deja înregistrată:</div>
       <div id="dup-list"></div>
     </div>
     <div class="err" id="serr"></div>
@@ -629,7 +617,7 @@ async function redisSet(key, value) {
     await fetch('/api/redis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cmd: 'set', key, value }),
+      body: JSON.stringify({ cmd: 'set', key, value, ttl: 7200 }),
       signal: ctrl.signal
     });
     clearTimeout(t);
@@ -665,11 +653,27 @@ async function redisDel(key) {
 
 function save() {
   if (!S.room) return;
+  S._savedAt = Date.now();
   try { localStorage.setItem('ksb_' + S.room.id, JSON.stringify(S)); } catch(e) {}
   clearTimeout(_saveTimer);
-  // Strip isHost before saving to Redis — isHost is local-only
   const toSave = Object.assign({}, S, {isHost: false});
   _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, toSave), 300);
+}
+
+// Curăță localStorage de date mai vechi de 2 ore
+function cleanOldLocalStorage(){
+  try{
+    const TWO_H=2*60*60*1000;
+    const now=Date.now();
+    Object.keys(localStorage).forEach(k=>{
+      if(!k.startsWith('ksb_'))return;
+      try{
+        const d=JSON.parse(localStorage.getItem(k));
+        const ts=d&&d._savedAt;
+        if(ts&&(now-ts)>TWO_H) localStorage.removeItem(k);
+      }catch(e){localStorage.removeItem(k);}
+    });
+  }catch(e){}
 }
 
 function load(id) {
@@ -792,6 +796,7 @@ function pickUser(slug,avatar){
   hideUserAC();
 }
 document.addEventListener('DOMContentLoaded',async ()=>{
+  cleanOldLocalStorage();
   updateSliders();
   const rid=getRoomUrl();
   if(rid){
@@ -856,7 +861,7 @@ async function submitSong(){
   const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
-  err.textContent='Se verifică...';
+  err.textContent='Se salvează...';
   try {
     // Read latest state from Redis
     const remote=await redisGet('room_'+S.room.id);
@@ -865,21 +870,6 @@ async function submitSong(){
     if(songs.find(s=>s.submittedBy===user)){
       const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
       err.textContent='';showScreen('s-wait');initWait();return;
-    }
-    // Block on exact duplicate (same YouTube/Spotify ID)
-    const{exact}=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
-    if(exact.length){
-      err.textContent='';
-      const warn=document.getElementById('dup-warn');
-      const list=document.getElementById('dup-list');
-      const icon=document.getElementById('dup-warn-icon');
-      const label=document.getElementById('dup-warn-label');
-      warn.className='dup-warn show exact';
-      icon.textContent='🚫';
-      label.textContent='Piesa asta există deja — alege alta:';
-      list.innerHTML=exact.map(s=>dupItemHTML(s,false)).join('');
-      showDupToast('exact',`Nu poți adăuga o piesă duplicat! @${exact[0].submittedBy} a înregistrat-o deja.`);
-      return;
     }
     const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
@@ -1117,7 +1107,7 @@ function showDone(){
     <div class="w-trophy">🏆</div>
     <div class="w-lbl">CÂȘTIGĂTOR</div>
     <div class="w-title" style="font-size:clamp(18px,3vw,26px);margin-bottom:6px">${wTitle}</div>
-    <div class="w-artist">${wArtist?wArtist+' · ':''}` + '<span style="color:var(--acc)">${wUser}</span>' + `</div>
+    <div class="w-artist">${wArtist?wArtist+' · ':''}<span style="color:var(--acc)">${wUser}</span></div>
     <div style="font-size:40px;margin-top:14px">🎊</div>
   </div>`;
   document.getElementById('winner-wrap').style.display='block';
@@ -1126,12 +1116,15 @@ function showDone(){
   document.getElementById('total-box-wrap').style.display='none';
   document.getElementById('btn-next').style.display='none';
   document.getElementById('btn-poll').style.display='none';
-  // Sesiune terminată — curăță Redis și localStorage
-  if(S.isHost && S.room) {
-    const roomId = S.room.id;
-    redisDel('room_' + roomId);
-    try { localStorage.removeItem('ksb_' + roomId); } catch(e) {}
-    try { localStorage.removeItem('ksb_user_' + roomId); } catch(e) {}
+  // Curăță tot — toți utilizatorii
+  if(S.room){
+    const roomId=S.room.id;
+    try{localStorage.removeItem('ksb_'+roomId);}catch(e){}
+    try{localStorage.removeItem('ksb_user_'+roomId);}catch(e){}
+    // Curăță URL-ul (scoate ?room= din bara de adrese)
+    try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
+    // Hostul șterge din Redis
+    if(S.isHost) redisDel('room_'+roomId);
   }
 }
 function castVote(user,side){
@@ -1380,98 +1373,36 @@ function renderBracket(){
     ${html}`;
 }
 
-// ── TOAST ──────────────────────────────────────────
-let _toastTimer=null;
-function showDupToast(type, msg){
-  const t=document.getElementById('dup-toast');
-  const m=document.getElementById('dup-toast-msg');
-  if(!t||!m)return;
-  t.className='show '+(type==='exact'?'exact':'similar');
-  t.querySelector('.t-icon').textContent=type==='exact'?'🚫':'⚠️';
-  m.textContent=msg;
-  clearTimeout(_toastTimer);
-  _toastTimer=setTimeout(()=>{t.className=t.className.replace('show','').trim();},4500);
-}
-
 // ── DUPLICATE DETECTION ────────────────────────────
-function normalize(str){return(str||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
-
 function getSimilarSongs(ytId,spId,existingSongs){
-  if(!existingSongs||!existingSongs.length)return{exact:[],similar:[]};
-  const exact=existingSongs.filter(s=>{
+  if(!existingSongs||!existingSongs.length)return[];
+  return existingSongs.filter(s=>{
     if(ytId&&s.ytId&&s.ytId===ytId)return true;
     if(spId&&s.spId&&s.spId===spId)return true;
     return false;
   });
-  // Similar = same normalized title but different ID
-  const exactIds=new Set(exact.map(s=>s.id));
-  const similar=existingSongs.filter(s=>{
-    if(exactIds.has(s.id))return false;
-    if(!s.title||s.title==='YouTube Song'||s.title==='Spotify Song')return false;
-    // Will be populated after title fetch — skip for now if no title context
-    return false;
-  });
-  return{exact,similar};
-}
-
-function dupItemHTML(s,showRemove=false){
-  return`<div class="dup-item">
-    <img class="dup-thumb" src="${s.thumb||''}" onerror="this.style.display='none'"/>
-    <div class="dup-info">
-      <div class="dup-title">${s.title||'?'}</div>
-      <div class="dup-sub">@${s.submittedBy}</div>
-    </div>
-    ${showRemove?`<button class="dup-remove" onclick="removeSong('${s.id}')">REMOVE</button>`:''}
-  </div>`;
 }
 
 async function checkDuplicate(urlVal){
   const warn=document.getElementById('dup-warn');
   const list=document.getElementById('dup-list');
-  const icon=document.getElementById('dup-warn-icon');
-  const label=document.getElementById('dup-warn-label');
   const ytMatch=(urlVal||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=(urlVal||'').match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-  if(!ytMatch&&!spMatch){warn.classList.remove('show','exact','similar');return;}
-  if(!S.room){warn.classList.remove('show','exact','similar');return;}
+  if(!ytMatch&&!spMatch){warn.classList.remove('show');return;}
   const remote=await redisGet('room_'+S.room.id);
   const existing=remote||load(S.room.id);
   const songs=(existing&&existing.songs)||[];
-  const{exact}=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
-
-  if(exact.length){
-    warn.className='dup-warn show exact';
-    icon.textContent='🚫';
-    label.textContent='Piesa asta există deja în battle:';
-    list.innerHTML=exact.map(s=>dupItemHTML(s,false)).join('');
-    showDupToast('exact',`Duplicat detectat — piesa lui @${exact[0].submittedBy} e deja înregistrată!`);
-    return;
-  }
-  warn.classList.remove('show','exact','similar');
-}
-
-function revealSongTitle(el, title){
-  el.textContent=title.slice(0,28)+(title.length>28?'…':'');
-  el.classList.add('revealed');
-  el.onclick=null;
+  const dups=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
+  if(!dups.length){warn.classList.remove('show');return;}
+  warn.classList.add('show');
+  list.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div></div>').join('');
 }
 
 function renderWaitPlayerList(songs){
   const el=document.getElementById('wait-player-list');
   if(!el)return;
   const isHost=S.isHost;
-  el.innerHTML=songs.map(s=>{
-    const sid='spoil-'+s.id.replace(/[^a-z0-9]/gi,'');
-    const safeTitle=(s.title||'?').replace(/'/g,"\\'");
-    return`<div class="prow">
-      <div class="pdot"></div>
-      <span style="flex:1;display:flex;align-items:center;gap:7px">
-        <span style="font-weight:600">@${s.submittedBy}</span>
-        <span id="${sid}" class="song-spoiler-tag" onclick="revealSongTitle(this,'${safeTitle}')">👁 spoiler</span>
-      </span>
-      ${isHost?`<button onclick="removeSong('${s.id}');" style="padding:2px 7px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕</button>`:''}
-    </div>`;
-  }).join('');
+  el.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div><span style="flex:1">@'+s.submittedBy+' <span style="color:var(--t3);font-size:10px">— '+s.title.slice(0,24)+'</span></span>'+(isHost?'<button onclick="removeSong(\''+s.id+'\');" style="padding:2px 7px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕</button>':'')+' </div>').join('');
   // Show duplicate host section
   if(isHost){
     const groups={};
@@ -1485,13 +1416,8 @@ function renderWaitPlayerList(songs){
     const dupList=document.getElementById('dup-host-list');
     if(dups.length&&dupSection&&dupList){
       dupSection.style.display='';
-      dupList.innerHTML=dups.map(s=>dupItemHTML(s,true)).join('');
-      // Show toast for host if new duplicates found
-      if(!dupSection._wasShown){
-        dupSection._wasShown=true;
-        showDupToast('exact',`${dups.length} piese duplicate detectate în waiting room!`);
-      }
-    }else if(dupSection){dupSection.style.display='none';dupSection._wasShown=false;}
+      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
+    }else if(dupSection){dupSection.style.display='none';}
   }
 }
 
