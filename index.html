@@ -1413,7 +1413,7 @@ async function checkDuplicate(urlVal){
   const dups=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
   if(!dups.length){warn.classList.remove('show');return;}
   warn.classList.add('show');
-  list.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div></div>').join('');
+  list.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub" style="filter:blur(4px);user-select:none">@'+s.submittedBy+'</div></div></div>').join('');
 }
 
 function renderWaitPlayerList(songs){
@@ -1434,7 +1434,7 @@ function renderWaitPlayerList(songs){
     const dupList=document.getElementById('dup-host-list');
     if(dups.length&&dupSection&&dupList){
       dupSection.style.display='';
-      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
+      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title" style="filter:blur(4px);user-select:none">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
     }else if(dupSection){dupSection.style.display='none';}
   }
 }
