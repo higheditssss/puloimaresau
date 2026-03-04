@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>HIGHSB</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAyMDIwMiIvPgogIDxyZWN0IHg9IjQiIHk9IjE4IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMCIgcng9IjEuNSIgZmlsbD0iIzJlY2M0YSIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjQiIGhlaWdodD0iMTgiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIxNiIgeT0iNCIgd2lkdGg9IjQiIGhlaWdodD0iMjQiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIyMiIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjE2IiByeD0iMS41IiBmaWxsPSIjMmVjYzRhIiBvcGFjaXR5PSIwLjciLz4KPC9zdmc+"/>
+<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAyMDIwMiIvPgogIDxyZWN0IHg9IjQiIHk9IjE4IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMCIgcng9IjEuNSIgZmlsbD0iIzJlY2M0YSIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjQiIGhlaWdodD0iMTgiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIxNiIgeT0iNCIgd2lkdGg9IjQiIGhlaWdodD0iMjQiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIyMiIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjE2IiByeD0iMS41IiBmaWxsPSIjMmVjYzRhIiBvcGFjaXR5PSIwLjciLz4KPC9zdmc+"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -76,7 +78,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .b-header{display:flex;align-items:center;justify-content:space-between;padding:10px clamp(14px,3vw,24px);background:rgba(8,8,8,.98);border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100}
 .h-logo{font-size:15px;font-weight:900;letter-spacing:4px;color:var(--acc);text-shadow:0 0 16px var(--glow)}
 .badges{display:flex;gap:5px;align-items:center}
-.badge{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:600;background:rgba(255,255,255,.03);border:1px solid var(--t4);color:var(--t3);letter-spacing:.5px}
+.badge{padding:4px 10px;border-radius:5px;font-size:9px;font-weight:600;background:rgba(255,255,255,.03);border:1px solid var(--t4);color:var(--t3);letter-spacing:.5px}
 .badge.live{background:rgba(255,68,68,.08);border-color:rgba(255,68,68,.2);color:#ff9090}
 .badge.live::before{content:'● ';animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
@@ -236,24 +238,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .tstep p strong{color:var(--t)}
 
 /* ── BRACKET ── */
-#bracket-modal{position:fixed;inset:0;background:rgba(5,5,5,.98);z-index:500;display:none;flex-direction:column;overflow:auto;padding:24px 32px}
+#bracket-modal{position:fixed;inset:0;background:rgba(4,4,4,.98);z-index:500;display:none;flex-direction:column;padding:14px 12px 10px;overflow:hidden}
 #bracket-modal.open{display:flex}
-.bracket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0}
-.bracket-header h2{font-size:16px;font-weight:900;letter-spacing:3px;color:var(--acc)}
-.bracket-close{background:none;border:1px solid var(--t4);color:var(--t3);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
-/* Horizontal bracket — left=early rounds, right=final */
-.bracket-tree{display:flex;flex-direction:row;gap:0;align-items:stretch;min-width:max-content;flex:1;overflow-x:auto;overflow-y:auto}
-.bracket-col{display:flex;flex-direction:column;min-width:180px}
-.bracket-col-label{font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;text-align:center;padding:0 16px 16px;font-weight:700;flex-shrink:0}
-.bracket-col-slots{display:flex;flex-direction:column;flex:1;justify-content:space-around;padding:0 0 0 0}
-.bracket-match-wrap{display:flex;flex-direction:row;align-items:stretch;flex:1;margin-bottom:12px}
-.bracket-pair{display:flex;flex-direction:column;gap:3px;padding:0 8px 0 0}
-.bracket-slot{padding:9px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;font-size:13px;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;transition:all .2s;min-width:140px}
-.bracket-slot.winner{background:rgba(46,204,74,.1);border-color:rgba(46,204,74,.4);color:var(--acc);font-weight:800}
-.bracket-slot.current{border-color:var(--acc);box-shadow:0 0 10px var(--glow2)}
-.bracket-slot.tbd{color:var(--t4);font-style:italic}
-.bracket-conn-h{width:24px;flex-shrink:0;align-self:stretch;display:flex}
-.bracket-conn-h svg{flex:1;height:100%}
+.bracket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0}
+.bracket-header h2{font-size:14px;font-weight:900;letter-spacing:3px;color:var(--acc)}
+.bracket-close{background:none;border:1px solid var(--t4);color:var(--t3);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
+.bk-wrap{flex:1;overflow:auto;position:relative;display:flex;align-items:flex-start}
+#bracket-tree{flex-shrink:0;padding:0 8px 16px}
+.bk-round{display:flex;flex-direction:column;align-items:stretch}
+.bk-label{font-size:9px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;text-align:center;padding:8px 0 5px;font-weight:700;flex-shrink:0}
+.bk-matches{display:flex;flex-direction:row;align-items:flex-end;min-width:max-content;padding:0 4px}
+.bk-pair{display:flex;flex-direction:column;gap:2px;align-items:stretch;position:relative}
+.bk-pair::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:1px;height:10px;background:rgba(255,255,255,.13)}
+.bk-slot{padding:4px 8px;background:#0e0e0e;border:1px solid rgba(255,255,255,.07);border-radius:4px;font-size:9px;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;min-width:72px;max-width:110px;cursor:default;transition:border-color .2s,color .2s}
+.bk-slot.winner{background:rgba(46,204,74,.08);border-color:rgba(46,204,74,.35);color:var(--acc);font-weight:800}
+.bk-slot.current{border-color:var(--acc);box-shadow:0 0 6px rgba(46,204,74,.25)}
+.bk-slot.tbd{color:rgba(255,255,255,.15);font-style:italic}
+.bk-conn{display:flex;flex-direction:row;justify-content:space-around;padding:0 4px}
+.bk-vline{width:1px;height:10px;background:rgba(255,255,255,.13);margin:0 auto}
 
 /* ── DUPLICATE WARNING ── */
 .dup-warn{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ffd060;display:none}
@@ -324,7 +326,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="card">
     <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px">Trimite piesa ta</div>
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase">intrare în battle</div>
-    <div class="inp-wrap"><lbl>Kick Username</lbl><input id="su-user" type="text" placeholder="Același ca în chat!"/></div>
+    <div class="inp-wrap" style="position:relative">
+        <lbl>Kick Username</lbl>
+        <input id="su-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
+          oninput="userSearch(this.value)" onblur="setTimeout(hideUserAC,200)" onfocus="if(this.value.trim().length>=2)userSearch(this.value)"/>
+        <div class="ac-list" id="user-ac" style="display:none"></div>
+      </div>
     <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value)"/></div>
     <div class="dup-warn" id="dup-warn">
       <div style="font-weight:700;margin-bottom:6px">⚠️ Piesă similară deja înregistrată:</div>
@@ -385,7 +392,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div class="b-main">
       <div class="round-row">
         <div>
-          <div class="rlbl" id="rlbl">ROUND 1 / 2</div>
           <div class="rtitle" id="rtitle">BATTLE</div>
         </div>
         <div class="ctrls" id="host-ctrls" style="display:none">
@@ -394,6 +400,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <button class="ctrl on" id="auto-btn" onclick="toggleAuto()">&#9889;</button>
         </div>
       </div>
+      <!-- Round label centered above arena -->
+      <div id="rlbl" style="text-align:center;font-size:15px;font-weight:900;letter-spacing:3px;color:var(--t);text-transform:uppercase;margin:-4px 0 6px"></div>
 
       <!-- ARENA -->
       <div class="arena" id="arena">
@@ -406,6 +414,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="display:none" id="splat-l"></div>
           <div class="sc-card-top">
             <span class="sc-badge">!1</span>
+            <img id="avatar-l" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:none;border:1px solid var(--bd);flex-shrink:0"/>
             <div class="sc-vote-mini">
               <span class="sc-submitter" id="subby-show-l" style="color:var(--acc);font-weight:700;font-size:12px"></span>
               <span style="color:var(--t3);margin:0 4px">·</span>
@@ -435,6 +444,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="display:none" id="splat-r"></div>
           <div class="sc-card-top">
             <span class="sc-badge">!2</span>
+            <img id="avatar-r" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:none;border:1px solid var(--bd);flex-shrink:0"/>
             <div class="sc-vote-mini">
               <span class="sc-submitter" id="subby-show-r" style="color:var(--acc);font-weight:700;font-size:12px"></span>
               <span style="color:var(--t3);margin:0 4px">·</span>
@@ -512,7 +522,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <h2>🏆 TOURNAMENT BRACKET</h2>
     <button class="bracket-close" onclick="closeBracket()">✕ CLOSE</button>
   </div>
-  <div id="bracket-tree" class="bracket-tree"></div>
+  <div class="bk-wrap">
+    <div id="bracket-tree" style="position:relative;flex:1;overflow:hidden"></div>
+  </div>
 </div>
 
 <!-- CHOOSER -->
@@ -532,9 +544,14 @@ function setCardSong(side,song){
   document.getElementById('stitle-'+s).textContent=song.title||'Unknown';
   document.getElementById('sartist-'+s).textContent=song.artist||'—';
   document.getElementById('ssubby-'+s).textContent=song.submittedBy?'@'+song.submittedBy:'—';
-  // Show username in card header, hide title until revealed
+  // Show username + avatar in card header
   const subbyEl=document.getElementById('subby-show-'+s);
   if(subbyEl)subbyEl.textContent=song.submittedBy?'@'+song.submittedBy:'';
+  const avatarEl=document.getElementById('avatar-'+s);
+  if(avatarEl){
+    if(song.avatar){avatarEl.src=song.avatar;avatarEl.style.display='block';}
+    else{avatarEl.style.display='none';}
+  }
   const pl=document.getElementById('splat-'+s);
   if(pl){
     if(song.ytId){pl.innerHTML=YT_SVG;pl.style.background='rgba(255,0,0,.12)';}
@@ -568,13 +585,14 @@ function playCard(side){
   else if(song.spId){iframe.src='https://open.spotify.com/embed/track/'+song.spId+'?utm_source=generator&theme=0';iframe.style.height='152px';}
 }
 
-const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],tournamentRounds:[],currentTournamentRound:0,chatroomId:null,battleStarted:false,isHost:false});
+const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0},voters:{},voterCount:{},phase:'idle',pollActive:false,autoNext:true,shuffleMode:false,winners:[],tournamentRounds:[],currentTournamentRound:0,tournamentDone:false,chatroomId:null,battleStarted:false,isHost:false});
 let S=mkState(),chooserSide=null,waitPoll=null,acTimer=null;
 
 
 function updateSliders(){
   const np=parseInt(document.getElementById('sl-players').value)||4;
   const spp=parseInt(document.getElementById('sl-spp').value)||1;
+
   document.getElementById('sv-p').textContent=np+' persoane';
   const svs=document.getElementById('sv-s');
   if(svs)svs.innerHTML=spp+(spp===1?' piesă':' piese')+' · max <span id="sv-total">'+(np*spp)+'</span>';
@@ -704,7 +722,9 @@ function startPolling(roomId) {
 function initSync(roomId) {
   startPolling(roomId);
 }
-function getRoomUrl(){return new URLSearchParams(window.location.search).get('room');}
+function getRoomUrl(){
+  return new URLSearchParams(window.location.search).get('room');
+}
 function buildUrl(id){return location.origin+location.pathname+'?room='+id;}
 function pushUrl(id){history.replaceState(null,'',location.pathname+'?room='+id);}
 function copyLink(){const el=document.getElementById('share-inp');if(!el)return;el.select();try{document.execCommand('copy');}catch(e){}flash('copy-btn');}
@@ -729,6 +749,36 @@ function renderAC(results){
 }
 function pickKick(slug){document.getElementById('l-kick').value=slug;hideAC();}
 function hideAC(){const ac=document.getElementById('kick-ac');if(ac)ac.style.display='none';}
+
+let _userAcTimer=null;
+function userSearch(q){
+  const ac=document.getElementById('user-ac');q=(q||'').trim();
+  if(q.length<2){ac.style.display='none';return;}
+  clearTimeout(_userAcTimer);
+  _userAcTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('/api/channel?user='+encodeURIComponent(q));
+      if(r.ok){
+        const d=await r.json();
+        renderUserAC([{slug:q,avatar:d.avatar||null,isLive:d.isLive||false,viewers:d.viewers||0}]);return;
+      }
+      renderUserAC([{slug:q,avatar:null,isLive:false,viewers:0}]);
+    }catch(e){renderUserAC([{slug:q,avatar:null,isLive:false,viewers:0}]);}
+  },380);
+}
+function renderUserAC(results){
+  const ac=document.getElementById('user-ac');
+  if(!results||!results.length){ac.style.display='none';return;}
+  ac.innerHTML=results.map(r=>`<div class="ac-item" onmousedown="pickUser('${r.slug}','${r.avatar||''}')"><div class="ac-av">${r.avatar?`<img src="${r.avatar}" alt=""/>`:'👤'}</div><div style="flex:1;min-width:0"><div class="ac-name">${r.slug}</div><div class="ac-sub">${r.isLive?'🔴 LIVE':'kick.com/'+r.slug}</div></div></div>`).join('');
+  ac.style.display='block';
+}
+function hideUserAC(){const ac=document.getElementById('user-ac');if(ac)ac.style.display='none';}
+function pickUser(slug,avatar){
+  document.getElementById('su-user').value=slug;
+  // Store avatar temporarily
+  window._pickedAvatar=avatar;
+  hideUserAC();
+}
 document.addEventListener('DOMContentLoaded',async ()=>{
   updateSliders();
   const rid=getRoomUrl();
@@ -790,6 +840,7 @@ async function submitSong(){
   const err=document.getElementById('serr');
   if(!user){err.textContent='Introdu username-ul tău Kick';return;}
   if(!url){err.textContent='Introdu link-ul piesei';return;}
+  const avatar=window._pickedAvatar||null;window._pickedAvatar=null;
   const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
@@ -805,13 +856,13 @@ async function submitSong(){
     }
     const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
-      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user};
+      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user,avatar:avatar};
     // Fire-and-forget YouTube title fetch
     if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
     songs.push(song);
     const wasHost=S.isHost;
     const base=existing||S;
-    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],chatroomId:base.chatroomId||null,battleStarted:base.battleStarted||false,isHost:wasHost};
+    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],tournamentDone:base.tournamentDone||false,chatroomId:base.chatroomId||null,battleStarted:base.battleStarted||false,isHost:wasHost};
     S=state;
     try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
     // Save to Redis (non-blocking — don't await, just fire)
@@ -1001,21 +1052,47 @@ function advanceTournamentRound(){
   if(!S.tournamentRounds[nextRnd]||S.tournamentRounds[nextRnd].length===0){
     showDone();return;
   }
-  // Check if next round has actual matches
   const nextPairs=S.tournamentRounds[nextRnd].filter(p=>p[0]&&p[1]);
-  if(nextPairs.length===0){
-    // Only 1 winner — tournament over
-    showDone();return;
-  }
+  if(nextPairs.length===0){showDone();return;}
+  // If next round has exactly topN-already_have slots left, we're done after this
   S.currentTournamentRound=nextRnd;
   S.pairs=nextPairs;
   S.roundIdx=0;
   renderRound(true);
   save();
 }
+
+function getRoundWinners(){
+  // Each completed tournament round produces one "level" of winners
+  // We count how many tournament rounds have been fully completed
+  const completed=S.currentTournamentRound; // rounds 0..completed-1 are done
+  // The final winner of each round = last match winner
+  const rw=[];
+  for(let r=0;r<completed;r++){
+    const pairs=S.tournamentRounds[r]||[];
+    // Find winners from this round that are in S.winners
+    pairs.forEach(p=>{
+      [p[0],p[1]].forEach(song=>{
+        if(song&&S.winners.find(w=>w&&w.id===song.id)&&!rw.find(x=>x&&x.id===song.id))rw.push(song);
+      });
+    });
+  }
+  return rw;
+}
 function prevRound(){if(!S.isHost)return;if(S.roundIdx>0){S.roundIdx--;renderRound(false);}}
 function showDone(){
-  document.getElementById('winner-wrap').innerHTML='<div class="winner-box"><div style="font-size:46px;margin-bottom:10px">🎊</div><div style="font-size:22px;font-weight:900;margin-bottom:6px">Battle Complete!</div><div style="font-size:12px;color:var(--t3)">GG everyone!</div></div>';
+  S.tournamentDone=true;
+  const winner=S.winners[S.winners.length-1];
+  const wTitle=winner?winner.title:'?';
+  const wArtist=winner?winner.artist:'';
+  const wUser=winner?'@'+winner.submittedBy:'';
+  document.getElementById('winner-wrap').innerHTML=`<div class="winner-box">
+    <div class="w-trophy">🏆</div>
+    <div class="w-lbl">CÂȘTIGĂTOR</div>
+    <div class="w-title" style="font-size:clamp(18px,3vw,26px);margin-bottom:6px">${wTitle}</div>
+    <div class="w-artist">${wArtist?wArtist+' · ':''}` + '<span style="color:var(--acc)">${wUser}</span>' + `</div>
+    <div style="font-size:40px;margin-top:14px">🎊</div>
+  </div>`;
   document.getElementById('winner-wrap').style.display='block';
   document.getElementById('arena').style.display='none';
   document.getElementById('vbar-section').style.display='none';
@@ -1123,9 +1200,15 @@ function manualWin(side){
   if(!S.isHost)return;
   if(side==='left'){S.votes={left:1,right:0};}
   else{S.votes={left:0,right:1};}
-  S.pollActive=true;
-  endPoll();
+  // Record winner and advance without showing winner screen
+  const pair=S.pairs[S.roundIdx];
+  const winner=side==='left'?pair[0]:pair[1];
+  S.winners.push(winner);
+  advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
+  renderHist();
   save();
+  // Go directly to next battle
+  nextRound();
 }
 function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
 function closeChooser(){document.getElementById('chooser-bg').classList.remove('open');}
@@ -1135,73 +1218,139 @@ function toggleAuto(){if(!S.isHost)return;S.autoNext=!S.autoNext;document.getEle
 
 // ── BRACKET RENDERING ──────────────────────────────
 function openBracket(){
-  renderBracket();
-  document.getElementById('bracket-modal').classList.add('open');
+  const m=document.getElementById('bracket-modal');
+  m.classList.add('open');
+  // Render AFTER modal is visible so clientWidth/clientHeight are correct
+  requestAnimationFrame(()=>requestAnimationFrame(()=>renderBracket()));
 }
 function closeBracket(){document.getElementById('bracket-modal').classList.remove('open');}
 
 function renderBracket(){
   const container=document.getElementById('bracket-tree');
   if(!S.tournamentRounds||!S.tournamentRounds.length){
-    container.innerHTML='<div style="color:var(--t3);padding:40px">Battle-ul nu a inceput inca.</div>';return;
+    container.innerHTML='<div style="color:var(--t3);padding:40px;text-align:center">Battle-ul nu a inceput inca.</div>';return;
   }
-  const roundNames=getRoundNames();
-  const rounds=S.tournamentRounds; // [0]=earliest, [last]=Final
-  const SLOT_H=44; // px per slot including gap
-  const PAIR_GAP=16; // gap between pairs in a column
+
+  const modal=document.getElementById('bracket-modal');
+  const header=modal?modal.querySelector('.bracket-header'):null;
+  const headerH=header?header.offsetHeight+10:52;
+  const W=modal?modal.clientWidth-16:1400;
+  const H=modal?modal.clientHeight-headerH-8:700;
+
+  const rounds=S.tournamentRounds;
+  const names=getRoundNames();
+  const numCols=rounds.length;
+
+  // Round 0 has the most matches — use it to drive slot sizing
+  const R0=rounds[0];
+  const numMatchesR0=R0.length;
+
+  // Minimum slot height for readability — if too many matches, allow scroll
+  const LABEL_H=28;
+  const V_INNER=5;    // gap between top/bottom slot in same match
+  const V_OUTER=14;   // gap between matches
+  const MIN_SLOT_H=28;
+  const idealSlotH=Math.floor((H-LABEL_H-numMatchesR0*V_INNER-(numMatchesR0-1)*V_OUTER)/(numMatchesR0*2));
+  const SLOT_H=Math.max(MIN_SLOT_H, idealSlotH);
+  const matchH=SLOT_H*2+V_INNER;
+  const matchStep=matchH+V_OUTER;
+
+  // Minimum column width for readability
+  const MIN_COL_W=160;
+  const idealColW=Math.floor(W/numCols);
+  const COL_W=Math.max(MIN_COL_W, idealColW);
+  const totalW=COL_W*numCols;
+  const SLOT_W=COL_W-24;
+  const FS=Math.max(11,Math.min(14,Math.floor(SLOT_H*0.48)));
+
+  // Precompute center Y for every match in every round
+  // Round 0: match i center = LABEL_H + i*matchStep + matchH/2
+  // Round k: match i spans 2 matches from round k-1 → center between them
+  const centerY=[];
+  for(let ci=0;ci<numCols;ci++){
+    centerY[ci]=[];
+    const n=rounds[ci].length;
+    for(let mi=0;mi<n;mi++){
+      if(ci===0){
+        centerY[0][mi]=LABEL_H+mi*matchStep+matchH/2;
+      } else {
+        // This match corresponds to matches mi*2 and mi*2+1 in previous round
+        const prev=centerY[ci-1];
+        const a=prev[mi*2]!==undefined?prev[mi*2]:0;
+        const b=prev[mi*2+1]!==undefined?prev[mi*2+1]:a;
+        centerY[ci][mi]=(a+b)/2;
+      }
+    }
+  }
+
+  // The tournament champion = last winner, BUT only if tournament is fully done
+  const champion=(S.tournamentDone&&S.winners.length>0)?S.winners[S.winners.length-1]:null;
+
+  function isWinner(s){return s&&S.winners.some(w=>w&&w.id===s.id);}
+  function isChampion(s){return s&&champion&&s.id===champion.id;}
+  function isCurrent(s){
+    if(!s||!S.pairs||!S.pairs[S.roundIdx])return false;
+    return S.pairs[S.roundIdx][0]?.id===s.id||S.pairs[S.roundIdx][1]?.id===s.id;
+  }
+
   let html='';
+  let svg='';
+  const totalH=LABEL_H+numMatchesR0*matchStep-V_OUTER;
 
-  rounds.forEach((round,ri)=>{
-    const name=roundNames[ri]||('Round '+(ri+1));
-    const pairs=round.filter(p=>p[0]||p[1]);
-    const isLast=ri===rounds.length-1;
+  rounds.forEach((round,ci)=>{
+    const x=ci*COL_W;
+    const isLast=ci===numCols-1;
 
-    // Each column: label on top, then pairs spaced evenly
-    html+='<div class="bracket-col">';
-    html+='<div class="bracket-col-label">'+name+'</div>';
-    html+='<div class="bracket-col-slots">';
+    // Column label — bigger and clearer
+    html+=`<div style="position:absolute;left:${x+2}px;top:4px;width:${SLOT_W}px;text-align:center;font-size:10px;font-weight:800;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${names[ci]||''}</div>`;
 
-    pairs.forEach((pair,pi)=>{
-      const isCurrentRound=ri===S.currentTournamentRound;
-      html+='<div class="bracket-pair">';
+    round.forEach((pair,mi)=>{
+      if(!pair||(!pair[0]&&!pair[1]))return;
+      const cy=centerY[ci][mi];
+      const ty=cy-matchH/2;
+
+      // SVG connector → next column — thicker, more visible
+      if(!isLast&&centerY[ci+1]){
+        const nmi=Math.floor(mi/2);
+        const ncy=centerY[ci+1][nmi];
+        if(ncy!==undefined){
+          const x1=Math.round(x+SLOT_W+3);
+          const x2=Math.round((ci+1)*COL_W);
+          const mx=Math.round((x1+x2)/2);
+          const cy_r=Math.round(cy), ncy_r=Math.round(ncy);
+          svg+=`<polyline points="${x1},${cy_r} ${mx},${cy_r} ${mx},${ncy_r} ${x2},${ncy_r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>`;
+        }
+      }
+
+      // Match bracket line on left side of pair
+      const lx=x+1;
+      const slot0y=Math.round(ty);
+      const slot1y=Math.round(ty+SLOT_H+V_INNER);
+      svg+=`<line x1="${lx}" y1="${slot0y+4}" x2="${lx}" y2="${slot1y+SLOT_H-4}" stroke="rgba(255,255,255,.12)" stroke-width="2"/>`;
+
+      // Two slots
       [0,1].forEach(si=>{
         const song=pair[si];
-        const isWinner=S.winners.some(w=>w&&song&&w.id===song.id);
-        const isCurrent=isCurrentRound&&S.pairs[S.roundIdx]&&S.pairs[S.roundIdx][si]&&S.pairs[S.roundIdx][si].id===song?.id;
-        const cls='bracket-slot'+(isWinner?' winner':'')+(isCurrent?' current':'')+(song?'':' tbd');
-        const label=song?('@'+(song.submittedBy||'?')):'TBD';
-        const tip=song?'@'+song.submittedBy+' \u2014 '+song.title:'';
-        html+='<div class="'+cls+'" title="'+tip+'">'+label+'</div>';
+        const sy=Math.round(ty+si*(SLOT_H+V_INNER));
+        const cur=isCurrent(song), win=isWinner(song), finW=isChampion(song)&&isLast;
+
+        let bg='rgba(14,14,14,.98)',bd='rgba(255,255,255,.09)',col='rgba(255,255,255,.5)',fw='500';
+        if(win){bg='rgba(46,204,74,.1)';bd='rgba(46,204,74,.5)';col='#3ddd5a';fw='700';}
+        if(finW){bg='rgba(46,204,74,.22)';bd='rgba(46,204,74,1)';col='#90ffb0';fw='800';}
+        if(cur&&!finW){bd='rgba(46,204,74,1)';col='#fff';bg='rgba(46,204,74,.1)';fw='700';}
+        if(!song){col='rgba(255,255,255,.18)';}
+
+        const lbl=song?(finW?'🏆 ':'')+'@'+(song.submittedBy||'?'):'—';
+        const tip=song?`${song.title||''} — @${song.submittedBy||''}`:'TBD';
+        html+=`<div title="${tip}" style="position:absolute;left:${x+4}px;top:${sy}px;width:${SLOT_W-4}px;height:${SLOT_H}px;background:${bg};border:1px solid ${bd};border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:${FS}px;font-weight:${fw};color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;gap:4px">${lbl}</div>`;
       });
-      html+='</div>'; // bracket-pair
-
-      // Connector line to next round (right side)
-      if(!isLast){
-        const isTop=pi%2===0;
-        // Line going right from center, then vertical to meet partner, then right
-        html+='<div class="bracket-conn-h" data-top="'+isTop+'">';
-        if(isTop){
-          // top of pair: line right + line down (50%->100%)
-          html+='<svg width="24" height="100%" style="display:block;overflow:visible"><g stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none">';
-          html+='<line x1="0" y1="25%" x2="12" y2="25%"/>';
-          html+='<line x1="12" y1="25%" x2="12" y2="75%"/>';
-          html+='</g></svg>';
-        } else {
-          // bottom of pair: line right + line up (50%->0%) + line right
-          html+='<svg width="24" height="100%" style="display:block;overflow:visible"><g stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none">';
-          html+='<line x1="0" y1="75%" x2="12" y2="75%"/>';
-          html+='<line x1="12" y1="75%" x2="12" y2="25%"/>';
-          html+='<line x1="12" y1="50%" x2="24" y2="50%"/>';
-          html+='</g></svg>';
-        }
-        html+='</div>';
-      }
     });
-
-    html+='</div></div>'; // col-slots + col
   });
 
-  container.innerHTML=html;
+  container.style.cssText=`position:relative;width:${totalW}px;height:${totalH}px;flex-shrink:0;`;
+  container.innerHTML=`
+    <svg style="position:absolute;top:0;left:0;pointer-events:none;overflow:visible" width="${totalW}" height="${totalH}">${svg}</svg>
+    ${html}`;
 }
 
 // ── DUPLICATE DETECTION ────────────────────────────
