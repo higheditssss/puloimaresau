@@ -208,6 +208,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .hbadge{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(46,204,74,.12);color:var(--acc);font-weight:700}
 .empty{color:var(--t3);font-size:11px;text-align:center;padding:12px 0}
 .hist-panel{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
+.spoiler-tag.revealed .spoiler-inner{filter:blur(0)!important}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(46,204,74,.15);border-radius:2px}
 
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(12px)}
@@ -1419,7 +1420,7 @@ function renderWaitPlayerList(songs){
   const el=document.getElementById('wait-player-list');
   if(!el)return;
   const isHost=S.isHost;
-  el.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div><span style="flex:1">@'+s.submittedBy+' <span style="color:var(--t3);font-size:10px">— '+s.title.slice(0,24)+'</span></span>'+(isHost?'<button onclick="removeSong(\''+s.id+'\');" style="padding:2px 7px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕</button>':'')+' </div>').join('');
+  el.innerHTML=songs.map(s=>'<div class="prow"><div class="pdot"></div><span style="flex:1;display:flex;align-items:center;gap:6px">@'+s.submittedBy+' <span class="spoiler-tag" title="Click to reveal" onclick="this.classList.toggle(\'revealed\')" style="font-size:10px;cursor:pointer;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 7px;user-select:none"><span class="spoiler-inner" style="filter:blur(4px);transition:filter .2s;pointer-events:none">'+s.title.slice(0,24)+'</span></span></span>'+(isHost?'<button onclick="removeSong(\''+s.id+'\');" style="padding:2px 7px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕</button>':'')+' </div>').join('');
   // Show duplicate host section
   if(isHost){
     const groups={};
