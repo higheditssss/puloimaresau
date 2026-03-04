@@ -258,8 +258,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .bk-vline{width:1px;height:10px;background:rgba(255,255,255,.13);margin:0 auto}
 
 /* ── DUPLICATE WARNING ── */
-.dup-warn{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ffd060;display:none}
+.dup-warn{border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;display:none}
 .dup-warn.show{display:block}
+.dup-warn.exact{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.35);color:#ff8080}
+.dup-warn.similar{background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.3);color:#ffd060}
+.dup-warn-title{font-weight:800;margin-bottom:6px;font-size:13px;display:flex;align-items:center;gap:6px}
 .dup-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px}
 .dup-thumb{width:40px;height:26px;object-fit:cover;border-radius:3px;background:var(--s3);flex-shrink:0}
 .dup-info{flex:1;min-width:0}
@@ -267,10 +270,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .dup-sub{font-size:10px;color:var(--t3)}
 .dup-remove{padding:3px 8px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .15s}
 .dup-remove:hover{background:rgba(255,68,68,.2)}
+#dup-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none;max-width:460px;white-space:nowrap}
+#dup-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#dup-toast.exact{background:#1a0606;border:1px solid rgba(255,68,68,.55);color:#ff8080}
+#dup-toast.similar{background:#1a1200;border:1px solid rgba(255,184,0,.45);color:#ffd060}
+#dup-toast .t-icon{font-size:18px;flex-shrink:0}
 </style>
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 </head>
 <body>
+<div id="dup-toast"><span class="t-icon"></span><span id="dup-toast-msg"></span></div>
 
 <!-- TUTORIAL -->
 <div class="tbg" id="tbg">
@@ -293,7 +302,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
 <!-- LANDING -->
 <div id="s-landing" class="screen">
-  <div class="logo">HIGHSB</div>
+  <div class="logo">HIGHSB <span style="font-size:clamp(10px,1.5vw,14px);font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.4);color:var(--acc);padding:2px 8px;border-radius:20px;letter-spacing:3px;vertical-align:middle;position:relative;top:-4px">BETA</span></div>
   <div class="logo-tag">Music Battle Platform</div>
   <div class="card">
     <div class="tabs">
@@ -334,7 +343,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       </div>
     <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value)"/></div>
     <div class="dup-warn" id="dup-warn">
-      <div style="font-weight:700;margin-bottom:6px">⚠️ Piesă similară deja înregistrată:</div>
+      <div class="dup-warn-title"><span id="dup-warn-icon"></span><span id="dup-warn-label"></span></div>
       <div id="dup-list"></div>
     </div>
     <div class="err" id="serr"></div>
@@ -375,7 +384,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <!-- BATTLE -->
 <div id="s-battle" class="screen">
   <div class="b-header">
-    <div class="h-logo">HIGHSB</div>
+    <div class="h-logo">HIGHSB <span style="font-size:9px;font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.35);color:var(--acc);padding:1px 6px;border-radius:20px;letter-spacing:2px;vertical-align:middle;position:relative;top:-1px">BETA</span></div>
     <div class="badges">
       <div class="badge live" id="h-live">LIVE</div>
       <div class="badge" id="h-code">CODE: --</div>
@@ -844,7 +853,7 @@ async function submitSong(){
   const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
-  err.textContent='Se salvează...';
+  err.textContent='Se verifică...';
   try {
     // Read latest state from Redis
     const remote=await redisGet('room_'+S.room.id);
@@ -853,6 +862,21 @@ async function submitSong(){
     if(songs.find(s=>s.submittedBy===user)){
       const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
       err.textContent='';showScreen('s-wait');initWait();return;
+    }
+    // Block on exact duplicate (same YouTube/Spotify ID)
+    const{exact}=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
+    if(exact.length){
+      err.textContent='';
+      const warn=document.getElementById('dup-warn');
+      const list=document.getElementById('dup-list');
+      const icon=document.getElementById('dup-warn-icon');
+      const label=document.getElementById('dup-warn-label');
+      warn.className='dup-warn show exact';
+      icon.textContent='🚫';
+      label.textContent='Piesa asta există deja — alege alta:';
+      list.innerHTML=exact.map(s=>dupItemHTML(s,false)).join('');
+      showDupToast('exact',`Nu poți adăuga o piesă duplicat! @${exact[0].submittedBy} a înregistrat-o deja.`);
+      return;
     }
     const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
@@ -1353,29 +1377,74 @@ function renderBracket(){
     ${html}`;
 }
 
+// ── TOAST ──────────────────────────────────────────
+let _toastTimer=null;
+function showDupToast(type, msg){
+  const t=document.getElementById('dup-toast');
+  const m=document.getElementById('dup-toast-msg');
+  if(!t||!m)return;
+  t.className='show '+(type==='exact'?'exact':'similar');
+  t.querySelector('.t-icon').textContent=type==='exact'?'🚫':'⚠️';
+  m.textContent=msg;
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.className=t.className.replace('show','').trim();},4500);
+}
+
 // ── DUPLICATE DETECTION ────────────────────────────
+function normalize(str){return(str||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+
 function getSimilarSongs(ytId,spId,existingSongs){
-  if(!existingSongs||!existingSongs.length)return[];
-  return existingSongs.filter(s=>{
+  if(!existingSongs||!existingSongs.length)return{exact:[],similar:[]};
+  const exact=existingSongs.filter(s=>{
     if(ytId&&s.ytId&&s.ytId===ytId)return true;
     if(spId&&s.spId&&s.spId===spId)return true;
     return false;
   });
+  // Similar = same normalized title but different ID
+  const exactIds=new Set(exact.map(s=>s.id));
+  const similar=existingSongs.filter(s=>{
+    if(exactIds.has(s.id))return false;
+    if(!s.title||s.title==='YouTube Song'||s.title==='Spotify Song')return false;
+    // Will be populated after title fetch — skip for now if no title context
+    return false;
+  });
+  return{exact,similar};
+}
+
+function dupItemHTML(s,showRemove=false){
+  return`<div class="dup-item">
+    <img class="dup-thumb" src="${s.thumb||''}" onerror="this.style.display='none'"/>
+    <div class="dup-info">
+      <div class="dup-title">${s.title||'?'}</div>
+      <div class="dup-sub">@${s.submittedBy}</div>
+    </div>
+    ${showRemove?`<button class="dup-remove" onclick="removeSong('${s.id}')">REMOVE</button>`:''}
+  </div>`;
 }
 
 async function checkDuplicate(urlVal){
   const warn=document.getElementById('dup-warn');
   const list=document.getElementById('dup-list');
+  const icon=document.getElementById('dup-warn-icon');
+  const label=document.getElementById('dup-warn-label');
   const ytMatch=(urlVal||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=(urlVal||'').match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-  if(!ytMatch&&!spMatch){warn.classList.remove('show');return;}
+  if(!ytMatch&&!spMatch){warn.classList.remove('show','exact','similar');return;}
+  if(!S.room){warn.classList.remove('show','exact','similar');return;}
   const remote=await redisGet('room_'+S.room.id);
   const existing=remote||load(S.room.id);
   const songs=(existing&&existing.songs)||[];
-  const dups=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
-  if(!dups.length){warn.classList.remove('show');return;}
-  warn.classList.add('show');
-  list.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div></div>').join('');
+  const{exact}=getSimilarSongs(ytMatch?ytMatch[1]:null,spMatch?spMatch[1]:null,songs);
+
+  if(exact.length){
+    warn.className='dup-warn show exact';
+    icon.textContent='🚫';
+    label.textContent='Piesa asta există deja în battle:';
+    list.innerHTML=exact.map(s=>dupItemHTML(s,false)).join('');
+    showDupToast('exact',`Duplicat detectat — piesa lui @${exact[0].submittedBy} e deja înregistrată!`);
+    return;
+  }
+  warn.classList.remove('show','exact','similar');
 }
 
 function renderWaitPlayerList(songs){
@@ -1396,8 +1465,13 @@ function renderWaitPlayerList(songs){
     const dupList=document.getElementById('dup-host-list');
     if(dups.length&&dupSection&&dupList){
       dupSection.style.display='';
-      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
-    }else if(dupSection){dupSection.style.display='none';}
+      dupList.innerHTML=dups.map(s=>dupItemHTML(s,true)).join('');
+      // Show toast for host if new duplicates found
+      if(!dupSection._wasShown){
+        dupSection._wasShown=true;
+        showDupToast('exact',`${dups.length} piese duplicate detectate în waiting room!`);
+      }
+    }else if(dupSection){dupSection.style.display='none';dupSection._wasShown=false;}
   }
 }
 
