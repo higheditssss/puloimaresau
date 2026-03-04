@@ -292,7 +292,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 </div>
 
 <!-- LANDING -->
-<div id="s-landing" class="screen">
+<div id="s-landing" class="screen active">
   <div class="logo">HIGHSB <span style="font-size:clamp(10px,1.5vw,14px);font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.4);color:var(--acc);padding:2px 8px;border-radius:20px;letter-spacing:3px;vertical-align:middle;position:relative;top:-4px">BETA</span></div>
   <div class="logo-tag">Music Battle Platform</div>
   <div class="card">
@@ -311,6 +311,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="sld-wrap"><lbl>Câte persoane?</lbl><input type="range" id="sl-players" min="2" max="200" step="1" value="4" oninput="updateSliders()"/><div class="s-val" id="sv-p">4 persoane</div></div>
       <div class="sld-wrap"><lbl>Piese per participant?</lbl><input type="range" id="sl-spp" min="1" max="10" step="1" value="1" oninput="updateSliders()"/><div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div></div>
       <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
+      <div style="margin-top:10px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:1px">SAU</div>
+      <button class="btn" onclick="startDemo()" style="margin-top:8px;border-color:rgba(255,184,0,.25);color:#ffd060">&#127925; DEMO &mdash; Porneste cu piese exemplu</button>
     </div>
     <div id="tj" style="display:none">
       <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
@@ -613,7 +615,7 @@ let _saveTimer = null, _pollTimer = null;
 async function redisSet(key, value) {
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 5000);
+    const t = setTimeout(() => ctrl.abort(), 800);
     await fetch('/api/redis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -627,7 +629,7 @@ async function redisSet(key, value) {
 async function redisGet(key) {
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 5000);
+    const t = setTimeout(() => ctrl.abort(), 800);
     const r = await fetch('/api/redis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -795,33 +797,59 @@ function pickUser(slug,avatar){
   window._pickedAvatar=avatar;
   hideUserAC();
 }
+function startDemo(){
+  const DEMO_SONGS=[
+    {id:'d1',title:'Blinding Lights',artist:'The Weeknd',submittedBy:'derANA',ytId:'4NRXx6U8ABQ',thumb:'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg'},
+    {id:'d2',title:'HUMBLE.',artist:'Kendrick Lamar',submittedBy:'beto_dtb',ytId:'tvTRZJ-4EyI',thumb:'https://img.youtube.com/vi/tvTRZJ-4EyI/hqdefault.jpg'},
+    {id:'d3',title:"God's Plan",artist:'Drake',submittedBy:'aleee',ytId:'xpVfcZ0ZcFM',thumb:'https://img.youtube.com/vi/xpVfcZ0ZcFM/hqdefault.jpg'},
+    {id:'d4',title:'SICKO MODE',artist:'Travis Scott',submittedBy:'Ovicultistul',ytId:'6ONRf7h3Mdk',thumb:'https://img.youtube.com/vi/6ONRf7h3Mdk/hqdefault.jpg'},
+    {id:'d5',title:'Shape of You',artist:'Ed Sheeran',submittedBy:'IL_SUG_PE_DARK',ytId:'JGwWNGJdvx8',thumb:'https://img.youtube.com/vi/JGwWNGJdvx8/hqdefault.jpg'},
+    {id:'d6',title:'rockstar',artist:'Post Malone',submittedBy:'Florin_Mitroi',ytId:'UceaB4D0jpo',thumb:'https://img.youtube.com/vi/UceaB4D0jpo/hqdefault.jpg'},
+    {id:'d7',title:'Levitating',artist:'Dua Lipa',submittedBy:'mihal_48',ytId:'TUVcZfQe-Kw',thumb:'https://img.youtube.com/vi/TUVcZfQe-Kw/hqdefault.jpg'},
+    {id:'d8',title:'As It Was',artist:'Harry Styles',submittedBy:'host_demo',ytId:'H5v3kku4y6Q',thumb:'https://img.youtube.com/vi/H5v3kku4y6Q/hqdefault.jpg'},
+    {id:'d9',title:'Stay',artist:'The Kid LAROI',submittedBy:'xStefanx',ytId:'kTJczUoc26U',thumb:'https://img.youtube.com/vi/kTJczUoc26U/hqdefault.jpg'},
+    {id:'d10',title:'Industry Baby',artist:'Lil Nas X',submittedBy:'Razvan_G',ytId:'UTHLKHL_whs',thumb:'https://img.youtube.com/vi/UTHLKHL_whs/hqdefault.jpg'},
+    {id:'d11',title:'Bad Guy',artist:'Billie Eilish',submittedBy:'cosminn_',ytId:'DyDfgMOUjCI',thumb:'https://img.youtube.com/vi/DyDfgMOUjCI/hqdefault.jpg'},
+    {id:'d12',title:'Starboy',artist:'The Weeknd',submittedBy:'Andrei_TV',ytId:'34Na4j8AVgA',thumb:'https://img.youtube.com/vi/34Na4j8AVgA/hqdefault.jpg'},
+    {id:'d13',title:'HIGHEST IN THE ROOM',artist:'Travis Scott',submittedBy:'tavi_beats',ytId:'hi3MNAc1rH8',thumb:'https://img.youtube.com/vi/hi3MNAc1rH8/hqdefault.jpg'},
+    {id:'d14',title:'Sunflower',artist:'Post Malone',submittedBy:'ionut_ro',ytId:'ApXoWvfEYVU',thumb:'https://img.youtube.com/vi/ApXoWvfEYVU/hqdefault.jpg'},
+    {id:'d15',title:'Anti-Hero',artist:'Taylor Swift',submittedBy:'daiana_m',ytId:'b1kbLwvqugk',thumb:'https://img.youtube.com/vi/b1kbLwvqugk/hqdefault.jpg'},
+    {id:'d16',title:'Flowers',artist:'Miley Cyrus',submittedBy:'cristi_k',ytId:'G7KNmW9a75Y',thumb:'https://img.youtube.com/vi/G7KNmW9a75Y/hqdefault.jpg'},
+  ];
+  S=mkState();S.isHost=true;
+  S.room={id:'DEMO',name:'Demo Battle',kickChannel:'',playersNeeded:16,songsPerPlayer:1};
+  S.songs=DEMO_SONGS;S.battleStarted=true;
+  showScreen('s-battle');initBattle();
+}
 document.addEventListener('DOMContentLoaded',async ()=>{
-  cleanOldLocalStorage();
-  updateSliders();
+  // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
-  if(rid){
-    initSync(rid);
-    // Try remote first, fallback to localStorage
-    let saved=await loadRemote(rid);
-    if(!saved)saved=load(rid);
-    if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
-    if(saved&&saved.room){
-      // isHost is LOCAL only — check localStorage, never trust Redis for this
-      const localState=load(rid);
-      const amHost=!!(localState&&localState.isHost);
-      S=Object.assign({},saved,{isHost:amHost});
-      if(amHost){showScreen('s-wait');initWait();return;}
-      // Viewer: if already submitted, go to wait
-      const myUser=localStorage.getItem('ksb_user_'+rid);
-      if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();return;}
-      showScreen('s-submit');return;
-    }
-    // No data — fresh viewer joining
-    const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
-    S=tmp;showScreen('s-submit');return;
+  if(!rid){
+    showScreen('s-landing');
+    try{if(!localStorage.getItem('ksb_tut'))showTut();}catch(e){}
+    try{cleanOldLocalStorage();}catch(e){}
+    try{updateSliders();}catch(e){}
+    return;
   }
-  showScreen('s-landing');
-  if(!localStorage.getItem('ksb_tut'))showTut();
+  // Cu ?room= în URL
+  try{cleanOldLocalStorage();}catch(e){}
+  try{updateSliders();}catch(e){}
+  try{initSync(rid);}catch(e){}
+  let saved=null;
+  try{saved=await loadRemote(rid);}catch(e){}
+  if(!saved){try{saved=load(rid);}catch(e){}}
+  if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
+  if(saved&&saved.room){
+    let localState=null;try{localState=load(rid);}catch(e){}
+    const amHost=!!(localState&&localState.isHost);
+    S=Object.assign({},saved,{isHost:amHost});
+    if(amHost){showScreen('s-wait');initWait();return;}
+    let myUser=null;try{myUser=localStorage.getItem('ksb_user_'+rid);}catch(e){}
+    if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();return;}
+    showScreen('s-submit');return;
+  }
+  const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
+  S=tmp;showScreen('s-submit');
 });
 function showTut(){document.getElementById('tbg').classList.add('open');}
 function closeTut(){document.getElementById('tbg').classList.remove('open');localStorage.setItem('ksb_tut','1');}
@@ -832,7 +860,7 @@ function createRoom(){
   const kick=document.getElementById('l-kick').value.trim();
   const np=parseInt(document.getElementById('sl-players').value)||4;
   const spp=parseInt(document.getElementById('sl-spp').value)||1;
-  const id=Math.random().toString(36).slice(2,8).toUpperCase();
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';const rand=n=>Array.from({length:n},()=>chars[Math.floor(Math.random()*chars.length)]).join('');const id=rand(6);
   S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
   pushUrl(id);save();
   initSync(id);
@@ -867,7 +895,11 @@ async function submitSong(){
     const remote=await redisGet('room_'+S.room.id);
     const existing=remote||load(S.room.id);
     const songs=(existing&&existing.songs)?[...existing.songs]:[];
-    if(songs.find(s=>s.submittedBy===user)){
+    const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
+    const alreadyIn=songs.find(s=>s.submittedBy===user);
+    const uniquePlayerCount=new Set(songs.map(s=>s.submittedBy)).size;
+    if(!alreadyIn&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
+    if(alreadyIn){
       const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
       err.textContent='';showScreen('s-wait');initWait();return;
     }
@@ -946,8 +978,17 @@ function applyHostUI(){
   const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
   const hc=document.getElementById('host-ctrls'),cl=document.getElementById('choose-l'),cr=document.getElementById('choose-r');
   const wnb=document.getElementById('winner-next-btn');
-  if(S.isHost){hp.style.display='flex';vn.style.display='none';hc.style.display='flex';cl.style.display='';cr.style.display='';if(wnb)wnb.style.display='';}
-  else{hp.style.display='none';vn.style.display='block';hc.style.display='none';cl.style.display='none';cr.style.display='none';if(wnb)wnb.style.display='none';}
+  if(S.isHost){
+    if(hp)hp.style.display='flex';if(vn)vn.style.display='none';
+    if(hc)hc.style.display='flex';
+    if(cl)cl.style.display='inline-flex';if(cr)cr.style.display='inline-flex';
+    if(wnb)wnb.style.display='';
+  }else{
+    if(hp)hp.style.display='none';if(vn)vn.style.display='block';
+    if(hc)hc.style.display='none';
+    if(cl)cl.style.display='none';if(cr)cr.style.display='none';
+    if(wnb)wnb.style.display='none';
+  }
 }
 function buildPairs(){
   // Build full tournament bracket
@@ -991,17 +1032,19 @@ function renderRound(reset){
   updateBar();updateLead();
   const ww=document.getElementById('winner-wrap'),ar=document.getElementById('arena');
   const pb=document.getElementById('btn-poll'),nb=document.getElementById('btn-next');
-  if(S.phase==='result'){
-    ww.style.display='block';ar.style.display='none';
-    const ws=S.votes.left>=S.votes.right?'left':'right';showWinner(ws==='left'?pair[0]:pair[1],ws);
-    if(S.isHost){nb.style.display='';pb.style.display='none';}
+  const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
+  ww.style.display='none';ar.style.display='grid';
+  document.getElementById('vbar-section').style.display='';
+  document.getElementById('total-box-wrap').style.display='';
+  if(S.isHost){
+    if(hp)hp.style.display='flex';
+    if(vn)vn.style.display='none';
+    pb.style.display='';pb.innerHTML='▶ START POLL';pb.className='pb start';nb.style.display='none';
   }else{
-    ww.style.display='none';ar.style.display='grid';
-    document.getElementById('vbar-section').style.display='';
-    document.getElementById('total-box-wrap').style.display='';
-    if(S.isHost){pb.style.display='';pb.innerHTML=S.pollActive?'■ END POLL':'▶ START POLL';pb.className='pb '+(S.pollActive?'end':'start');nb.style.display='none';}
+    if(hp)hp.style.display='none';
+    if(vn)vn.style.display='block';
   }
-  renderVoters();save();
+  renderVoters();applyHostUI();save();
 }
 function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.phase='polling';document.getElementById('btn-poll').innerHTML='■ END POLL';document.getElementById('btn-poll').className='pb end';}else{endPoll();}save();}
 function endPoll(){
@@ -1010,10 +1053,9 @@ function endPoll(){
   const ws=S.votes.left>=S.votes.right?'left':'right';
   const winner=ws==='left'?pair[0]:pair[1];
   S.winners.push(winner);
-  // Place winner into next tournament round slot
   advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
-  showWinner(winner,ws);renderHist();save();
-  if(S.autoNext&&S.isHost){document.getElementById('btn-next').style.display='';document.getElementById('btn-poll').style.display='none';}
+  renderHist();save();
+  nextRound();
 }
 
 function advanceWinnerInBracket(winner,roundIdx,matchIdx){
