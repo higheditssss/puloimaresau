@@ -311,8 +311,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="sld-wrap"><lbl>Câte persoane?</lbl><input type="range" id="sl-players" min="2" max="200" step="1" value="4" oninput="updateSliders()"/><div class="s-val" id="sv-p">4 persoane</div></div>
       <div class="sld-wrap"><lbl>Piese per participant?</lbl><input type="range" id="sl-spp" min="1" max="10" step="1" value="1" oninput="updateSliders()"/><div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div></div>
       <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
-      <div style="margin-top:10px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:1px">SAU</div>
-      <button class="btn" onclick="startDemo()" style="margin-top:8px;border-color:rgba(255,184,0,.25);color:#ffd060">&#127925; DEMO &mdash; Porneste cu piese exemplu</button>
+
     </div>
     <div id="tj" style="display:none">
       <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
@@ -796,30 +795,6 @@ function pickUser(slug,avatar){
   // Store avatar temporarily
   window._pickedAvatar=avatar;
   hideUserAC();
-}
-function startDemo(){
-  const DEMO_SONGS=[
-    {id:'d1',title:'Blinding Lights',artist:'The Weeknd',submittedBy:'derANA',ytId:'4NRXx6U8ABQ',thumb:'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg'},
-    {id:'d2',title:'HUMBLE.',artist:'Kendrick Lamar',submittedBy:'beto_dtb',ytId:'tvTRZJ-4EyI',thumb:'https://img.youtube.com/vi/tvTRZJ-4EyI/hqdefault.jpg'},
-    {id:'d3',title:"God's Plan",artist:'Drake',submittedBy:'aleee',ytId:'xpVfcZ0ZcFM',thumb:'https://img.youtube.com/vi/xpVfcZ0ZcFM/hqdefault.jpg'},
-    {id:'d4',title:'SICKO MODE',artist:'Travis Scott',submittedBy:'Ovicultistul',ytId:'6ONRf7h3Mdk',thumb:'https://img.youtube.com/vi/6ONRf7h3Mdk/hqdefault.jpg'},
-    {id:'d5',title:'Shape of You',artist:'Ed Sheeran',submittedBy:'IL_SUG_PE_DARK',ytId:'JGwWNGJdvx8',thumb:'https://img.youtube.com/vi/JGwWNGJdvx8/hqdefault.jpg'},
-    {id:'d6',title:'rockstar',artist:'Post Malone',submittedBy:'Florin_Mitroi',ytId:'UceaB4D0jpo',thumb:'https://img.youtube.com/vi/UceaB4D0jpo/hqdefault.jpg'},
-    {id:'d7',title:'Levitating',artist:'Dua Lipa',submittedBy:'mihal_48',ytId:'TUVcZfQe-Kw',thumb:'https://img.youtube.com/vi/TUVcZfQe-Kw/hqdefault.jpg'},
-    {id:'d8',title:'As It Was',artist:'Harry Styles',submittedBy:'host_demo',ytId:'H5v3kku4y6Q',thumb:'https://img.youtube.com/vi/H5v3kku4y6Q/hqdefault.jpg'},
-    {id:'d9',title:'Stay',artist:'The Kid LAROI',submittedBy:'xStefanx',ytId:'kTJczUoc26U',thumb:'https://img.youtube.com/vi/kTJczUoc26U/hqdefault.jpg'},
-    {id:'d10',title:'Industry Baby',artist:'Lil Nas X',submittedBy:'Razvan_G',ytId:'UTHLKHL_whs',thumb:'https://img.youtube.com/vi/UTHLKHL_whs/hqdefault.jpg'},
-    {id:'d11',title:'Bad Guy',artist:'Billie Eilish',submittedBy:'cosminn_',ytId:'DyDfgMOUjCI',thumb:'https://img.youtube.com/vi/DyDfgMOUjCI/hqdefault.jpg'},
-    {id:'d12',title:'Starboy',artist:'The Weeknd',submittedBy:'Andrei_TV',ytId:'34Na4j8AVgA',thumb:'https://img.youtube.com/vi/34Na4j8AVgA/hqdefault.jpg'},
-    {id:'d13',title:'HIGHEST IN THE ROOM',artist:'Travis Scott',submittedBy:'tavi_beats',ytId:'hi3MNAc1rH8',thumb:'https://img.youtube.com/vi/hi3MNAc1rH8/hqdefault.jpg'},
-    {id:'d14',title:'Sunflower',artist:'Post Malone',submittedBy:'ionut_ro',ytId:'ApXoWvfEYVU',thumb:'https://img.youtube.com/vi/ApXoWvfEYVU/hqdefault.jpg'},
-    {id:'d15',title:'Anti-Hero',artist:'Taylor Swift',submittedBy:'daiana_m',ytId:'b1kbLwvqugk',thumb:'https://img.youtube.com/vi/b1kbLwvqugk/hqdefault.jpg'},
-    {id:'d16',title:'Flowers',artist:'Miley Cyrus',submittedBy:'cristi_k',ytId:'G7KNmW9a75Y',thumb:'https://img.youtube.com/vi/G7KNmW9a75Y/hqdefault.jpg'},
-  ];
-  S=mkState();S.isHost=true;
-  S.room={id:'DEMO',name:'Demo Battle',kickChannel:'',playersNeeded:16,songsPerPlayer:1};
-  S.songs=DEMO_SONGS;S.battleStarted=true;
-  showScreen('s-battle');initBattle();
 }
 document.addEventListener('DOMContentLoaded',async ()=>{
   // Arată landing IMEDIAT — nu mai așteptăm nimic
