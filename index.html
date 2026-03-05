@@ -21,6 +21,22 @@ body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif}
 .screen{display:none;position:relative;z-index:1}
 .screen.active{display:block}
 #s-landing.active,#s-submit.active,#s-wait.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 16px}
+#s-landing.active{flex-direction:column;align-items:center;justify-content:center;position:relative}
+.landing-inner{display:flex;flex-direction:row;align-items:flex-start;gap:28px;width:100%;max-width:1200px;justify-content:center;padding:0 260px}
+@media(max-width:900px){.landing-inner{padding:0 16px}.corner-box{display:none}}
+/* corner boxes */
+.corner-box{position:fixed;top:50%;transform:translateY(-50%);width:360px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:22px}
+.corner-box.left{left:24px}
+.corner-box-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--t2);font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.cl-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.cl-item:last-child{border-bottom:none}
+.cl-date{font-size:9px;color:var(--t3);white-space:nowrap;margin-left:auto;flex-shrink:0}
+.cl-badge{font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.cl-badge.new{background:rgba(46,204,74,.15);color:var(--acc);border:1px solid rgba(46,204,74,.3)}
+.cl-badge.fix{background:rgba(255,180,0,.12);color:#ffb800;border:1px solid rgba(255,180,0,.25)}
+.cl-badge.remove{background:rgba(255,68,68,.08);color:#ff7070;border:1px solid rgba(255,68,68,.2)}
+.cl-badge.soon{background:rgba(100,100,255,.1);color:#9999ff;border:1px solid rgba(100,100,255,.25)}
+.cl-text{font-size:13px;color:var(--t);line-height:1.4}
 #s-battle.active{display:flex;flex-direction:column;min-height:100vh}
 
 .logo{font-size:clamp(28px,5vw,40px);font-weight:900;letter-spacing:5px;color:var(--acc);text-shadow:0 0 40px var(--glow);margin-bottom:2px;text-align:center}
@@ -38,6 +54,16 @@ input[type=text]::placeholder{color:var(--t4)}
 input[type=range]{-webkit-appearance:none;width:100%;height:2px;border-radius:2px;outline:none;cursor:pointer;background:var(--t4)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 10px var(--glow)}
 .s-val{text-align:right;font-size:12px;font-weight:700;color:var(--acc);margin-top:5px}
+/* pill selector */
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill{flex:1;min-width:44px;padding:7px 4px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,.03);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center}
+.pill:hover{border-color:var(--bda);color:var(--acc);background:rgba(46,204,74,.06)}
+.pill.on{background:var(--acc);color:#000;border-color:var(--acc)}
+/* changelog */
+.changelog{width:100%;max-width:260px;flex-shrink:0}
+@media(max-width:780px){.changelog{max-width:500px}}
+.changelog-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+/* changelog legacy removed */
 .btn{display:flex;align-items:center;justify-content:center;width:100%;padding:11px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all .18s;border:1px solid var(--bd);background:rgba(255,255,255,.03);color:var(--t2)}
 .btn:hover{background:rgba(46,204,74,.07);color:var(--t);border-color:var(--bda)}
 .btn.primary{background:var(--acc);border:none;color:#000;font-weight:800;box-shadow:0 4px 20px var(--glow2)}
@@ -110,8 +136,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   #card-r{order:2}
   .vs-pill{writing-mode:horizontal-tb!important;padding:5px 20px!important}
 }
-.vs-col{display:flex;align-items:center;justify-content:center}
+.vs-col{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
 .vs-pill{writing-mode:vertical-rl;font-size:9px;font-weight:900;color:var(--t4);letter-spacing:3px;padding:14px 7px;background:var(--s1);border:1px solid var(--bd);border-radius:8px}
+.coinflip-btn{display:none;writing-mode:vertical-rl;font-size:9px;font-weight:900;letter-spacing:2px;padding:12px 7px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.3);border-radius:8px;color:#ffb800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-transform:uppercase}
+.coinflip-btn:hover{background:rgba(255,180,0,.18);box-shadow:0 0 16px rgba(255,180,0,.25)}
+.coinflip-btn.visible{display:block}
+@keyframes coinSpin{0%{transform:rotateY(0deg)}50%{transform:rotateY(900deg)}100%{transform:rotateY(1800deg)}}
+.coin-spinning{animation:coinSpin .8s ease-in-out}
 
 /* ══════════════════════════════════════
    SONG CARD — player only
@@ -292,32 +323,102 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
 </div>
 
+<!-- BETA WARNING POPUP -->
+<div class="tbg" id="beta-bg">
+  <div class="tbox" style="max-width:380px;text-align:center">
+    <img src="https://media1.tenor.com/m/GOj9ZF_-ZOcAAAAC/cat.gif" style="width:160px;height:160px;object-fit:cover;border-radius:12px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto"/>
+    <h2 style="margin-bottom:8px">Pot exista bug-uri</h2>
+    <div class="tsub" style="margin-bottom:22px">platforma e în versiune beta</div>
+    <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:24px">Dacă întâmpini un bug sau ceva nu funcționează cum trebuie, raportează-l pe Instagram și îl rezolvăm cât mai repede.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="https://instagram.com/highman.edits" target="_blank" style="text-decoration:none">
+        <button class="btn" style="width:100%;cursor:pointer;font-size:13px;font-weight:700">@highman.edits</button>
+      </a>
+      <button class="btn primary" onclick="closeBeta()">CONTINUĂ →</button>
+    </div>
+  </div>
+</div>
+
 <!-- LANDING -->
 <div id="s-landing" class="screen active">
+
+  <!-- STÂNGA: Update-uri -->
+  <div class="corner-box left">
+    <div class="corner-box-title">Update-uri</div>
+    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Selector: 4, 8, 16, 32, 64, 128</span><span class="cl-date">05 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bara de voturi dispare la winner</span><span class="cl-date">04 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Sincronizare live între browsere</span><span class="cl-date">04 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bug piese când intră mai puțini jucători</span><span class="cl-date">05 mar</span></div>
+    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Coinflip la egalitate între piese</span><span class="cl-date">05 mar</span></div>
+  </div>
+
+  <!-- CENTRU -->
   <div class="logo">HIGHSB <span style="font-size:clamp(10px,1.5vw,14px);font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.4);color:var(--acc);padding:2px 8px;border-radius:20px;letter-spacing:3px;vertical-align:middle;position:relative;top:-4px">BETA</span></div>
   <div class="logo-tag">Music Battle Platform</div>
-  <div class="card">
-    <div class="tabs">
-      <button class="tab on" onclick="switchTab('create')">Create Battle</button>
-      <button class="tab" onclick="switchTab('join')">Join Battle</button>
-    </div>
-    <div id="tc">
-      <div class="inp-wrap"><lbl>Nume cameră</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
-      <div class="inp-wrap">
-        <lbl>Kick Channel</lbl>
-        <input id="l-kick" type="text" placeholder="Caută username Kick..." autocomplete="off"
-          oninput="kickSearch(this.value)" onblur="setTimeout(hideAC,200)" onfocus="if(this.value.trim().length>=2)kickSearch(this.value)"/>
-        <div class="ac-list" id="kick-ac" style="display:none"></div>
+  <div class="landing-inner">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab on" onclick="switchTab('create')">Create Battle</button>
+        <button class="tab" onclick="switchTab('join')">Join Battle</button>
       </div>
-      <div class="sld-wrap"><lbl>Câte persoane?</lbl><input type="range" id="sl-players" min="2" max="200" step="1" value="4" oninput="updateSliders()"/><div class="s-val" id="sv-p">4 persoane</div></div>
-      <div class="sld-wrap"><lbl>Piese per participant?</lbl><input type="range" id="sl-spp" min="1" max="10" step="1" value="1" oninput="updateSliders()"/><div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div></div>
-      <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
-
+      <div id="tc">
+        <div class="inp-wrap"><lbl>Nume cameră</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
+        <div class="inp-wrap">
+          <lbl>Kick Channel</lbl>
+          <input id="l-kick" type="text" placeholder="Caută username Kick..." autocomplete="off"
+            oninput="kickSearch(this.value)" onblur="setTimeout(hideAC,200)" onfocus="if(this.value.trim().length>=2)kickSearch(this.value)"/>
+          <div class="ac-list" id="kick-ac" style="display:none"></div>
+        </div>
+        <div class="sld-wrap">
+          <lbl>Câte persoane?</lbl>
+          <div class="pill-row" id="pills-players">
+            <button class="pill on" onclick="setPill('players',4,this)">4</button>
+            <button class="pill" onclick="setPill('players',8,this)">8</button>
+            <button class="pill" onclick="setPill('players',16,this)">16</button>
+            <button class="pill" onclick="setPill('players',32,this)">32</button>
+            <button class="pill" onclick="setPill('players',64,this)">64</button>
+            <button class="pill" onclick="setPill('players',128,this)">128</button>
+          </div>
+          <div class="s-val" id="sv-p">4 persoane</div>
+        </div>
+        <div class="sld-wrap">
+          <lbl>Piese per participant?</lbl>
+          <div class="pill-row" id="pills-spp">
+            <button class="pill on" onclick="setPill('spp',1,this)">1</button>
+            <button class="pill" onclick="setPill('spp',2,this)">2</button>
+            <button class="pill" onclick="setPill('spp',3,this)">3</button>
+            <button class="pill" onclick="setPill('spp',4,this)">4</button>
+            <button class="pill" onclick="setPill('spp',5,this)">5</button>
+          </div>
+          <div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div>
+        </div>
+        <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
+      </div>
+      <div id="tj" style="display:none">
+        <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
+        <div class="err" id="jerr"></div>
+        <button class="btn primary" onclick="joinRoom()">JOIN BATTLE</button>
+      </div>
     </div>
-    <div id="tj" style="display:none">
-      <div class="inp-wrap"><lbl>Room Code</lbl><input id="l-code" type="text" class="code-big" placeholder="ABC123" maxlength="8"/></div>
-      <div class="err" id="jerr"></div>
-      <button class="btn primary" onclick="joinRoom()">JOIN BATTLE</button>
+  </div>
+
+  <!-- DREAPTA: În curând -->
+  </div>
+
+  <!-- SUPPORT BUTTON -->
+</div>
+
+<!-- SUPPORT BAIT POPUP -->
+<div class="tbg" id="support-bg" onclick="this.classList.remove('open');localStorage.setItem('ksb_support','1')">
+  <div class="tbox" style="max-width:360px;text-align:center" onclick="event.stopPropagation()">
+    <img src="https://media.tenor.com/KkXYRHDW1KcAAAAj/cat-meme-cat-love.gif" style="width:180px;height:180px;object-fit:cover;border-radius:12px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto"/>
+    <h2 style="margin-bottom:8px">SUSTINE SITE-UL</h2>
+    <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:24px"></p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="https://imgur.com/a/UmexJrt" target="_blank" style="text-decoration:none" onclick="localStorage.setItem('ksb_support','1')">
+        <button class="btn primary" style="width:100%">☕ cumpără-mi un cafea</button>
+      </a>
+      <button class="btn" onclick="(function(){var a=new Audio('crow.mp3');a.play();setTimeout(function(){document.getElementById('support-bg').classList.remove('open');localStorage.setItem('ksb_support','1');},100);})()" style="font-size:12px;color:#fff">NU, IA LA MUIE CIOARO 🐦‍⬛</button>
     </div>
   </div>
 </div>
@@ -358,6 +459,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="share-row">
         <input class="share-inp" id="wait-link" type="text" readonly onclick="this.select()"/>
         <button class="copy-btn" id="wait-copy" onclick="copyWait()">Copy</button>
+      </div>
+      <!-- Editare setări room -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+        <div style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:600">Setări room</div>
+        <div class="sld-wrap" style="margin-bottom:10px">
+          <lbl>Câte persoane?</lbl>
+          <div class="pill-row" id="wait-pills-players">
+            <button class="pill on" onclick="setWaitPill('players',4,this)">4</button>
+            <button class="pill" onclick="setWaitPill('players',8,this)">8</button>
+            <button class="pill" onclick="setWaitPill('players',16,this)">16</button>
+            <button class="pill" onclick="setWaitPill('players',32,this)">32</button>
+            <button class="pill" onclick="setWaitPill('players',64,this)">64</button>
+            <button class="pill" onclick="setWaitPill('players',128,this)">128</button>
+          </div>
+        </div>
+        <div class="sld-wrap" style="margin-bottom:0">
+          <lbl>Piese per participant?</lbl>
+          <div class="pill-row" id="wait-pills-spp">
+            <button class="pill on" onclick="setWaitPill('spp',1,this)">1</button>
+            <button class="pill" onclick="setWaitPill('spp',2,this)">2</button>
+            <button class="pill" onclick="setWaitPill('spp',3,this)">3</button>
+            <button class="pill" onclick="setWaitPill('spp',4,this)">4</button>
+            <button class="pill" onclick="setWaitPill('spp',5,this)">5</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="wplayers-t">Participanți</div>
@@ -436,7 +562,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         </div>
 
         <!-- VS -->
-        <div class="vs-col"><div class="vs-pill">VS</div></div>
+        <div class="vs-col">
+          <div class="vs-pill">VS</div>
+          <button class="coinflip-btn" id="coinflip-btn" onclick="doCoinflip()" title="Egalitate — coinflip!">🪙</button>
+        </div>
 
         <!-- RIGHT CARD -->
         <div class="scard" id="card-r">
@@ -542,6 +671,7 @@ const SP_SVG='<svg viewBox="0 0 24 24" fill="#1ed760"><path d="M12 0C5.4 0 0 5.4
 const YT_SVG='<svg viewBox="0 0 24 24" fill="#ff0000"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>';
 
 function setCardSong(side,song){
+  if(!song)return;
   const s=side==='left'?'l':'r';
   document.getElementById('stitle-'+s).textContent=song.title||'Unknown';
   document.getElementById('sartist-'+s).textContent=song.artist||'—';
@@ -591,17 +721,16 @@ const mkState=()=>({room:null,songs:[],pairs:[],roundIdx:0,votes:{left:0,right:0
 let S=mkState(),chooserSide=null,waitPoll=null,acTimer=null;
 
 
-function updateSliders(){
-  const np=parseInt(document.getElementById('sl-players').value)||4;
-  const spp=parseInt(document.getElementById('sl-spp').value)||1;
-
-  document.getElementById('sv-p').textContent=np+' persoane';
-  const svs=document.getElementById('sv-s');
-  if(svs)svs.innerHTML=spp+(spp===1?' piesă':' piese')+' · max <span id="sv-total">'+(np*spp)+'</span>';
-  const pct1=((np-2)/198)*100,pct2=((spp-1)/9)*100;
-  document.getElementById('sl-players').style.background=`linear-gradient(to right,var(--acc) ${pct1}%,var(--t4) ${pct1}%)`;
-  document.getElementById('sl-spp').style.background=`linear-gradient(to right,var(--acc) ${pct2}%,var(--t4) ${pct2}%)`;
+let _pillPlayers=4, _pillSpp=1;
+function setPill(type, val, el){
+  const row=document.getElementById('pills-'+type);
+  row.querySelectorAll('.pill').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(type==='players'){_pillPlayers=val;document.getElementById('sv-p').textContent=val+' persoane';}
+  else{_pillSpp=val;document.getElementById('sv-s').innerHTML=val+(val===1?' piesă':' piese')+' · max <span id="sv-total">'+(_pillPlayers*val)+'</span>';}
+  document.getElementById('sv-s').innerHTML=_pillSpp+(_pillSpp===1?' piesă':' piese')+' · max <span id="sv-total">'+(_pillPlayers*_pillSpp)+'</span>';
 }
+function updateSliders(){}
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  UPSTASH — pune credențialele în Vercel Environment Vars    ║
 // ║  Settings → Environment Variables → Add New:               ║
@@ -828,14 +957,29 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   S=tmp;showScreen('s-submit');
 });
 function showTut(){document.getElementById('tbg').classList.add('open');}
-function closeTut(){document.getElementById('tbg').classList.remove('open');localStorage.setItem('ksb_tut','1');}
+function closeTut(){
+  document.getElementById('tbg').classList.remove('open');
+  localStorage.setItem('ksb_tut','1');
+  // Show beta warning after tutorial
+  if(!localStorage.getItem('ksb_beta')){
+    setTimeout(()=>document.getElementById('beta-bg').classList.add('open'),300);
+  }
+}
+function showSupportBait(){document.getElementById('support-bg').classList.add('open');}
+function closeBeta(){
+  document.getElementById('beta-bg').classList.remove('open');
+  localStorage.setItem('ksb_beta','1');
+  if(!localStorage.getItem('ksb_support')){
+    setTimeout(()=>document.getElementById('support-bg').classList.add('open'),300);
+  }
+}
 function switchTab(t){document.getElementById('tc').style.display=t==='create'?'':'none';document.getElementById('tj').style.display=t==='join'?'':'none';document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(t==='create'&&i===0)||(t==='join'&&i===1)));}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function createRoom(){
   const name=document.getElementById('l-name').value.trim()||'Battle';
   const kick=document.getElementById('l-kick').value.trim();
-  const np=parseInt(document.getElementById('sl-players').value)||4;
-  const spp=parseInt(document.getElementById('sl-spp').value)||1;
+  const np=_pillPlayers||4;
+  const spp=_pillSpp||1;
   const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';const rand=n=>Array.from({length:n},()=>chars[Math.floor(Math.random()*chars.length)]).join('');const id=rand(6);
   S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
   pushUrl(id);save();
@@ -906,9 +1050,30 @@ function initWait(){
   // Show/hide host-only elements
   const hostOnly=document.getElementById('wait-host-only');
   const hostBtns=document.getElementById('wait-host-btns');
-  if(S.isHost){hostOnly.style.display='';hostBtns.style.display='';}
-  else{hostOnly.style.display='none';hostBtns.style.display='none';}
+  if(S.isHost){
+    hostOnly.style.display='';hostBtns.style.display='';
+    // Sync pills to current room settings
+    syncWaitPills('players', S.room.playersNeeded||4);
+    syncWaitPills('spp', S.room.songsPerPlayer||1);
+  } else {
+    hostOnly.style.display='none';hostBtns.style.display='none';
+  }
   pollWait();waitPoll=setInterval(pollWait,2000);
+}
+function syncWaitPills(type, val){
+  const row=document.getElementById('wait-pills-'+type);
+  if(!row)return;
+  row.querySelectorAll('.pill').forEach(b=>{
+    b.classList.toggle('on', parseInt(b.textContent)===val);
+  });
+}
+function setWaitPill(type, val, el){
+  const row=document.getElementById('wait-pills-'+type);
+  row.querySelectorAll('.pill').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(type==='players'){S.room.playersNeeded=val;document.getElementById('wc-needed').textContent=val;}
+  else{S.room.songsPerPlayer=val;}
+  save();
 }
 async function pollWait(){
   if(!S.room)return;
@@ -967,9 +1132,12 @@ function applyHostUI(){
   }
 }
 function buildPairs(){
-  // Build full tournament bracket
-  let songs=[...S.songs];
+  // Filter out any null/undefined songs first
+  let songs=[...S.songs].filter(Boolean);
+  if(!songs.length)return;
   if(S.shuffleMode)songs.sort(()=>Math.random()-.5);
+  // If odd number, duplicate last song as bye placeholder
+  if(songs.length===1){songs.push(songs[0]);}
   // Pad to power of 2
   let size=1;while(size<songs.length)size*=2;
   while(songs.length<size)songs.push(null); // byes
@@ -987,9 +1155,14 @@ function buildPairs(){
     S.tournamentRounds.push(round);
   }
   S.currentTournamentRound=0;
-  // Set current pairs from round 0, skip byes automatically
+  // Set current pairs from round 0, skip byes (one side null)
   S.pairs=S.tournamentRounds[0].filter(p=>p[0]&&p[1]);
-  // Auto-advance byes (one side is null)
+  // If no valid pairs at all (e.g. 1 song), make it battle itself
+  if(!S.pairs.length&&songs.filter(Boolean).length>=1){
+    const real=songs.filter(Boolean);
+    S.pairs=[[real[0],real[real.length>1?1:0]]];
+  }
+  // Auto-advance byes
   const byeWinners=S.tournamentRounds[0].filter(p=>p[0]&&!p[1]).map(p=>p[0]);
   byeWinners.forEach((w,i)=>{
     const nextRoundIdx=Math.floor(i/2);
@@ -999,7 +1172,8 @@ function buildPairs(){
   S.roundIdx=0;
 }
 function renderRound(reset){
-  const pair=S.pairs[S.roundIdx];if(!pair)return;
+  const pair=S.pairs[S.roundIdx];
+  if(!pair||!pair[0]||!pair[1])return;
   document.getElementById('rlbl').textContent='ROUND '+(S.roundIdx+1)+' / '+S.pairs.length;
   const isFinal=S.roundIdx===S.pairs.length-1;
   const rt=document.getElementById('rtitle');rt.textContent=isFinal?'FINAL BATTLE':'BATTLE';rt.className='rtitle'+(isFinal?' final':'');
@@ -1012,6 +1186,7 @@ function renderRound(reset){
   ww.style.display='none';ar.style.display='grid';
   document.getElementById('vbar-section').style.display='';
   document.getElementById('total-box-wrap').style.display='';
+  const cfBtn=document.getElementById('coinflip-btn');if(cfBtn)cfBtn.classList.remove('visible');
   if(S.isHost){
     if(hp)hp.style.display='flex';
     if(vn)vn.style.display='none';
@@ -1161,7 +1336,36 @@ function updateBar(){
   if(vl)vl.innerHTML=left+' <small style="font-size:10px;opacity:.4">!1</small>';
   if(vr)vr.innerHTML='<small style="font-size:10px;opacity:.4">!2</small> '+right;
 }
-function updateLead(){document.getElementById('card-l').className='scard'+(S.votes.left>S.votes.right?' lead':'');document.getElementById('card-r').className='scard'+(S.votes.right>S.votes.left?' lead':'');}
+function updateLead(){
+  const l=S.votes.left,r=S.votes.right;
+  document.getElementById('card-l').className='scard'+(l>r?' lead':'');
+  document.getElementById('card-r').className='scard'+(r>l?' lead':'');
+  const cfBtn=document.getElementById('coinflip-btn');
+  if(cfBtn){
+    const tied=l===r&&(l+r)>0&&S.phase==='result';
+    cfBtn.classList.toggle('visible',tied&&S.isHost);
+  }
+}
+function doCoinflip(){
+  if(!S.isHost)return;
+  const btn=document.getElementById('coinflip-btn');
+  btn.classList.remove('visible');
+  btn.textContent='🪙';
+  btn.classList.add('coin-spinning');
+  setTimeout(()=>{
+    btn.classList.remove('coin-spinning');
+    const ws=Math.random()<0.5?'left':'right';
+    const pair=S.pairs[S.roundIdx];
+    const winner=ws==='left'?pair[0]:pair[1];
+    // Override votes to make winner clear
+    if(ws==='left'){S.votes.left=Math.max(S.votes.left,1);S.votes.right=S.votes.left-1;}
+    else{S.votes.right=Math.max(S.votes.right,1);S.votes.left=S.votes.right-1;}
+    S.winners.push(winner);
+    showWinner(winner,ws);
+    renderHist();
+    save();
+  },900);
+}
 function renderHist(){
   const el=document.getElementById('hist-list');
   if(!S.winners.length){el.innerHTML='<div class="empty">No battles yet</div>';return;}
@@ -1434,7 +1638,7 @@ function renderWaitPlayerList(songs){
     const dupList=document.getElementById('dup-host-list');
     if(dups.length&&dupSection&&dupList){
       dupSection.style.display='';
-      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" style="filter:blur(8px)"/><div class="dup-info"><div class="dup-title" style="filter:blur(4px);user-select:none">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
+      dupList.innerHTML=dups.map(s=>'<div class="dup-item"><img class="dup-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'"/><div class="dup-info"><div class="dup-title" style="filter:blur(4px);user-select:none">'+s.title+'</div><div class="dup-sub">@'+s.submittedBy+'</div></div><button class="dup-remove" onclick="removeSong(\''+s.id+'\')">REMOVE</button></div>').join('');
     }else if(dupSection){dupSection.style.display='none';}
   }
 }
