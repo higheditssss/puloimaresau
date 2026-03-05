@@ -416,7 +416,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:24px"></p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <a href="https://imgur.com/a/UmexJrt" target="_blank" style="text-decoration:none" onclick="localStorage.setItem('ksb_support','1')">
-        <button class="btn primary" style="width:100%">☕ cumpără-mi un cafea</button>
+        <button class="btn primary" style="width:100%">CUMPARA-MI UN HELL</button>
       </a>
       <button class="btn" onclick="(function(){var a=new Audio('crow.mp3');a.play();setTimeout(function(){document.getElementById('support-bg').classList.remove('open');localStorage.setItem('ksb_support','1');},100);})()" style="font-size:12px;color:#fff">NU, IA LA MUIE CIOARO 🐦‍⬛</button>
     </div>
@@ -931,7 +931,15 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   const rid=getRoomUrl();
   if(!rid){
     showScreen('s-landing');
-    try{if(!localStorage.getItem('ksb_tut'))showTut();}catch(e){}
+    try{
+      if(!localStorage.getItem('ksb_tut')){
+        showTut(); // tut → beta → support (în lanț)
+      } else if(!localStorage.getItem('ksb_beta')){
+        setTimeout(()=>document.getElementById('beta-bg').classList.add('open'),300); // beta → support
+      } else {
+        setTimeout(()=>document.getElementById('support-bg').classList.add('open'),300); // direct support
+      }
+    }catch(e){}
     try{cleanOldLocalStorage();}catch(e){}
     try{updateSliders();}catch(e){}
     return;
@@ -969,9 +977,7 @@ function showSupportBait(){document.getElementById('support-bg').classList.add('
 function closeBeta(){
   document.getElementById('beta-bg').classList.remove('open');
   localStorage.setItem('ksb_beta','1');
-  if(!localStorage.getItem('ksb_support')){
-    setTimeout(()=>document.getElementById('support-bg').classList.add('open'),300);
-  }
+  setTimeout(()=>document.getElementById('support-bg').classList.add('open'),300);
 }
 function switchTab(t){document.getElementById('tc').style.display=t==='create'?'':'none';document.getElementById('tj').style.display=t==='join'?'':'none';document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(t==='create'&&i===0)||(t==='join'&&i===1)));}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
