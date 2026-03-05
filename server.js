@@ -98,6 +98,20 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ── Serve static files (png, mp3, etc.) ──
+  const staticFile = path.join(__dirname, parsed.pathname);
+  if (fs.existsSync(staticFile) && fs.statSync(staticFile).isFile()) {
+    const ext = path.extname(staticFile).toLowerCase();
+    const mime = {
+      '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4',
+      '.js': 'application/javascript', '.css': 'text/css'
+    }[ext] || 'application/octet-stream';
+    res.writeHead(200, { 'Content-Type': mime });
+    fs.createReadStream(staticFile).pipe(res);
+    return;
+  }
+
   res.writeHead(404);
   res.end('Not found');
 });
