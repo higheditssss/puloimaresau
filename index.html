@@ -1495,6 +1495,9 @@ function showViewerSongPanel(){
   // Render song slots
   const slotsEl=document.getElementById('vw-song-slots');
   if(!slotsEl) return;
+  // Preserve any currently typed (unsaved) values before re-rendering
+  const currentTyped={};
+  for(let i=0;i<20;i++){const el=document.getElementById('vw-url-'+i);if(el)currentTyped[i]=el.value;}
   let html='';
   for(let i=0;i<spp;i++){
     const existing=mySongs[i];
@@ -1502,7 +1505,10 @@ function showViewerSongPanel(){
     const badge=existing
       ?'<span style="color:var(--acc);font-size:9px;font-weight:800">✓ SALVATĂ</span>'
       :'<span style="color:var(--t4);font-size:9px">GOALĂ</span>';
-    const val=existing?existing.url.replace(/"/g,'&quot;'):'';
+    // Use saved song URL, or keep typed value if user was mid-typing
+    const savedVal=existing?existing.url:'';
+    const typedVal=currentTyped[i]||'';
+    const val=(savedVal||typedVal).replace(/"/g,'&quot;');
     html+=`<div class="inp-wrap" style="margin-bottom:10px">
       <lbl style="display:flex;justify-content:space-between;align-items:center">
         <span>${label}</span>${spp>1?badge:''}
@@ -1619,14 +1625,32 @@ async function pollWait(){
   const songs=Array.isArray(state.songs)?state.songs:[];
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
   const wasHost=S.isHost;
+  const prevSpp=(S.room&&S.room.songsPerPlayer)||1;
+  const prevNeeded=(S.room&&S.room.playersNeeded)||4;
   S=Object.assign({},state,{songs,isHost:wasHost});
   const joined=songs.length,needed=state.room.playersNeeded||4;
+  const newSpp=(state.room&&state.room.songsPerPlayer)||1;
   const elJ=document.getElementById('wc-joined');const elN=document.getElementById('wc-needed');
   const elM=document.getElementById('wait-missing');const elP=document.getElementById('wait-player-list');
   const elNote=document.getElementById('wait-note');const btn=document.getElementById('wait-start-btn');
   if(elJ)elJ.textContent=joined;if(elN)elN.textContent=needed;
   if(elM)elM.textContent=Math.max(0,needed-joined);
   renderWaitPlayerList(songs);
+  // If viewer and host changed songsPerPlayer or playersNeeded → refresh panel
+  if(!wasHost){
+    if(newSpp!==prevSpp||needed!==prevNeeded){
+      showViewerSongPanel();
+    } else {
+      // Always keep the subtitle in sync (song count may have changed)
+      const subEl=document.getElementById('viewer-panel-sub');
+      if(subEl){
+        const myUser=(_currentUser&&_currentUser.kick_username)||localStorage.getItem('ksb_user_'+S.room.id);
+        const mySongs=songs.filter(s=>s.submittedBy===myUser);
+        if(newSpp>1) subEl.textContent=mySongs.length+'/'+newSpp+' piese adăugate';
+        else subEl.textContent='';
+      }
+    }
+  }
   if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
   if(state.battleStarted){clearInterval(waitPoll);showScreen('s-battle');initBattle();}
 }
