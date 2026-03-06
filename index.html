@@ -1166,6 +1166,8 @@ function applyRemoteState(data, roomId) {
   try { localStorage.setItem('ksb_' + roomId, JSON.stringify(S)); } catch(e) {}
   if (!prevStarted && S.battleStarted && !wasHost) {
     clearInterval(waitPoll); clearInterval(_pollTimer);
+    if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
+    try{localStorage.setItem('ksb_'+roomId,JSON.stringify(S));}catch(e){}
     showScreen('s-battle'); initBattle(); return;
   }
   const ws = document.getElementById('s-wait');
@@ -1297,17 +1299,17 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   try{initSync(rid);}catch(e){}
   let saved=null;
   try{saved=await loadRemote(rid);}catch(e){}
-  if(!saved){try{saved=load(rid);}catch(e){}}
+  let localState=null;try{localState=load(rid);}catch(e){}
+  // If remote failed or doesn't have battleStarted, trust localStorage
+  if(!saved) saved=localState;
+  else if(!saved.battleStarted && localState && localState.battleStarted) saved=localState;
   if(roomLoader) roomLoader.classList.remove('show');
   if(saved&&saved.battleStarted){
-    let localState=null;try{localState=load(rid);}catch(e){}
     const amHost=!!(localState&&localState.isHost);
     S=Object.assign({},saved,{isHost:amHost});
-    // Viewer poate vedea battle-ul fără login
     showScreen('s-battle');initBattle();if(_currentUser)updateHeaderBadge();return;
   }
   if(saved&&saved.room){
-    let localState=null;try{localState=load(rid);}catch(e){}
     const amHost=!!(localState&&localState.isHost);
     S=Object.assign({},saved,{isHost:amHost});
     if(amHost){showScreen('s-wait');initWait();updateHeaderBadge();return;}
@@ -1622,6 +1624,9 @@ function initWait(){
     showViewerSongPanel();
   }
   pollWait();waitPoll=setInterval(pollWait,2000);
+  // Show tab warning only for viewers
+  const tabWarn=document.getElementById('wait-tab-warning');
+  if(tabWarn) tabWarn.style.display=S.isHost?'none':'flex';
   // Warn viewer before closing/navigating away
   if(!S.isHost){
     window._waitBeforeUnload=function(e){e.preventDefault();e.returnValue='';};
@@ -1683,14 +1688,17 @@ async function pollWait(){
     }
   }
   if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
-  if(state.battleStarted){clearInterval(waitPoll);if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}showScreen('s-battle');initBattle();}
+  if(state.battleStarted){clearInterval(waitPoll);if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}S=Object.assign({},state,{isHost:S.isHost});try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}showScreen('s-battle');initBattle();}
 }
 function forceLaunch(){
   clearInterval(waitPoll);const state=load(S.room.id)||S;
   state.battleStarted=true;
   const wasHost=S.isHost;
   S=Object.assign({},state,{isHost:wasHost});
+  // Save battleStarted immediately to localStorage before navigating
+  try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}
   save();
+  if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
   showScreen('s-battle');initBattle();
 }
 function initBattle(){
