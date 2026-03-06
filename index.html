@@ -1281,7 +1281,9 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   if(!saved){try{saved=load(rid);}catch(e){}}
   if(roomLoader) roomLoader.classList.remove('show');
   if(saved&&saved.battleStarted){
-    S=saved;S.isHost=false;
+    let localState=null;try{localState=load(rid);}catch(e){}
+    const amHost=!!(localState&&localState.isHost);
+    S=Object.assign({},saved,{isHost:amHost});
     // Viewer poate vedea battle-ul fără login
     showScreen('s-battle');initBattle();if(_currentUser)updateHeaderBadge();return;
   }
