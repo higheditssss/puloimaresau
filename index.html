@@ -646,8 +646,8 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 <div id="s-submit" class="screen">
   <div class="warn">Folosește același username ca în chat-ul Kick</div>
   <div class="card">
-    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px">Trimite piesa ta</div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase">intrare în battle</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px" id="submit-title">Trimite piesa ta</div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase" id="submit-sub">intrare în battle</div>
     <div class="inp-wrap" style="position:relative">
         <lbl>Kick Username</lbl>
         <input id="su-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
@@ -1393,22 +1393,25 @@ async function submitSong(){
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
   err.textContent='Se salvează...';
   try {
-    // Read latest state from Redis
     const remote=await redisGet('room_'+S.room.id);
     const existing=remote||load(S.room.id);
     const songs=(existing&&existing.songs)?[...existing.songs]:[];
     const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
-    const alreadyIn=songs.find(s=>s.submittedBy===user);
+    const spp=(existing&&existing.room?existing.room.songsPerPlayer:S.room.songsPerPlayer)||1;
+    const mySongs=songs.filter(s=>s.submittedBy===user);
     const uniquePlayerCount=new Set(songs.map(s=>s.submittedBy)).size;
-    if(!alreadyIn&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
-    if(alreadyIn){
+
+    // Dacă am deja toate piesele permise → du-mă la waiting room
+    if(mySongs.length>=spp){
       const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
       err.textContent='';showScreen('s-wait');initWait();return;
     }
+    // Dacă sunt nou și camera e plină → eroare
+    if(mySongs.length===0&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
+
     const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
       thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user,avatar:avatar};
-    // Fire-and-forget YouTube title fetch
     if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
     songs.push(song);
     const wasHost=S.isHost;
@@ -1416,10 +1419,31 @@ async function submitSong(){
     const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],tournamentDone:base.tournamentDone||false,chatroomId:base.chatroomId||null,battleStarted:base.battleStarted||false,isHost:wasHost};
     S=state;
     try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
-    // Save to Redis (non-blocking — don't await, just fire)
     redisSet('room_'+S.room.id,state);
     try{localStorage.setItem('ksb_user_'+S.room.id, user);}catch(e){}
-    err.textContent='';showScreen('s-wait');initWait();
+
+    const nowHave=mySongs.length+1;
+    if(nowHave<spp){
+      // Mai are piese de adăugat — arată feedback și resetează URL
+      err.style.color='var(--acc)';
+      err.textContent=`✓ Piesa ${nowHave}/${spp} salvată! Adaugă piesa ${nowHave+1}.`;
+      setTimeout(()=>{err.style.color='';},100);
+      document.getElementById('su-url').value='';
+      document.getElementById('dup-warn').classList.remove('show');
+      // Lock username (nu mai poate fi schimbat după prima piesă)
+      const userEl=document.getElementById('su-user');
+      if(userEl){userEl.readOnly=true;userEl.style.opacity='.6';userEl.style.cursor='default';}
+      // Update titlu
+      const title=document.querySelector('#s-submit .card div');
+      if(title)title.textContent=`Piesa ${nowHave+1} din ${spp}`;
+    } else {
+      // A trimis toate piesele → waiting room
+      err.textContent='';
+      // Reset username lock
+      const userEl=document.getElementById('su-user');
+      if(userEl){userEl.readOnly=false;userEl.style.opacity='';userEl.style.cursor='';}
+      showScreen('s-wait');initWait();
+    }
   } catch(e) {
     err.textContent='Eroare la salvare. Încearcă din nou.';
   }
@@ -2680,10 +2704,20 @@ function proceedAfterLogin() {
 }
 
 function prefillSubmitForm() {
-  if (!_currentUser) return;
-  const el = document.getElementById('su-user');
-  if (el && !el.value) el.value = _currentUser.kick_username;
-  if (_currentUser.avatar) window._pickedAvatar = _currentUser.avatar;
+  if (_currentUser) {
+    const el = document.getElementById('su-user');
+    if (el && !el.value) el.value = _currentUser.kick_username;
+    if (_currentUser.avatar) window._pickedAvatar = _currentUser.avatar;
+  }
+  // Reset username lock
+  const userEl = document.getElementById('su-user');
+  if (userEl) { userEl.readOnly = false; userEl.style.opacity = ''; userEl.style.cursor = ''; }
+  // Set title based on spp
+  const spp = (S.room && S.room.songsPerPlayer) || 1;
+  const titleEl = document.getElementById('submit-title');
+  const subEl = document.getElementById('submit-sub');
+  if (titleEl) titleEl.textContent = spp > 1 ? `Piesa 1 din ${spp}` : 'Trimite piesa ta';
+  if (subEl) subEl.textContent = spp > 1 ? `adaugă ${spp} piese pentru a intra` : 'intrare în battle';
 }
 
 async function saveBattleResult(won, songTitle) {
