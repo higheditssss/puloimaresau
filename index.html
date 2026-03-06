@@ -651,10 +651,10 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
     <div class="inp-wrap" style="position:relative">
         <lbl>Kick Username</lbl>
         <input id="su-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
-          oninput="userSearch(this.value)" onblur="setTimeout(hideUserAC,200)" onfocus="if(this.value.trim().length>=2)userSearch(this.value)"/>
+          oninput="userSearch(this.value);saveViewerDraft('su-user',this.value)" onblur="setTimeout(hideUserAC,200)" onfocus="if(this.value.trim().length>=2)userSearch(this.value)"/>
         <div class="ac-list" id="user-ac" style="display:none"></div>
       </div>
-    <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value)"/></div>
+    <div class="inp-wrap"><lbl>Song Link (YouTube / Spotify)</lbl><input id="su-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="checkDuplicate(this.value);saveViewerDraft('su-url',this.value)"/></div>
     <div class="dup-warn" id="dup-warn">
       <div style="font-weight:700;margin-bottom:6px">⚠️ Piesă similară deja înregistrată:</div>
       <div id="dup-list"></div>
@@ -1114,6 +1114,22 @@ function cleanOldLocalStorage(){
 function load(id) {
   try { const r = localStorage.getItem('ksb_' + id); return r ? JSON.parse(r) : null; } catch(e) { return null; }
 }
+function saveViewerDraft(key, val) {
+  if (!S.room) return;
+  try { localStorage.setItem('ksb_draft_' + S.room.id + '_' + key, val || ''); } catch(e) {}
+}
+function loadViewerDraft(key) {
+  if (!S.room) return null;
+  try { return localStorage.getItem('ksb_draft_' + S.room.id + '_' + key) || null; } catch(e) { return null; }
+}
+function clearViewerDrafts() {
+  if (!S.room) return;
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('ksb_draft_' + S.room.id + '_')) localStorage.removeItem(k);
+    });
+  } catch(e) {}
+}
 
 async function loadRemote(roomId) {
   const data = await redisGet('room_' + roomId);
@@ -1226,6 +1242,7 @@ function renderUserAC(results){
 function hideUserAC(){const ac=document.getElementById('user-ac');if(ac)ac.style.display='none';}
 function pickUser(slug,avatar){
   document.getElementById('su-user').value=slug;
+  saveViewerDraft('su-user',slug);
   // Store avatar temporarily
   window._pickedAvatar=avatar;
   hideUserAC();
@@ -1293,7 +1310,10 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     let myUser=null;try{myUser=localStorage.getItem('ksb_user_'+rid);}catch(e){}
     if (_currentUser) myUser = _currentUser.kick_username;
     if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();if(_currentUser)updateHeaderBadge();return;}
-    // Submit fără login
+    // Viewer care era deja in waiting room (are sesiune in localStorage) -> restore
+    let hadSession=false;try{hadSession=!!localStorage.getItem('ksb_user_'+rid);}catch(e){}
+    if(hadSession||(_currentUser&&myUser)){showScreen('s-wait');initWait();if(_currentUser)updateHeaderBadge();return;}
+    // Submit fara login / sesiune noua
     showScreen('s-submit');prefillSubmitForm();return;
   }
   const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
@@ -1439,6 +1459,7 @@ async function submitSong(){
     } else {
       // A trimis toate piesele → waiting room
       err.textContent='';
+      clearViewerDrafts();
       // Reset username lock
       const userEl=document.getElementById('su-user');
       if(userEl){userEl.readOnly=false;userEl.style.opacity='';userEl.style.cursor='';}
@@ -1507,13 +1528,14 @@ function showViewerSongPanel(){
       :'<span style="color:var(--t4);font-size:9px">GOALĂ</span>';
     // Use saved song URL, or keep typed value if user was mid-typing
     const savedVal=existing?existing.url:'';
+    const draftVal=(!existing&&loadViewerDraft('vw-url-'+i))||'';
     const typedVal=currentTyped[i]||'';
-    const val=(savedVal||typedVal).replace(/"/g,'&quot;');
+    const val=(savedVal||typedVal||draftVal).replace(/"/g,'&quot;');
     html+=`<div class="inp-wrap" style="margin-bottom:10px">
       <lbl style="display:flex;justify-content:space-between;align-items:center">
         <span>${label}</span>${spp>1?badge:''}
       </lbl>
-      <input id="vw-url-${i}" type="text" placeholder="https://youtube.com/watch?v=..." value="${val}"/>
+      <input id="vw-url-${i}" type="text" placeholder="https://youtube.com/watch?v=..." value="${val}" oninput="saveViewerDraft('vw-url-${i}',this.value)"/>
     </div>`;
   }
   slotsEl.innerHTML=html;
@@ -1572,7 +1594,7 @@ async function submitSongFromWait(){
     try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
     redisSet('room_'+S.room.id,Object.assign({},state,{isHost:false}));
     try{localStorage.setItem('ksb_user_'+S.room.id,user);}catch(e){}
-    err.style.color='var(--acc)';err.textContent='✓ Salvat!';
+    clearViewerDrafts();err.style.color='var(--acc)';err.textContent='✓ Salvat!';
     setTimeout(()=>{err.textContent='';err.style.color='';},2000);
     document.getElementById('viewer-panel-title').textContent='Editează piesele tale';
     document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ';
@@ -2757,6 +2779,16 @@ function prefillSubmitForm() {
     const el = document.getElementById('su-user');
     if (el && !el.value) el.value = _currentUser.kick_username;
     if (_currentUser.avatar) window._pickedAvatar = _currentUser.avatar;
+  }
+  // Restore draft URL if user was mid-typing
+  const draftUrl = loadViewerDraft('su-url');
+  const suUrlEl = document.getElementById('su-url');
+  if (suUrlEl && draftUrl && !suUrlEl.value) suUrlEl.value = draftUrl;
+  // Restore saved username if not logged in
+  if (!_currentUser) {
+    const draftUser = loadViewerDraft('su-user');
+    const suUserEl = document.getElementById('su-user');
+    if (suUserEl && draftUser && !suUserEl.value) suUserEl.value = draftUser;
   }
   // Reset username lock
   const userEl = document.getElementById('su-user');
