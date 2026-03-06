@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAyMDIwMiIvPgogIDxyZWN0IHg9IjQiIHk9IjE4IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMCIgcng9IjEuNSIgZmlsbD0iIzJlY2M0YSIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjQiIGhlaWdodD0iMTgiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIxNiIgeT0iNCIgd2lkdGg9IjQiIGhlaWdodD0iMjQiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIyMiIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjE2IiByeD0iMS41IiBmaWxsPSIjMmVjYzRhIiBvcGFjaXR5PSIwLjciLz4KPC9zdmc+"/>
 <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAyMDIwMiIvPgogIDxyZWN0IHg9IjQiIHk9IjE4IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMCIgcng9IjEuNSIgZmlsbD0iIzJlY2M0YSIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjQiIGhlaWdodD0iMTgiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIxNiIgeT0iNCIgd2lkdGg9IjQiIGhlaWdodD0iMjQiIHJ4PSIxLjUiIGZpbGw9IiMyZWNjNGEiLz4KICA8cmVjdCB4PSIyMiIgeT0iMTIiIHdpZHRoPSI0IiBoZWlnaHQ9IjE2IiByeD0iMS41IiBmaWxsPSIjMmVjYzRhIiBvcGFjaXR5PSIwLjciLz4KPC9zdmc+"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -145,27 +146,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .coin-spinning{animation:coinSpin .8s ease-in-out}
 
 /* ══════════════════════════════════════
-   SONG CARD — player only
-══════════════════════════════════════ */
-/* ══════════════════════════════════════
-   SONG CARD — player only
+   SONG CARD — new design (like screenshot)
 ══════════════════════════════════════ */
 .scard{
-  border-radius:10px;overflow:hidden;
+  border-radius:14px;overflow:hidden;
   border:1px solid var(--bd);
   background:var(--s1);
   display:flex;flex-direction:column;
-  transition:border-color .3s,box-shadow .3s;
+  transition:border-color .3s,box-shadow .3s,opacity .35s ease,transform .35s ease;
 }
+.scard.fade-out{opacity:0;transform:translateY(10px)}
+.scard.fade-in{animation:cardFadeIn .4s ease forwards}
+@keyframes cardFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .scard.lead{
   border-color:var(--acc);
-  box-shadow:0 0 0 1px var(--acc),0 0 22px rgba(46,204,74,.1);
+  box-shadow:0 0 0 1px var(--acc),0 0 30px rgba(46,204,74,.12);
 }
 .sc-card-top{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;
-  background:var(--s2);
-  border-bottom:1px solid rgba(255,255,255,.04);
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px 8px;
+  background:transparent;
 }
 .sc-badge{
   font-size:11px;font-weight:900;color:#000;
@@ -177,23 +177,60 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   flex:1;font-size:12px;color:var(--t2);font-weight:600;
 }
 .sc-pct-mini{color:var(--acc);font-weight:700}
-.sc-embed{border:none}
+.sc-embed{border:none;flex:1}
 .sc-embed iframe{width:100%;border:none;display:block}
-.choose-btn{padding:5px 10px;background:rgba(255,255,255,.03);border:1px solid var(--t4);border-radius:6px;color:var(--t3);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap}
-.choose-btn:hover{background:rgba(46,204,74,.08);color:var(--acc);border-color:var(--bda)}
+/* submitted by footer */
+.sc-footer{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(0,0,0,.35);
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.sc-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--bd);flex-shrink:0;background:var(--s3)}
+.sc-submitted-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.sc-submitted-name{font-size:13px;font-weight:700;color:var(--t)}
+.sc-choose-wrap{padding:10px 12px;background:var(--s2);border-top:1px solid rgba(255,255,255,.05)}
+.choose-btn{
+  width:100%;padding:11px;
+  background:rgba(61,53,168,.18);
+  border:1px solid rgba(61,53,168,.5);
+  border-radius:8px;color:#9b94ff;
+  font-size:12px;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:all .18s;
+}
+.choose-btn:hover{background:rgba(61,53,168,.45);color:#fff;border-color:#7b74ff;box-shadow:0 4px 16px rgba(61,53,168,.4)}
 /* hide old classes not used anymore */
 .sc-top,.sc-art-wrap,.sc-art-img,.sc-art-ph,.sc-info,.sc-bottom,.play-btn,.sc-cmd-bar{display:none!important}
 
 /* ── SONG SPOILER OVERLAY ── */
 .sc-embed{position:relative;min-height:200px}
 .sc-embed iframe{width:100%;border:none;display:block}
-.song-spoiler{position:absolute;inset:0;background:var(--s2);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:0 0 10px 10px}
+.song-spoiler{position:absolute;inset:0;background:var(--s2);display:flex;align-items:center;justify-content:center;z-index:10}
 .song-spoiler.hidden{display:none}
 .show-song-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:#3d35a8;border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(61,53,168,.45)}
 .show-song-btn:hover{background:#4e44c8;transform:translateY(-1px)}
 .show-song-btn svg{width:18px;height:18px;flex-shrink:0}
 
-/* VOTE BAR */
+/* LIVE STATS PANEL */
+.live-stats{background:rgba(8,8,8,.8);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:16px 18px;display:none}
+.live-stats.visible{display:block}
+.ls-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ls-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.25);font-weight:800}
+.ls-live-dot{display:flex;align-items:center;gap:5px;font-size:9px;color:rgba(255,68,68,.7);font-weight:700;letter-spacing:1px}
+.ls-live-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:#ff4444;animation:blink 1s infinite;display:block}
+/* Chart canvas */
+#vote-chart{width:100%;height:80px;display:block}
+/* Momentum bar */
+.momentum-wrap{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.04)}
+.momentum-label{display:flex;justify-content:space-between;margin-bottom:6px}
+.momentum-tag{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+.momentum-tag.l{color:var(--acc);background:rgba(46,204,74,.1)}
+.momentum-tag.r{color:rgba(255,255,255,.4);background:rgba(255,255,255,.06)}
+.momentum-bar-wrap{height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;position:relative}
+.momentum-bar-l{height:100%;background:linear-gradient(90deg,var(--acc),#22aa38);border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(46,204,74,.3)}
+.momentum-sublabel{font-size:9px;color:rgba(255,255,255,.18);text-align:center;margin-top:5px;letter-spacing:1px}
 .vbar-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:13px 16px}
 .vbar{background:var(--s3);border-radius:4px;height:7px;display:flex;overflow:hidden;gap:2px;margin-bottom:10px}
 .vbl{background:var(--acc);transition:width .65s cubic-bezier(.4,0,.2,1);border-radius:4px 0 0 4px;min-width:3px;box-shadow:0 0 8px var(--glow2)}
@@ -299,12 +336,162 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .dup-sub{font-size:10px;color:var(--t3)}
 .dup-remove{padding:3px 8px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:4px;color:var(--red);font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .15s}
 .dup-remove:hover{background:rgba(255,68,68,.2)}
+
+/* ── LOGIN SCREEN ── */
+#s-login.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 16px}
+.login-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:clamp(22px,5vw,36px);width:100%;max-width:400px}
+.login-avatar-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.login-avatar{width:72px;height:72px;border-radius:50%;border:2px solid var(--bda);object-fit:cover;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:28px}
+.login-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.login-title{font-size:20px;font-weight:900;text-align:center;margin-bottom:4px}
+.login-sub{font-size:10px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:24px}
+.login-err{color:#ff7070;font-size:12px;text-align:center;margin-bottom:10px;min-height:16px}
+/* Google button */
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--t);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;letter-spacing:.3px}
+.btn-google:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.btn-google svg{flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--t3);font-size:11px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--bd)}
+.login-steps{display:flex;justify-content:center;gap:6px;margin-bottom:22px}
+.login-step-dot{width:6px;height:6px;border-radius:50%;background:var(--t4);transition:all .2s}
+.login-step-dot.active{background:var(--acc);box-shadow:0 0 8px var(--glow)}
+.g-avatar-ring{width:72px;height:72px;border-radius:50%;border:2px solid rgba(46,204,74,.5);overflow:hidden;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:28px}
+.g-avatar-ring img{width:100%;height:100%;object-fit:cover}
+/* Loading overlay */
+#page-loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#page-loader.show{display:flex}
+.page-loader-logo{font-size:28px;font-weight:900;letter-spacing:5px;color:var(--acc);text-shadow:0 0 30px var(--glow)}
+.page-loader-spin{width:36px;height:36px;border:3px solid rgba(46,204,74,.15);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
+.page-loader-text{font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase}
+
+/* ── DISCOVERY ── */
+#s-discovery.active{display:flex;flex-direction:column;min-height:100vh}
+.disc-header{display:flex;align-items:center;justify-content:space-between;padding:12px clamp(14px,3vw,28px);background:rgba(8,8,8,.98);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100}
+.disc-logo{font-size:15px;font-weight:900;letter-spacing:4px;color:var(--acc)}
+.disc-body{flex:1;max-width:900px;width:100%;margin:0 auto;padding:28px clamp(14px,3vw,28px)}
+.disc-section-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.disc-section-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+.disc-live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px rgba(255,68,68,.6);animation:blink 1.4s infinite;flex-shrink:0}
+/* Active battle card */
+.disc-battle-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .18s;text-decoration:none}
+.disc-battle-card:hover{border-color:var(--bda);background:rgba(46,204,74,.04);transform:translateX(3px)}
+.disc-battle-info{flex:1;min-width:0}
+.disc-battle-name{font-size:14px;font-weight:800;color:var(--t);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.disc-battle-meta{font-size:11px;color:var(--t3)}
+.disc-battle-badge{font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.disc-battle-badge.live{background:rgba(255,68,68,.1);color:#ff9090;border:1px solid rgba(255,68,68,.25)}
+.disc-battle-badge.waiting{background:rgba(255,180,0,.1);color:#ffb800;border:1px solid rgba(255,180,0,.25)}
+.disc-battle-players{display:flex;gap:-4px;flex-shrink:0}
+/* Winner card */
+.disc-winner-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:6px}
+.disc-winner-thumb{width:52px;height:34px;object-fit:cover;border-radius:5px;background:var(--s3);flex-shrink:0}
+.disc-winner-info{flex:1;min-width:0}
+.disc-winner-title{font-size:13px;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.disc-winner-sub{font-size:11px;color:var(--t3)}
+.disc-winner-battle{font-size:10px;color:var(--t3);white-space:nowrap;flex-shrink:0;text-align:right}
+.disc-empty{text-align:center;padding:32px 0;color:var(--t3);font-size:13px}
+.disc-tabs{display:flex;gap:2px;margin-bottom:24px;background:rgba(0,0,0,.6);border-radius:8px;padding:3px;border:1px solid var(--bd);max-width:320px}
+.disc-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--t3);cursor:pointer;border-radius:6px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;letter-spacing:.5px;text-transform:uppercase;transition:all .18s}
+.disc-tab.on{background:var(--acc);color:#000}
+/* user header badge */
+.user-badge{display:flex;align-items:center;gap:8px;padding:5px 10px;background:rgba(46,204,74,.07);border:1px solid rgba(46,204,74,.2);border-radius:8px;cursor:pointer;transition:all .18s;flex-shrink:0}
+.user-badge:hover{background:rgba(46,204,74,.13)}
+.user-badge-av{width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--s3);border:1px solid var(--bda)}
+.user-badge-name{font-size:11px;font-weight:700;color:var(--acc);letter-spacing:.5px}
+/* battle history */
+.hist-wrap{margin-top:20px;border-top:1px solid var(--bd);padding-top:16px}
+.hist-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:10px}
+.hist-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:8px;margin-bottom:5px}
+.hist-room{font-size:12px;font-weight:700;color:var(--t);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-meta{font-size:10px;color:var(--t3);white-space:nowrap;flex-shrink:0}
+.hist-badge{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.hist-badge.won{background:rgba(46,204,74,.15);color:var(--acc);border:1px solid rgba(46,204,74,.3)}
+.hist-badge.played{background:rgba(255,255,255,.05);color:var(--t3);border:1px solid rgba(255,255,255,.08)}
+.hist-empty{font-size:12px;color:var(--t3);text-align:center;padding:16px 0}
 </style>
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script>
+// Afișează loader INSTANT dacă e callback de la Google (access_token în URL hash)
+if (window.location.hash && window.location.hash.includes('access_token')) {
+  document.addEventListener('DOMContentLoaded', function() {
+    var el = document.getElementById('page-loader');
+    if (el) el.classList.add('show');
+  });
+}
+</script>
 </head>
 <body>
 
-<!-- TUTORIAL -->
+<!-- PAGE LOADER (apare când revii de la Google OAuth) -->
+<div id="page-loader">
+  <div class="page-loader-logo">HIGHSB</div>
+  <div class="page-loader-spin"></div>
+  <div class="page-loader-text">Se procesează login-ul...</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="s-login" class="screen">
+  <div class="logo">HIGHSB <span style="font-size:clamp(10px,1.5vw,14px);font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.4);color:var(--acc);padding:2px 8px;border-radius:20px;letter-spacing:3px;vertical-align:middle;position:relative;top:-4px">BETA</span></div>
+  <div class="logo-tag" style="margin-bottom:24px">Music Battle Platform</div>
+  <div class="login-card">
+
+    <!-- STEP 1: Google Login -->
+    <div id="login-step1">
+      <div class="login-steps">
+        <div class="login-step-dot active" id="dot1"></div>
+        <div class="login-step-dot" id="dot2"></div>
+      </div>
+      <div class="login-avatar-wrap">
+        <div class="g-avatar-ring"><span>🎵</span></div>
+      </div>
+      <div class="login-title">Bine ai venit!</div>
+      <div class="login-sub" style="margin-bottom:28px">autentifică-te pentru a continua</div>
+      <button class="btn-google" id="btn-google" onclick="loginWithGoogle()">
+        <span id="btn-google-inner" style="display:flex;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58Z"/></svg>
+          Continuă cu Google
+        </span>
+        <span id="btn-google-loading" style="display:none;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 18 18" style="animation:spin .8s linear infinite"><circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2"/><path d="M9 2a7 7 0 0 1 7 7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          Se deschide Google...
+        </span>
+      </button>
+      <div class="login-err" id="login-err"></div>
+    </div>
+
+    <!-- STEP 2: Set Kick Username (after Google login) -->
+    <div id="login-step2" style="display:none">
+      <div class="login-steps">
+        <div class="login-step-dot" id="dot1b"></div>
+        <div class="login-step-dot active" id="dot2b"></div>
+      </div>
+      <div class="login-avatar-wrap">
+        <div class="g-avatar-ring" id="step2-av-wrap"><span>👤</span></div>
+      </div>
+      <div class="login-title" id="step2-title">Un pas în plus</div>
+      <div class="login-sub" style="margin-bottom:22px">care e username-ul tău pe Kick?</div>
+      <div class="inp-wrap" style="position:relative">
+        <lbl>Kick Username</lbl>
+        <input id="login-kick-input" type="text" placeholder="Caută username Kick..." autocomplete="off"
+          oninput="loginUserSearch(this.value)" onblur="setTimeout(hideLoginAC,200)"
+          onfocus="if(this.value.trim().length>=2)loginUserSearch(this.value)"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+        <div class="ac-list" id="login-ac" style="display:none"></div>
+      </div>
+      <div class="login-err" id="login-err2"></div>
+      <button class="btn primary" onclick="doLogin()">INTRĂ ÎN HIGHSB →</button>
+    </div>
+
+    <!-- History (shown after login) -->
+    <div class="hist-wrap" id="login-hist-wrap" style="display:none">
+      <div class="hist-title">Ultimele battle-uri</div>
+      <div id="login-hist-list"></div>
+    </div>
+  </div>
+</div>
+
+
 <div class="tbg" id="tbg">
   <div class="tbox">
     <h2>Cum funcționează</h2>
@@ -345,16 +532,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <!-- STÂNGA: Update-uri -->
   <div class="corner-box left">
     <div class="corner-box-title">Update-uri</div>
+    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Login cu Google pentru host</span><span class="cl-date">06 mar</span></div>
     <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Selector: 4, 8, 16, 32, 64, 128</span><span class="cl-date">05 mar</span></div>
+    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Coinflip la egalitate între piese</span><span class="cl-date">05 mar</span></div>
     <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bara de voturi dispare la winner</span><span class="cl-date">04 mar</span></div>
     <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Sincronizare live între browsere</span><span class="cl-date">04 mar</span></div>
-    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bug piese când intră mai puțini jucători</span><span class="cl-date">05 mar</span></div>
-    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Coinflip la egalitate între piese</span><span class="cl-date">05 mar</span></div>
   </div>
 
   <!-- CENTRU -->
   <div class="logo">HIGHSB <span style="font-size:clamp(10px,1.5vw,14px);font-weight:800;background:rgba(46,204,74,.15);border:1px solid rgba(46,204,74,.4);color:var(--acc);padding:2px 8px;border-radius:20px;letter-spacing:3px;vertical-align:middle;position:relative;top:-4px">BETA</span></div>
   <div class="logo-tag">Music Battle Platform</div>
+  <div id="landing-user-wrap" style="margin-bottom:16px"></div>
   <div class="landing-inner">
     <div class="card">
       <div class="tabs">
@@ -363,8 +551,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       </div>
       <div id="tc">
         <div class="inp-wrap"><lbl>Nume cameră</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
-        <div class="inp-wrap">
+        <div class="inp-wrap" id="kick-channel-wrap">
           <lbl>Kick Channel</lbl>
+          <div id="kick-channel-logged" style="display:none;padding:10px 14px;background:rgba(0,0,0,.5);border:1px solid var(--t4);border-radius:8px;color:var(--acc);font-size:14px;font-weight:700"></div>
           <input id="l-kick" type="text" placeholder="Caută username Kick..." autocomplete="off"
             oninput="kickSearch(this.value)" onblur="setTimeout(hideAC,200)" onfocus="if(this.value.trim().length>=2)kickSearch(this.value)"/>
           <div class="ac-list" id="kick-ac" style="display:none"></div>
@@ -406,6 +595,38 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
 
   <!-- SUPPORT BUTTON -->
+</div>
+
+<!-- DISCOVERY -->
+<div id="s-discovery" class="screen">
+  <div class="disc-header">
+    <div class="disc-logo">HIGHSB</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="user-badge" id="disc-user-badge" onclick="showProfilePanel()" style="display:none">
+        <img class="user-badge-av" id="disc-user-av" src="" alt=""/>
+        <span class="user-badge-name" id="disc-user-name">—</span>
+      </div>
+      <button class="copy-btn" onclick="showScreen('s-landing');updateLandingUserBadge()" style="border-color:var(--bda);color:var(--acc)">← ÎNAPOI</button>
+    </div>
+  </div>
+  <div class="disc-body">
+    <div class="disc-tabs">
+      <button class="disc-tab on" onclick="switchDiscTab('live',this)">🔴 Live & Waiting</button>
+      <button class="disc-tab" onclick="switchDiscTab('winners',this)">🏆 Câștigători</button>
+    </div>
+
+    <!-- LIVE TAB -->
+    <div id="disc-live-tab">
+      <div class="disc-section-title"><div class="disc-live-dot"></div>Battle-uri active acum</div>
+      <div id="disc-live-list"><div class="disc-empty">Se încarcă...</div></div>
+    </div>
+
+    <!-- WINNERS TAB -->
+    <div id="disc-winners-tab" style="display:none">
+      <div class="disc-section-title">Ultimele piese câștigătoare</div>
+      <div id="disc-winners-list"><div class="disc-empty">Se încarcă...</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- SUPPORT BAIT POPUP -->
@@ -486,6 +707,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     </div>
     <div class="wplayers-t">Participanți</div>
     <div id="wait-player-list" style="margin-bottom:14px"></div>
+
+    <!-- VIEWER: adaugă / editează piesă -->
+    <div id="viewer-song-panel" style="display:none;margin-bottom:14px;padding:14px;background:rgba(46,204,74,.04);border:1px solid rgba(46,204,74,.15);border-radius:10px">
+      <div style="font-size:10px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:12px" id="viewer-panel-title">Piesa ta</div>
+      <div class="inp-wrap" style="position:relative;margin-bottom:10px">
+        <lbl>Kick Username</lbl>
+        <input id="vw-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
+          oninput="userSearchWait(this.value)" onblur="setTimeout(hideUserACWait,200)" onfocus="if(this.value.trim().length>=2)userSearchWait(this.value)"/>
+        <div class="ac-list" id="user-ac-wait" style="display:none"></div>
+      </div>
+      <div class="inp-wrap" style="margin-bottom:10px">
+        <lbl>Song Link (YouTube / Spotify)</lbl>
+        <input id="vw-url" type="text" placeholder="https://youtube.com/watch?v=..."/>
+      </div>
+      <div class="err" id="vw-err" style="margin-bottom:8px"></div>
+      <button class="btn primary" onclick="submitSongFromWait()" style="font-size:12px;padding:10px" id="vw-submit-btn">SALVEAZĂ PIESA</button>
+    </div>
     <div id="dup-host-section" style="display:none;margin-bottom:14px">
       <div style="font-size:9px;color:#ffd060;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">⚠️ Duplicate detectate</div>
       <div id="dup-host-list"></div>
@@ -495,6 +733,40 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
       <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
     </div>
+  </div>
+</div>
+
+<!-- POLL POPUP -->
+<div id="poll-popup-bg" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:28px;width:90%;max-width:620px;text-align:center;position:relative">
+    <button onclick="closePollPopup()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.05);border:1px solid var(--t4);color:var(--t2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:16px">Care piesă câștigă?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--s2)">
+        <img id="poll-thumb-l" src="" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block"/>
+        <div style="padding:10px 12px;font-size:12px;font-weight:700;color:var(--t);text-align:left">
+          <span style="background:var(--acc);color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:20px;margin-right:6px">!1</span>
+          <span id="poll-title-l">—</span>
+        </div>
+      </div>
+      <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--s2)">
+        <img id="poll-thumb-r" src="" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block"/>
+        <div style="padding:10px 12px;font-size:12px;font-weight:700;color:var(--t);text-align:left">
+          <span style="background:var(--t4);color:var(--t2);font-size:10px;font-weight:900;padding:2px 8px;border-radius:20px;margin-right:6px">!2</span>
+          <span id="poll-title-r">—</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase">Timp rămas</span>
+        <span id="poll-timer-num" style="font-size:22px;font-weight:900;color:var(--acc)">60</span>
+      </div>
+      <div style="background:var(--t4);border-radius:4px;height:6px;overflow:hidden">
+        <div id="poll-timer-bar" style="height:100%;background:var(--acc);border-radius:4px;width:100%;transition:width 1s linear;box-shadow:0 0 8px var(--glow)"></div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--t3)">Votează în chat cu <strong style="color:var(--acc)">!1</strong> sau <strong style="color:var(--t)">!2</strong> · Apasă <strong style="color:var(--acc)">✕</strong> și alege cu <strong style="color:var(--t)">CHOOSE</strong></div>
   </div>
 </div>
 
@@ -508,6 +780,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="badge" id="h-players">0 players</div>
     </div>
     <div style="display:flex;gap:7px;align-items:center">
+      <div class="user-badge" id="header-user-badge" onclick="showProfilePanel()" style="display:none">
+        <img class="user-badge-av" id="header-user-av" src="" alt=""/>
+        <span class="user-badge-name" id="header-user-name">—</span>
+      </div>
       <button class="copy-btn" onclick="openBracket()" style="border-color:var(--bda);color:var(--acc)">🏆 BRACKET</button>
       <input id="share-inp" type="text" readonly onclick="this.select()"/>
       <button class="copy-btn" id="copy-btn" onclick="copyLink()">Copy</button>
@@ -540,13 +816,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="display:none" id="splat-l"></div>
           <div class="sc-card-top">
             <span class="sc-badge">!1</span>
-            <img id="avatar-l" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:none;border:1px solid var(--bd);flex-shrink:0"/>
             <div class="sc-vote-mini">
-              <span class="sc-submitter" id="subby-show-l" style="color:var(--acc);font-weight:700;font-size:12px"></span>
-              <span style="color:var(--t3);margin:0 4px">·</span>
               <span id="vcl">0</span> voturi · <span class="sc-pct-mini" id="pctl">0%</span>
             </div>
-            <button class="choose-btn" id="choose-l" onclick="manualWin('left')" style="display:none">CHOOSE</button>
           </div>
           <div class="sc-embed" id="embed-l" style="display:block">
             <div class="song-spoiler" id="spoiler-l">
@@ -556,6 +828,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
               </button>
             </div>
             <iframe id="iframe-l" height="320" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+          <div class="sc-footer">
+            <img id="avatar-l" src="" alt="" class="sc-avatar" style="display:none"/>
+            <div style="min-width:0">
+              <div class="sc-submitted-label">Submitted by</div>
+              <div class="sc-submitted-name" id="subby-show-l">—</div>
+            </div>
+          </div>
+          <div class="sc-choose-wrap" id="choose-wrap-l" style="display:none">
+            <button class="choose-btn" id="choose-l" onclick="manualWin('left')">CHOOSE SONG</button>
           </div>
         </div>
 
@@ -572,14 +854,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <span style="display:none" id="ssubby-r"></span>
           <div style="display:none" id="splat-r"></div>
           <div class="sc-card-top">
-            <span class="sc-badge">!2</span>
-            <img id="avatar-r" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:none;border:1px solid var(--bd);flex-shrink:0"/>
+            <span class="sc-badge" style="background:var(--t4);color:var(--t2)">!2</span>
             <div class="sc-vote-mini">
-              <span class="sc-submitter" id="subby-show-r" style="color:var(--acc);font-weight:700;font-size:12px"></span>
-              <span style="color:var(--t3);margin:0 4px">·</span>
               <span id="vcr">0</span> voturi · <span class="sc-pct-mini" id="pctr">0%</span>
             </div>
-            <button class="choose-btn" id="choose-r" onclick="manualWin('right')" style="display:none">CHOOSE</button>
           </div>
           <div class="sc-embed" id="embed-r" style="display:block">
             <div class="song-spoiler" id="spoiler-r">
@@ -589,6 +867,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
               </button>
             </div>
             <iframe id="iframe-r" height="320" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+          <div class="sc-footer">
+            <img id="avatar-r" src="" alt="" class="sc-avatar" style="display:none"/>
+            <div style="min-width:0">
+              <div class="sc-submitted-label">Submitted by</div>
+              <div class="sc-submitted-name" id="subby-show-r">—</div>
+            </div>
+          </div>
+          <div class="sc-choose-wrap" id="choose-wrap-r" style="display:none">
+            <button class="choose-btn" id="choose-r" onclick="manualWin('right')">CHOOSE SONG</button>
           </div>
         </div>
       </div>
@@ -619,6 +907,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="total-box" id="total-box-wrap">
         <strong id="total-voters-num">0</strong>
         <span>persoane au votat</span>
+      </div>
+
+      <!-- LIVE STATS -->
+      <div class="live-stats" id="live-stats-panel">
+        <div class="ls-header">
+          <span class="ls-title">Evoluție voturi</span>
+          <span class="ls-live-dot">LIVE</span>
+        </div>
+        <canvas id="vote-chart"></canvas>
+        <div class="momentum-wrap">
+          <div class="momentum-label">
+            <span class="momentum-tag l" id="mom-tag-l">!1</span>
+            <span style="font-size:9px;color:rgba(255,255,255,.2);letter-spacing:1px;font-weight:700">MOMENTUM</span>
+            <span class="momentum-tag r" id="mom-tag-r">!2</span>
+          </div>
+          <div class="momentum-bar-wrap">
+            <div class="momentum-bar-l" id="momentum-bar" style="width:50%"></div>
+          </div>
+          <div class="momentum-sublabel" id="momentum-sublabel">Ultimele 10 voturi</div>
+        </div>
       </div>
 
       <div class="poll-row" id="host-poll" style="display:none">
@@ -925,15 +1233,42 @@ function pickUser(slug,avatar){
   hideUserAC();
 }
 document.addEventListener('DOMContentLoaded',async ()=>{
+  // ── LOAD PERSISTED USER ──
+  _currentUser = loadCurrentUser();
+
+  // ── CHECK FOR GOOGLE OAUTH CALLBACK (access_token in URL hash) ──
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    const loader = document.getElementById('page-loader');
+    if (loader) loader.classList.add('show');
+    const handled = await handleGoogleCallback();
+    if (loader) loader.classList.remove('show');
+    if (handled && _currentUser) {
+      updateHeaderBadge();
+      proceedAfterLogin();
+      return;
+    } else if (handled) {
+      showScreen('s-login');
+      return;
+    }
+  }
+
   // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
   if(!rid){
+    if (!_currentUser) {
+      showScreen('s-login');
+      _pendingAction = { action: 'landing' };
+      return;
+    }
     showScreen('s-landing');
+    updateLandingUserBadge();
+    // Show history in login screen if user navigates back
+    showLoginHistory(_currentUser.kick_username);
     try{
       if(!localStorage.getItem('ksb_tut')){
-        showTut(); // tut → beta → support (în lanț)
+        showTut();
       } else {
-        setTimeout(()=>document.getElementById('beta-bg').classList.add('open'),300); // beta → support (mereu)
+        setTimeout(()=>document.getElementById('beta-bg').classList.add('open'),300);
       }
     }catch(e){}
     try{cleanOldLocalStorage();}catch(e){}
@@ -947,18 +1282,28 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   let saved=null;
   try{saved=await loadRemote(rid);}catch(e){}
   if(!saved){try{saved=load(rid);}catch(e){}}
-  if(saved&&saved.battleStarted){S=saved;S.isHost=false;showScreen('s-battle');initBattle();return;}
+  if(saved&&saved.battleStarted){
+    S=saved;S.isHost=false;
+    // Viewer poate vedea battle-ul fără login
+    showScreen('s-battle');initBattle();if(_currentUser)updateHeaderBadge();return;
+  }
   if(saved&&saved.room){
     let localState=null;try{localState=load(rid);}catch(e){}
     const amHost=!!(localState&&localState.isHost);
     S=Object.assign({},saved,{isHost:amHost});
-    if(amHost){showScreen('s-wait');initWait();return;}
+    if(amHost){showScreen('s-wait');initWait();updateHeaderBadge();return;}
     let myUser=null;try{myUser=localStorage.getItem('ksb_user_'+rid);}catch(e){}
-    if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();return;}
-    showScreen('s-submit');return;
+    if (_currentUser) myUser = _currentUser.kick_username;
+    if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();if(_currentUser)updateHeaderBadge();return;}
+    // Submit necesită login
+    if (!_currentUser) { _pendingAction={action:'submit',rid}; showScreen('s-login'); return; }
+    showScreen('s-submit');prefillSubmitForm();return;
   }
   const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
-  S=tmp;showScreen('s-submit');
+  S=tmp;
+  // Submit necesită login
+  if (!_currentUser) { _pendingAction={action:'submit',rid}; showScreen('s-login'); return; }
+  showScreen('s-submit');prefillSubmitForm();
 });
 function showTut(){document.getElementById('tbg').classList.add('open');}
 function closeTut(){
@@ -974,7 +1319,43 @@ function closeBeta(){
 }
 function switchTab(t){document.getElementById('tc').style.display=t==='create'?'':'none';document.getElementById('tj').style.display=t==='join'?'':'none';document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(t==='create'&&i===0)||(t==='join'&&i===1)));}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function startDemo(){
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const rand=n=>Array.from({length:n},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const id=rand(6);
+  const demoSongs=[
+    {ytId:'dQw4w9WgXcQ',title:'Never Gonna Give You Up',submittedBy:'RickAstley'},
+    {ytId:'9bZkp7q19f0',title:'Gangnam Style',submittedBy:'PSY_fan'},
+    {ytId:'kJQP7kiw5Fk',title:'Despacito',submittedBy:'LuisF'},
+    {ytId:'JGwWNGJdvx8',title:'Shape of You',submittedBy:'EdSheeran'},
+    {ytId:'OPf0YbXqDm0',title:'Uptown Funk',submittedBy:'BrunoMars'},
+    {ytId:'hT_nvWreIhg',title:'Counting Stars',submittedBy:'OneRepublic'},
+    {ytId:'YqeW9_5kURI',title:'Happy',submittedBy:'Pharrell'},
+    {ytId:'CevxZvSJLk8',title:'Roar',submittedBy:'KatyPerry'},
+    {ytId:'lp-EO5I60KA',title:'Stay',submittedBy:'KidLaroi'},
+    {ytId:'PT2_F-1esPk',title:'Believer',submittedBy:'ImagDragons'},
+    {ytId:'fRh_vgS2dFE',title:'Sorry',submittedBy:'JBieber'},
+    {ytId:'SlPhMPnQ58k',title:'Thunder',submittedBy:'DragonS'},
+    {ytId:'rY0WxgSXdEE',title:'Closer',submittedBy:'Chainsmokers'},
+    {ytId:'nfWlot6h_JM',title:'Shake It Off',submittedBy:'TaylorS'},
+    {ytId:'09R8_2nJtjg',title:'Dark Horse',submittedBy:'KatyP2'},
+    {ytId:'2vjPBrBU-TM',title:'Blinding Lights',submittedBy:'TheWeeknd'},
+  ].map((s,i)=>({...s,id:'demo_'+i,spId:null,url:'https://youtube.com/watch?v='+s.ytId,
+    thumb:'https://img.youtube.com/vi/'+s.ytId+'/mqdefault.jpg',artist:'Demo',platform:'youtube'}));
+  S=mkState();
+  S.isHost=true;
+  S.room={id,name:'DEMO Battle',kickChannel:'',playersNeeded:16,songsPerPlayer:1};
+  S.songs=demoSongs;
+  S.battleStarted=true;
+  pushUrl(id);
+  try{localStorage.setItem('ksb_'+id,JSON.stringify(S));}catch(e){}
+  clearInterval(waitPoll);
+  save();
+  showScreen('s-battle');
+  initBattle();
+}
 function createRoom(){
+  if (!_currentUser) { _pendingAction={action:'landing'}; showScreen('s-login'); return; }
   const name=document.getElementById('l-name').value.trim()||'Battle';
   const kick=document.getElementById('l-kick').value.trim();
   const np=_pillPlayers||4;
@@ -999,6 +1380,12 @@ async function joinRoom(){
   pushUrl(code);initSync(code);showScreen('s-submit');
 }
 async function submitSong(){
+  // Auto-fill username from logged-in user
+  if (_currentUser) {
+    const el = document.getElementById('su-user');
+    if (el && !el.value.trim()) el.value = _currentUser.kick_username;
+    if (_currentUser.avatar && !window._pickedAvatar) window._pickedAvatar = _currentUser.avatar;
+  }
   const user=document.getElementById('su-user').value.trim();
   const url=document.getElementById('su-url').value.trim();
   const err=document.getElementById('serr');
@@ -1042,6 +1429,104 @@ async function submitSong(){
   }
 }
 function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
+let _userAcWaitTimer=null;
+function userSearchWait(q){
+  const ac=document.getElementById('user-ac-wait');q=(q||'').trim();
+  if(q.length<2){ac.style.display='none';return;}
+  clearTimeout(_userAcWaitTimer);
+  _userAcWaitTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('/api/channel?user='+encodeURIComponent(q));
+      if(r.ok){const d=await r.json();renderUserACWait([{slug:q,avatar:d.avatar||null}]);return;}
+      renderUserACWait([{slug:q,avatar:null}]);
+    }catch(e){renderUserACWait([{slug:q,avatar:null}]);}
+  },380);
+}
+function renderUserACWait(results){
+  const ac=document.getElementById('user-ac-wait');
+  if(!results||!results.length){ac.style.display='none';return;}
+  ac.innerHTML=results.map(r=>`<div class="ac-item" onmousedown="pickUserWait('${r.slug}','${r.avatar||''}')"><div class="ac-av">${r.avatar?`<img src="${r.avatar}" alt=""/>`:'👤'}</div><div style="flex:1;min-width:0"><div class="ac-name">${r.slug}</div></div></div>`).join('');
+  ac.style.display='block';
+}
+function hideUserACWait(){const ac=document.getElementById('user-ac-wait');if(ac)ac.style.display='none';}
+function pickUserWait(slug,avatar){
+  document.getElementById('vw-user').value=slug;
+  window._pickedAvatarWait=avatar;
+  hideUserACWait();
+}
+function showViewerSongPanel(){
+  const panel=document.getElementById('viewer-song-panel');
+  if(!panel)return;
+  panel.style.display='';
+  // Pre-fill username — prefer logged-in user
+  const myUser = (_currentUser && _currentUser.kick_username) || localStorage.getItem('ksb_user_'+S.room.id);
+  if(myUser){document.getElementById('vw-user').value=myUser;}
+  if(_currentUser&&_currentUser.avatar)window._pickedAvatarWait=_currentUser.avatar;
+  // Pre-fill existing song url if editing
+  const mySong=S.songs&&S.songs.find(s=>s.submittedBy===myUser);
+  if(mySong){
+    document.getElementById('vw-url').value=mySong.url||'';
+    document.getElementById('viewer-panel-title').textContent='Editează piesa ta';
+    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ PIESA';
+  } else {
+    document.getElementById('vw-url').value='';
+    document.getElementById('viewer-panel-title').textContent='Adaugă o piesă';
+    document.getElementById('vw-submit-btn').textContent='SALVEAZĂ PIESA';
+  }
+}
+async function submitSongFromWait(){
+  if (_currentUser) {
+    const el = document.getElementById('vw-user');
+    if (el && !el.value.trim()) el.value = _currentUser.kick_username;
+    if (_currentUser.avatar && !window._pickedAvatarWait) window._pickedAvatarWait = _currentUser.avatar;
+  }
+  const user=document.getElementById('vw-user').value.trim();
+  const url=document.getElementById('vw-url').value.trim();
+  const err=document.getElementById('vw-err');
+  if(!user){err.textContent='Introdu username-ul tău Kick';return;}
+  if(!url){err.textContent='Introdu link-ul piesei';return;}
+  const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
+  if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
+  err.textContent='Se salvează...';
+  const avatar=window._pickedAvatarWait||null;window._pickedAvatarWait=null;
+  try{
+    const remote=await redisGet('room_'+S.room.id);
+    const existing=remote||load(S.room.id);
+    const songs=(existing&&existing.songs)?[...existing.songs]:[];
+    const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
+    const spp=existing&&existing.room?existing.room.songsPerPlayer:S.room.songsPerPlayer||1;
+    const myExisting=songs.filter(s=>s.submittedBy===user);
+    const uniquePlayerCount=new Set(songs.map(s=>s.submittedBy)).size;
+    // If editing: remove old song first
+    const editIdx=songs.findIndex(s=>s.submittedBy===user);
+    const newSong={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+      ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
+      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
+      submittedBy:user,avatar:avatar};
+    if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{newSong.title=d.title||newSong.title;newSong.artist=d.author_name||'';updateSong(newSong);}).catch(()=>{});}
+    if(editIdx>=0){
+      // Replace existing song
+      songs[editIdx]=newSong;
+    } else {
+      // New song — check if room is full
+      if(uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină!';return;}
+      songs.push(newSong);
+    }
+    const wasHost=S.isHost;
+    const base=existing||S;
+    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],tournamentDone:base.tournamentDone||false,chatroomId:base.chatroomId||null,battleStarted:false,isHost:wasHost};
+    S=state;
+    try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
+    redisSet('room_'+S.room.id,Object.assign({},state,{isHost:false}));
+    try{localStorage.setItem('ksb_user_'+S.room.id,user);}catch(e){}
+    err.style.color='var(--acc)';err.textContent='✓ Salvat!';
+    setTimeout(()=>{err.textContent='';err.style.color='';},2000);
+    // Update title button
+    document.getElementById('viewer-panel-title').textContent='Editează piesa ta';
+    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ PIESA';
+  }catch(e){err.textContent='Eroare. Încearcă din nou.';}
+}
 function initWait(){
   document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';
   document.getElementById('wc-needed').textContent=S.room.playersNeeded||4;
@@ -1054,8 +1539,10 @@ function initWait(){
     // Sync pills to current room settings
     syncWaitPills('players', S.room.playersNeeded||4);
     syncWaitPills('spp', S.room.songsPerPlayer||1);
+    const panel=document.getElementById('viewer-song-panel');if(panel)panel.style.display='none';
   } else {
     hostOnly.style.display='none';hostBtns.style.display='none';
+    showViewerSongPanel();
   }
   pollWait();waitPoll=setInterval(pollWait,2000);
 }
@@ -1116,17 +1603,18 @@ function initBattle(){
 }
 function applyHostUI(){
   const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
-  const hc=document.getElementById('host-ctrls'),cl=document.getElementById('choose-l'),cr=document.getElementById('choose-r');
+  const hc=document.getElementById('host-ctrls');
+  const cwl=document.getElementById('choose-wrap-l'),cwr=document.getElementById('choose-wrap-r');
   const wnb=document.getElementById('winner-next-btn');
   if(S.isHost){
     if(hp)hp.style.display='flex';if(vn)vn.style.display='none';
     if(hc)hc.style.display='flex';
-    if(cl)cl.style.display='inline-flex';if(cr)cr.style.display='inline-flex';
+    if(cwl)cwl.style.display='';if(cwr)cwr.style.display='';
     if(wnb)wnb.style.display='';
   }else{
     if(hp)hp.style.display='none';if(vn)vn.style.display='block';
     if(hc)hc.style.display='none';
-    if(cl)cl.style.display='none';if(cr)cr.style.display='none';
+    if(cwl)cwl.style.display='none';if(cwr)cwr.style.display='none';
     if(wnb)wnb.style.display='none';
   }
 }
@@ -1173,31 +1661,75 @@ function buildPairs(){
 function renderRound(reset){
   const pair=S.pairs[S.roundIdx];
   if(!pair||!pair[0]||!pair[1])return;
-  document.getElementById('rlbl').textContent='ROUND '+(S.roundIdx+1)+' / '+S.pairs.length;
-  const isFinal=S.roundIdx===S.pairs.length-1;
-  const rt=document.getElementById('rtitle');rt.textContent=isFinal?'FINAL BATTLE':'BATTLE';rt.className='rtitle'+(isFinal?' final':'');
-  if(reset){S.votes={left:0,right:0};S.voters={};S.phase='idle';S.pollActive=false;}
-  setCardSong('left',pair[0]);setCardSong('right',pair[1]);
-  updateBar();updateLead();
-  const ww=document.getElementById('winner-wrap'),ar=document.getElementById('arena');
-  const pb=document.getElementById('btn-poll'),nb=document.getElementById('btn-next');
-  const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
-  ww.style.display='none';ar.style.display='grid';
-  document.getElementById('vbar-section').style.display='';
-  document.getElementById('total-box-wrap').style.display='';
-  const cfBtn=document.getElementById('coinflip-btn');if(cfBtn)cfBtn.classList.remove('visible');
-  if(S.isHost){
-    if(hp)hp.style.display='flex';
-    if(vn)vn.style.display='none';
-    pb.style.display='';pb.innerHTML='▶ START POLL';pb.className='pb start';nb.style.display='none';
-  }else{
-    if(hp)hp.style.display='none';
-    if(vn)vn.style.display='block';
-  }
-  renderVoters();applyHostUI();save();
+  const cardL=document.getElementById('card-l'),cardR=document.getElementById('card-r');
+  // Fade out, then update content, then fade in
+  cardL.classList.add('fade-out');cardR.classList.add('fade-out');
+  setTimeout(()=>{
+    document.getElementById('rlbl').textContent='ROUND '+(S.roundIdx+1)+' / '+S.pairs.length;
+    const isFinal=S.roundIdx===S.pairs.length-1;
+    const rt=document.getElementById('rtitle');rt.textContent=isFinal?'FINAL BATTLE':'BATTLE';rt.className='rtitle'+(isFinal?' final':'');
+    if(reset){S.votes={left:0,right:0};S.voters={};S.phase='idle';S.pollActive=false;resetLiveStats();}
+    setCardSong('left',pair[0]);setCardSong('right',pair[1]);
+    updateBar();updateLead();
+    const ww=document.getElementById('winner-wrap'),ar=document.getElementById('arena');
+    const pb=document.getElementById('btn-poll'),nb=document.getElementById('btn-next');
+    const hp=document.getElementById('host-poll'),vn=document.getElementById('viewer-notice');
+    ww.style.display='none';ar.style.display='grid';
+    document.getElementById('vbar-section').style.display='';
+    document.getElementById('total-box-wrap').style.display='';
+    const cfBtn=document.getElementById('coinflip-btn');if(cfBtn)cfBtn.classList.remove('visible');
+    if(S.isHost){
+      if(hp)hp.style.display='flex';
+      if(vn)vn.style.display='none';
+      pb.style.display='';pb.innerHTML='▶ START POLL';pb.className='pb start';nb.style.display='none';
+    }else{
+      if(hp)hp.style.display='none';
+      if(vn)vn.style.display='block';
+    }
+    renderVoters();applyHostUI();save();
+    // Fade in
+    cardL.classList.remove('fade-out');cardR.classList.remove('fade-out');
+    cardL.classList.remove('fade-in');cardR.classList.remove('fade-in');
+    void cardL.offsetWidth;void cardR.offsetWidth; // force reflow
+    cardL.classList.add('fade-in');cardR.classList.add('fade-in');
+  },320);
 }
-function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.phase='polling';document.getElementById('btn-poll').innerHTML='■ END POLL';document.getElementById('btn-poll').className='pb end';}else{endPoll();}save();}
+function togglePoll(){if(!S.isHost)return;if(!S.pollActive){S.pollActive=true;S.phase='polling';document.getElementById('btn-poll').style.display='none';openPollPopup();}else{endPoll();}save();}
+
+let _pollTimerInterval=null;
+function openPollPopup(){
+  const pair=S.pairs[S.roundIdx];if(!pair)return;
+  const l=pair[0],r=pair[1];
+  const tl=l&&l.ytId?'https://img.youtube.com/vi/'+l.ytId+'/mqdefault.jpg':(l&&l.thumb||'');
+  const tr=r&&r.ytId?'https://img.youtube.com/vi/'+r.ytId+'/mqdefault.jpg':(r&&r.thumb||'');
+  document.getElementById('poll-thumb-l').src=tl;
+  document.getElementById('poll-thumb-r').src=tr;
+  document.getElementById('poll-title-l').textContent=l?l.title||('@'+(l.submittedBy||'?')):'—';
+  document.getElementById('poll-title-r').textContent=r?r.title||('@'+(r.submittedBy||'?')):'—';
+  const bg=document.getElementById('poll-popup-bg');
+  bg.style.display='flex';
+  clearInterval(_pollTimerInterval);
+  let secs=60;
+  document.getElementById('poll-timer-num').textContent=secs;
+  document.getElementById('poll-timer-bar').style.width='100%';
+  document.getElementById('poll-timer-bar').style.background='var(--acc)';
+  _pollTimerInterval=setInterval(()=>{
+    secs--;
+    document.getElementById('poll-timer-num').textContent=secs;
+    const pct=(secs/60)*100;
+    document.getElementById('poll-timer-bar').style.width=pct+'%';
+    if(secs<=10)document.getElementById('poll-timer-bar').style.background='var(--red)';
+    if(secs<=0){clearInterval(_pollTimerInterval);closePollPopup();}
+  },1000);
+  showLiveStats();
+}
+function closePollPopup(){
+  clearInterval(_pollTimerInterval);
+  const bg=document.getElementById('poll-popup-bg');
+  if(bg)bg.style.display='none';
+}
 function endPoll(){
+  closePollPopup();
   S.pollActive=false;S.phase='result';
   const pair=S.pairs[S.roundIdx];
   const ws=S.votes.left>=S.votes.right?'left':'right';
@@ -1311,6 +1843,12 @@ function showDone(){
   // Curăță tot — toți utilizatorii
   if(S.room){
     const roomId=S.room.id;
+    // Save battle result for logged-in user
+    if (_currentUser) {
+      const winner=S.winners[S.winners.length-1];
+      const isWinner = winner && winner.submittedBy === _currentUser.kick_username;
+      saveBattleResult(!!isWinner, winner ? winner.title : null);
+    }
     try{localStorage.removeItem('ksb_'+roomId);}catch(e){}
     try{localStorage.removeItem('ksb_user_'+roomId);}catch(e){}
     // Curăță URL-ul (scoate ?room= din bara de adrese)
@@ -1321,7 +1859,140 @@ function showDone(){
 }
 function castVote(user,side){
   if(S.voters[user]||S.phase!=='polling')return;
-  S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;updateBar();updateLead();renderVoters();save();
+  S.voters[user]=side;S.votes[side]++;S.voterCount[user]=(S.voterCount[user]||0)+1;
+  // Record vote history for chart
+  _voteHistory.push({t:Date.now(),side,l:S.votes.left,r:S.votes.right});
+  if(_voteHistory.length>120)_voteHistory.shift();
+  updateBar();updateLead();renderVoters();renderChart();updateMomentum();save();
+}
+
+// ── LIVE STATS ──────────────────────────────────────
+let _voteHistory=[];
+let _chartAnimFrame=null;
+
+function resetLiveStats(){
+  _voteHistory=[];
+  const panel=document.getElementById('live-stats-panel');
+  if(panel)panel.classList.remove('visible');
+}
+
+function showLiveStats(){
+  const panel=document.getElementById('live-stats-panel');
+  if(panel)panel.classList.add('visible');
+  renderChart();
+  updateMomentum();
+}
+
+function renderChart(){
+  const canvas=document.getElementById('vote-chart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.parentElement.clientWidth-36;
+  const H=80;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const history=_voteHistory;
+  if(history.length<2){
+    // Empty state
+    ctx.fillStyle='rgba(255,255,255,.06)';
+    ctx.font='11px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('Voturile vor apărea aici...', W/2, H/2+4);
+    return;
+  }
+
+  const maxV=Math.max(...history.map(h=>h.l+h.r),1);
+  const pad=4;
+
+  function xPos(i){return pad+(i/(history.length-1))*(W-pad*2);}
+  function yPos(v){return H-pad-(v/maxV)*(H-pad*2);}
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,.04)';
+  ctx.lineWidth=1;
+  [.25,.5,.75,1].forEach(f=>{
+    const y=yPos(maxV*f);
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  });
+
+  // Fill area !1
+  ctx.beginPath();
+  ctx.moveTo(xPos(0),H);
+  history.forEach((h,i)=>ctx.lineTo(xPos(i),yPos(h.l)));
+  ctx.lineTo(xPos(history.length-1),H);
+  ctx.closePath();
+  const grad1=ctx.createLinearGradient(0,0,0,H);
+  grad1.addColorStop(0,'rgba(46,204,74,.35)');
+  grad1.addColorStop(1,'rgba(46,204,74,.02)');
+  ctx.fillStyle=grad1;ctx.fill();
+
+  // Fill area !2
+  ctx.beginPath();
+  ctx.moveTo(xPos(0),H);
+  history.forEach((h,i)=>ctx.lineTo(xPos(i),yPos(h.r)));
+  ctx.lineTo(xPos(history.length-1),H);
+  ctx.closePath();
+  const grad2=ctx.createLinearGradient(0,0,0,H);
+  grad2.addColorStop(0,'rgba(255,255,255,.12)');
+  grad2.addColorStop(1,'rgba(255,255,255,.01)');
+  ctx.fillStyle=grad2;ctx.fill();
+
+  // Line !1
+  ctx.beginPath();
+  history.forEach((h,i)=>{
+    if(i===0)ctx.moveTo(xPos(i),yPos(h.l));
+    else ctx.lineTo(xPos(i),yPos(h.l));
+  });
+  ctx.strokeStyle='rgba(46,204,74,.9)';ctx.lineWidth=2;
+  ctx.lineJoin='round';ctx.stroke();
+
+  // Line !2
+  ctx.beginPath();
+  history.forEach((h,i)=>{
+    if(i===0)ctx.moveTo(xPos(i),yPos(h.r));
+    else ctx.lineTo(xPos(i),yPos(h.r));
+  });
+  ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;
+  ctx.lineJoin='round';ctx.stroke();
+
+  // Dots at end
+  const last=history[history.length-1];
+  ctx.fillStyle='rgba(46,204,74,1)';
+  ctx.beginPath();ctx.arc(xPos(history.length-1),yPos(last.l),3.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.6)';
+  ctx.beginPath();ctx.arc(xPos(history.length-1),yPos(last.r),3.5,0,Math.PI*2);ctx.fill();
+}
+
+function updateMomentum(){
+  const bar=document.getElementById('momentum-bar');
+  const sub=document.getElementById('momentum-sublabel');
+  const tl=document.getElementById('mom-tag-l');
+  const tr=document.getElementById('mom-tag-r');
+  if(!bar)return;
+  // Last 10 votes
+  const recent=_voteHistory.slice(-10);
+  const lCount=recent.filter(v=>v.side==='left').length;
+  const rCount=recent.filter(v=>v.side==='right').length;
+  const total=lCount+rCount||1;
+  const pct=Math.round((lCount/total)*100);
+  bar.style.width=pct+'%';
+  if(lCount>rCount){
+    bar.style.background='linear-gradient(90deg,var(--acc),#22aa38)';
+    bar.style.boxShadow='0 0 12px rgba(46,204,74,.35)';
+    tl.style.background='rgba(46,204,74,.2)';tl.style.color='var(--acc)';
+    tr.style.background='rgba(255,255,255,.05)';tr.style.color='rgba(255,255,255,.3)';
+    if(sub)sub.textContent=`⚡ !1 domină — ${lCount}/${recent.length} voturi recente`;
+  } else if(rCount>lCount){
+    bar.style.background='linear-gradient(90deg,rgba(255,255,255,.3),rgba(255,255,255,.5))';
+    bar.style.boxShadow='none';
+    tr.style.background='rgba(255,255,255,.12)';tr.style.color='rgba(255,255,255,.8)';
+    tl.style.background='rgba(46,204,74,.06)';tl.style.color='rgba(46,204,74,.4)';
+    if(sub)sub.textContent=`⚡ !2 domină — ${rCount}/${recent.length} voturi recente`;
+  } else {
+    bar.style.background='linear-gradient(90deg,var(--acc),rgba(255,255,255,.4))';
+    if(sub)sub.textContent=`⚖ Egalitate — ${recent.length} voturi recente`;
+  }
 }
 function updateBar(){
   const{left,right}=S.votes,total=left+right||1;
@@ -1439,6 +2110,7 @@ function onMsg(data){
 }
 function manualWin(side){
   if(!S.isHost)return;
+  closePollPopup();
   if(side==='left'){S.votes={left:1,right:0};}
   else{S.votes={left:0,right:1};}
   // Record winner and advance without showing winner screen
@@ -1658,6 +2330,472 @@ async function removeSong(songId){
   const btn=document.getElementById('wait-start-btn');
   if(btn)btn.disabled=joined<needed;
 }
+
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// SUPABASE — toate apelurile merg prin /api/supabase
+// Credențialele sunt DOAR pe server (Vercel env vars)
+// ══════════════════════════════════════════════════════
+
+async function _supaCall(action, payload) {
+  try {
+    const r = await fetch('/api/supabase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, payload })
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function supaUpsertUser(kickUsername, avatar, googleId, googleEmail, googleAvatar) {
+  const res = await _supaCall('upsert_user', { kick_username: kickUsername, avatar, google_id: googleId, google_email: googleEmail, google_avatar: googleAvatar });
+  return res && res.data ? res.data : null;
+}
+
+async function supaGetBattleHistory(kickUsername) {
+  const res = await _supaCall('get_history', { kick_username: kickUsername });
+  return (res && res.data) ? res.data : [];
+}
+
+async function supaAddBattleHistory(kickUsername, roomId, roomName, won, songTitle) {
+  await _supaCall('add_history', { kick_username: kickUsername, room_id: roomId, room_name: roomName, won, song_title: songTitle });
+}
+
+// ── INIT USER FROM STORAGE ──
+function loadCurrentUser() {
+  try { const u = localStorage.getItem('highsb_user'); if (u) return JSON.parse(u); } catch(e) {}
+  return null;
+}
+function saveCurrentUser(u) {
+  try { localStorage.setItem('highsb_user', JSON.stringify(u)); } catch(e) {}
+}
+function clearCurrentUser() {
+  try { localStorage.removeItem('highsb_user'); } catch(e) {}
+  _currentUser = null;
+}
+
+// ══════════════════════════════════════════════════════
+// GOOGLE AUTH — Supabase OAuth
+// ══════════════════════════════════════════════════════
+
+// Called when user clicks "Continuă cu Google"
+async function loginWithGoogle() {
+  const btn = document.getElementById('btn-google');
+  const inner = document.getElementById('btn-google-inner');
+  const loading = document.getElementById('btn-google-loading');
+  const err = document.getElementById('login-err');
+  // Show spinner
+  if (btn) btn.disabled = true;
+  if (inner) inner.style.display = 'none';
+  if (loading) loading.style.display = 'flex';
+  if (err) err.textContent = '';
+  try {
+    const r = await fetch('/api/supabase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'google_oauth_url', payload: { redirect: window.location.href } })
+    });
+    const d = await r.json();
+    if (d && d.url) {
+      window.location.href = d.url; // redirect — spinner rămâne până pleacă pagina
+    } else {
+      throw new Error('no url');
+    }
+  } catch(e) {
+    // Reset button on error
+    if (btn) btn.disabled = false;
+    if (inner) inner.style.display = 'flex';
+    if (loading) loading.style.display = 'none';
+    if (err) err.textContent = 'Eroare la Google login. Încearcă direct cu username Kick.';
+  }
+}
+
+// Direct Kick username login (no Google)
+async function loginDirectKick() {
+  const input = document.getElementById('login-user-direct');
+  const err = document.getElementById('login-err');
+  const username = (input ? input.value : '').trim();
+  if (!username) { if(err) err.textContent = 'Introdu username-ul Kick'; return; }
+  if (err) err.textContent = 'Se verifică...';
+  // Fetch avatar from Kick API
+  let avatar = null;
+  try {
+    const r = await fetch('/api/channel?user=' + encodeURIComponent(username));
+    if (r.ok) { const d = await r.json(); avatar = d.avatar || null; }
+  } catch(e) {}
+  const user = await supaUpsertUser(username, avatar, null, null, null) || { kick_username: username, avatar };
+  _currentUser = { kick_username: username, avatar: user.avatar || avatar };
+  saveCurrentUser(_currentUser);
+  if (err) err.textContent = '';
+  updateHeaderBadge();
+  proceedAfterLogin();
+}
+
+// Handle Google OAuth callback — checks URL hash/params for session token
+async function handleGoogleCallback() {
+  // Supabase puts access_token in URL hash after OAuth redirect
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+  const accessToken = params.get('access_token');
+  if (!accessToken) return false;
+
+  // Exchange token with our API to get user info
+  try {
+    const r = await fetch('/api/supabase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'google_get_user', payload: { access_token: accessToken } })
+    });
+    const d = await r.json();
+    if (!d || !d.user) return false;
+
+    // Clean URL
+    try { window.history.replaceState({}, '', window.location.pathname + window.location.search); } catch(e) {}
+
+    const googleUser = d.user;
+    const googleId = googleUser.id;
+    const googleEmail = googleUser.email;
+    const googleAvatar = googleUser.user_metadata?.avatar_url || googleUser.user_metadata?.picture || null;
+    const googleName = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || googleEmail;
+
+    // Check if user already has a Kick username set
+    const existing = await _supaCall('get_user_by_google', { google_id: googleId });
+    if (existing && existing.data && existing.data.kick_username) {
+      // Already set up — log in directly
+      _currentUser = {
+        kick_username: existing.data.kick_username,
+        avatar: existing.data.avatar || googleAvatar,
+        google_id: googleId,
+        google_email: googleEmail
+      };
+      saveCurrentUser(_currentUser);
+      updateHeaderBadge();
+      return true; // fully logged in
+    }
+
+    // First time — show step 2 to set Kick username
+    window._pendingGoogleUser = { google_id: googleId, google_email: googleEmail, google_avatar: googleAvatar, google_name: googleName };
+    showLoginStep2(googleAvatar, googleName);
+    return true;
+  } catch(e) { return false; }
+}
+
+function showLoginStep2(avatarUrl, displayName) {
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step2').style.display = '';
+  // Update avatar in step 2
+  const avWrap = document.getElementById('step2-av-wrap');
+  if (avWrap) {
+    avWrap.innerHTML = avatarUrl
+      ? `<img src="${avatarUrl}" alt=""/>`
+      : '<span>👤</span>';
+  }
+  const title = document.getElementById('step2-title');
+  if (title && displayName) title.textContent = 'Salut, ' + displayName.split(' ')[0] + '!';
+}
+
+// ── LOGIN SCREEN KICK SEARCH (Step 2) ──
+let _loginAcTimer = null;
+function loginUserSearch(q) {
+  const ac = document.getElementById('login-ac');
+  q = (q||'').trim();
+  if (q.length < 2) { if(ac) ac.style.display='none'; return; }
+  clearTimeout(_loginAcTimer);
+  _loginAcTimer = setTimeout(async () => {
+    try {
+      const r = await fetch('/api/channel?user=' + encodeURIComponent(q));
+      if (r.ok) {
+        const d = await r.json();
+        window._loginPickedAvatar = d.avatar || null;
+        renderLoginAC([{ slug: q, avatar: d.avatar||null, isLive: d.isLive||false, viewers: d.viewers||0 }]);
+        return;
+      }
+    } catch(e) {}
+    window._loginPickedAvatar = null;
+    renderLoginAC([{ slug: q, avatar: null, isLive: false, viewers: 0 }]);
+  }, 380);
+}
+function renderLoginAC(results) {
+  const ac = document.getElementById('login-ac');
+  if (!results || !results.length || !ac) { if(ac) ac.style.display='none'; return; }
+  ac.innerHTML = results.map(r => `<div class="ac-item" onmousedown="pickLoginUser('${r.slug}','${r.avatar||''}')">
+    <div class="ac-av">${r.avatar ? `<img src="${r.avatar}" alt=""/>` : '👤'}</div>
+    <div style="flex:1;min-width:0"><div class="ac-name">${r.slug}</div>
+    <div class="ac-sub">${r.isLive ? '🔴 ' + Number(r.viewers).toLocaleString() + ' viewers' : 'kick.com/'+r.slug}</div></div>
+    ${r.isLive ? '<div class="ac-live">LIVE</div>' : ''}
+  </div>`).join('');
+  ac.style.display = 'block';
+}
+function hideLoginAC() { const ac = document.getElementById('login-ac'); if(ac) ac.style.display='none'; }
+function pickLoginUser(slug, avatar) {
+  const inp = document.getElementById('login-kick-input');
+  if (inp) inp.value = slug;
+  window._loginPickedAvatar = avatar || null;
+  hideLoginAC();
+}
+
+// Final step: confirm Kick username (Step 2 submit)
+async function doLogin() {
+  const inp = document.getElementById('login-kick-input');
+  const err = document.getElementById('login-err2') || document.getElementById('login-err');
+  const username = (inp ? inp.value : '').trim();
+  if (!username) { if(err) err.textContent = 'Introdu username-ul tău Kick'; return; }
+  if (err) err.textContent = 'Se salvează...';
+
+  const kickAvatar = window._loginPickedAvatar || null;
+  const g = window._pendingGoogleUser || {};
+  const finalAvatar = kickAvatar || g.google_avatar || null;
+
+  const user = await supaUpsertUser(username, finalAvatar, g.google_id||null, g.google_email||null, g.google_avatar||null)
+    || { kick_username: username, avatar: finalAvatar };
+
+  _currentUser = {
+    kick_username: username,
+    avatar: user.avatar || finalAvatar,
+    google_id: g.google_id || null,
+    google_email: g.google_email || null
+  };
+  saveCurrentUser(_currentUser);
+  window._pendingGoogleUser = null;
+  if (err) err.textContent = '';
+  updateHeaderBadge();
+  proceedAfterLogin();
+}
+
+function updateHeaderBadge() {
+  if (!_currentUser) return;
+  const badge = document.getElementById('header-user-badge');
+  const av = document.getElementById('header-user-av');
+  const name = document.getElementById('header-user-name');
+  if (!badge) return;
+  badge.style.display = 'flex';
+  if (av) { av.src = _currentUser.avatar || ''; av.style.display = _currentUser.avatar ? 'block' : 'none'; }
+  if (name) name.textContent = '@' + _currentUser.kick_username;
+}
+
+function updateLandingUserBadge() {
+  const wrap = document.getElementById('landing-user-wrap');
+  if (!wrap) return;
+  if (_currentUser) {
+    wrap.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(46,204,74,.07);border:1px solid rgba(46,204,74,.2);border-radius:8px;font-size:12px;font-weight:700;color:var(--acc)">
+      ${_currentUser.avatar ? `<img src="${_currentUser.avatar}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"/>` : ''}
+      @${_currentUser.kick_username}
+      <button onclick="logoutUser()" style="background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif;margin-left:4px" title="Delogare">✕</button>
+    </div>`;
+    // Auto-fill Kick Channel cu username-ul logat
+    const kickInput = document.getElementById('l-kick');
+    const kickLogged = document.getElementById('kick-channel-logged');
+    if (kickInput && kickLogged) {
+      kickInput.value = _currentUser.kick_username;
+      kickInput.style.display = 'none';
+      kickLogged.style.display = 'block';
+      kickLogged.textContent = '@' + _currentUser.kick_username;
+    }
+  } else {
+    wrap.innerHTML = '';
+    // Reset Kick Channel la input normal
+    const kickInput = document.getElementById('l-kick');
+    const kickLogged = document.getElementById('kick-channel-logged');
+    if (kickInput && kickLogged) {
+      kickInput.style.display = '';
+      kickLogged.style.display = 'none';
+      kickInput.value = '';
+    }
+  }
+}
+
+function logoutUser() {
+  clearCurrentUser();
+  updateLandingUserBadge();
+  const badge = document.getElementById('header-user-badge');
+  if (badge) badge.style.display = 'none';
+  showScreen('s-login');
+  document.getElementById('login-step1').style.display = '';
+  document.getElementById('login-step2').style.display = 'none';
+}
+
+// ── PROFILE / HISTORY PANEL ──
+async function showProfilePanel() {
+  if (!_currentUser) return;
+  const hist = await supaGetBattleHistory(_currentUser.kick_username);
+  let histHtml = hist.length
+    ? hist.map(h => {
+        const date = new Date(h.created_at).toLocaleDateString('ro-RO', { day:'2-digit', month:'short' });
+        return `<div class="hist-item">
+          <div class="hist-room">${h.room_name || h.room_id}</div>
+          <div class="hist-meta">${date}</div>
+          <div class="hist-badge ${h.won ? 'won' : 'played'}">${h.won ? '🏆 WON' : 'JUCAT'}</div>
+        </div>`;
+      }).join('')
+    : '<div class="hist-empty">Niciun battle înregistrat încă.</div>';
+
+  const existing = document.getElementById('profile-panel');
+  if (existing) existing.remove();
+  const panel = document.createElement('div');
+  panel.id = 'profile-panel';
+  panel.className = 'tbg open';
+  panel.onclick = (e) => { if (e.target === panel) panel.remove(); };
+  panel.innerHTML = `<div class="tbox" style="max-width:420px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      ${_currentUser.avatar
+        ? `<img src="${_currentUser.avatar}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(46,204,74,.4)"/>`
+        : '<div style="width:48px;height:48px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>'}
+      <div>
+        <div style="font-size:17px;font-weight:800">@${_currentUser.kick_username}</div>
+        <a href="https://kick.com/${_currentUser.kick_username}" target="_blank" style="font-size:11px;color:var(--t3);text-decoration:none">kick.com/${_currentUser.kick_username} ↗</a>
+        ${_currentUser.google_email ? `<div style="font-size:10px;color:var(--t3);margin-top:2px">🔗 ${_currentUser.google_email}</div>` : ''}
+      </div>
+      <button onclick="document.getElementById('profile-panel').remove()" style="margin-left:auto;background:none;border:1px solid var(--t4);border-radius:6px;color:var(--t3);padding:4px 9px;cursor:pointer;font-family:Inter,sans-serif;font-size:12px">✕</button>
+    </div>
+    <div class="hist-title">Istoricul battle-urilor</div>
+    <div>${histHtml}</div>
+    <button onclick="logoutUser();document.getElementById('profile-panel').remove()" class="btn" style="margin-top:16px;color:var(--red);border-color:rgba(255,68,68,.2)">Delogare</button>
+  </div>`;
+  document.body.appendChild(panel);
+}
+
+async function showLoginHistory(username) {
+  const wrap = document.getElementById('login-hist-wrap');
+  const list = document.getElementById('login-hist-list');
+  if (!wrap || !list) return;
+  const hist = await supaGetBattleHistory(username);
+  if (!hist.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  list.innerHTML = hist.map(h => {
+    const date = new Date(h.created_at).toLocaleDateString('ro-RO', { day:'2-digit', month:'short' });
+    return `<div class="hist-item">
+      <div class="hist-room">${h.room_name || h.room_id}</div>
+      <div class="hist-meta">${date}</div>
+      <div class="hist-badge ${h.won ? 'won' : 'played'}">${h.won ? '🏆 WON' : 'JUCAT'}</div>
+    </div>`;
+  }).join('');
+}
+
+let _pendingAction = null;
+function proceedAfterLogin() {
+  if (!_pendingAction) { showScreen('s-landing'); updateLandingUserBadge(); return; }
+  const { action, rid } = _pendingAction;
+  _pendingAction = null;
+  if (action === 'landing') { showScreen('s-landing'); updateLandingUserBadge(); }
+  else if (action === 'submit') { showScreen('s-submit'); prefillSubmitForm(); }
+  else if (action === 'battle') { showScreen('s-battle'); }
+}
+
+function prefillSubmitForm() {
+  if (!_currentUser) return;
+  const el = document.getElementById('su-user');
+  if (el && !el.value) el.value = _currentUser.kick_username;
+  if (_currentUser.avatar) window._pickedAvatar = _currentUser.avatar;
+}
+
+async function saveBattleResult(won, songTitle) {
+  if (!_currentUser || !S.room) return;
+  const winner = S.winners[S.winners.length - 1];
+  const thumb = winner && winner.ytId ? 'https://img.youtube.com/vi/' + winner.ytId + '/mqdefault.jpg' : (winner && winner.thumb || null);
+  await _supaCall('add_history', {
+    kick_username: _currentUser.kick_username,
+    room_id: S.room.id,
+    room_name: S.room.name || 'Battle',
+    won,
+    song_title: songTitle || null,
+    song_thumb: thumb
+  });
+}
+// ══════════════════════════════════════════════════════
+let _discTab = 'live';
+
+async function openDiscovery() {
+  showScreen('s-discovery');
+  // Update user badge in discovery header
+  if (_currentUser) {
+    const b = document.getElementById('disc-user-badge');
+    const av = document.getElementById('disc-user-av');
+    const nm = document.getElementById('disc-user-name');
+    if (b) b.style.display = 'flex';
+    if (av) { av.src = _currentUser.avatar || ''; av.style.display = _currentUser.avatar ? 'block' : 'none'; }
+    if (nm) nm.textContent = '@' + _currentUser.kick_username;
+  }
+  loadDiscoveryTab('live');
+}
+
+function switchDiscTab(tab, el) {
+  _discTab = tab;
+  document.querySelectorAll('.disc-tab').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('disc-live-tab').style.display = tab === 'live' ? '' : 'none';
+  document.getElementById('disc-winners-tab').style.display = tab === 'winners' ? '' : 'none';
+  loadDiscoveryTab(tab);
+}
+
+async function loadDiscoveryTab(tab) {
+  if (tab === 'live') {
+    await loadLiveBattles();
+  } else {
+    await loadWinners();
+  }
+}
+
+async function loadLiveBattles() {
+  const el = document.getElementById('disc-live-list');
+  if (!el) return;
+  el.innerHTML = '<div class="disc-empty">Se încarcă...</div>';
+
+  // Poll Redis keys for active rooms — we ask our API
+  const res = await _supaCall('discovery_live', {});
+  const rooms = (res && res.rooms) || [];
+
+  if (!rooms.length) {
+    el.innerHTML = '<div class="disc-empty">Niciun battle activ acum 😴<br><span style="font-size:11px;color:var(--t4)">Creează tu primul!</span></div>';
+    return;
+  }
+
+  el.innerHTML = rooms.map(r => {
+    const isLive = r.battleStarted;
+    const players = r.songs ? r.songs.length : 0;
+    const needed = r.room ? r.room.playersNeeded : '?';
+    const kick = r.room && r.room.kickChannel ? `<span style="color:var(--acc)">@${r.room.kickChannel}</span> · ` : '';
+    return `<a class="disc-battle-card" onclick="joinFromDiscovery('${r.room.id}')">
+      <div style="width:36px;height:36px;border-radius:8px;background:${isLive ? 'rgba(255,68,68,.1)' : 'rgba(255,180,0,.08)'};border:1px solid ${isLive ? 'rgba(255,68,68,.25)' : 'rgba(255,180,0,.2)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${isLive ? '⚔️' : '⏳'}</div>
+      <div class="disc-battle-info">
+        <div class="disc-battle-name">${r.room.name || 'Battle'}</div>
+        <div class="disc-battle-meta">${kick}${players}/${needed} jucători · cod: <strong style="color:var(--t)">${r.room.id}</strong></div>
+      </div>
+      <div class="disc-battle-badge ${isLive ? 'live' : 'waiting'}">${isLive ? '● LIVE' : '⏳ WAITING'}</div>
+    </a>`;
+  }).join('');
+}
+
+async function loadWinners() {
+  const el = document.getElementById('disc-winners-list');
+  if (!el) return;
+  el.innerHTML = '<div class="disc-empty">Se încarcă...</div>';
+
+  const res = await _supaCall('discovery_winners', {});
+  const winners = (res && res.winners) || [];
+
+  if (!winners.length) {
+    el.innerHTML = '<div class="disc-empty">Niciun câștigător înregistrat încă 🏆</div>';
+    return;
+  }
+
+  el.innerHTML = winners.map(w => {
+    const date = new Date(w.created_at).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short' });
+    const thumb = w.song_thumb || '';
+    return `<div class="disc-winner-card">
+      ${thumb ? `<img class="disc-winner-thumb" src="${thumb}" onerror="this.style.display='none'"/>` : '<div class="disc-winner-thumb" style="display:flex;align-items:center;justify-content:center;font-size:18px">🎵</div>'}
+      <div class="disc-winner-info">
+        <div class="disc-winner-title">${w.song_title || 'Piesă câștigătoare'}</div>
+        <div class="disc-winner-sub"><span style="color:var(--acc)">@${w.kick_username}</span> · ${w.room_name || 'Battle'}</div>
+      </div>
+      <div class="disc-winner-battle" style="font-size:10px;color:var(--t3)">${date}<br><span style="color:var(--gold)">🏆 câștigat</span></div>
+    </div>`;
+  }).join('');
+}
+
+function joinFromDiscovery(roomId) {
+  // Navigate to the room
+  window.location.href = window.location.pathname + '?room=' + roomId;
+}
 </script>
-</body>
-</html>
