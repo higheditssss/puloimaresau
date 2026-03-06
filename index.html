@@ -710,19 +710,17 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 
     <!-- VIEWER: adaugă / editează piesă -->
     <div id="viewer-song-panel" style="display:none;margin-bottom:14px;padding:14px;background:rgba(46,204,74,.04);border:1px solid rgba(46,204,74,.15);border-radius:10px">
-      <div style="font-size:10px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:12px" id="viewer-panel-title">Piesa ta</div>
-      <div class="inp-wrap" style="position:relative;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:4px" id="viewer-panel-title">Piesele tale</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:12px" id="viewer-panel-sub"></div>
+      <div class="inp-wrap" style="margin-bottom:12px">
         <lbl>Kick Username</lbl>
-        <input id="vw-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
-          oninput="userSearchWait(this.value)" onblur="setTimeout(hideUserACWait,200)" onfocus="if(this.value.trim().length>=2)userSearchWait(this.value)"/>
-        <div class="ac-list" id="user-ac-wait" style="display:none"></div>
+        <div id="vw-user-display" style="padding:10px 14px;background:rgba(0,0,0,.4);border:1px solid var(--t4);border-radius:8px;color:var(--t3);font-size:13px;font-weight:600">—</div>
+        <input id="vw-user" type="hidden"/>
       </div>
-      <div class="inp-wrap" style="margin-bottom:10px">
-        <lbl>Song Link (YouTube / Spotify)</lbl>
-        <input id="vw-url" type="text" placeholder="https://youtube.com/watch?v=..."/>
-      </div>
+      <!-- Slot-uri piese — generate dinamic -->
+      <div id="vw-song-slots"></div>
       <div class="err" id="vw-err" style="margin-bottom:8px"></div>
-      <button class="btn primary" onclick="submitSongFromWait()" style="font-size:12px;padding:10px" id="vw-submit-btn">SALVEAZĂ PIESA</button>
+      <button class="btn primary" onclick="submitSongsFromWait()" style="font-size:12px;padding:10px" id="vw-submit-btn">SALVEAZĂ</button>
     </div>
     <div id="dup-host-section" style="display:none;margin-bottom:14px">
       <div style="font-size:9px;color:#ffd060;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">⚠️ Duplicate detectate</div>
@@ -1480,21 +1478,41 @@ function showViewerSongPanel(){
   const panel=document.getElementById('viewer-song-panel');
   if(!panel)return;
   panel.style.display='';
-  // Pre-fill username — prefer logged-in user
-  const myUser = (_currentUser && _currentUser.kick_username) || localStorage.getItem('ksb_user_'+S.room.id);
-  if(myUser){document.getElementById('vw-user').value=myUser;}
-  if(_currentUser&&_currentUser.avatar)window._pickedAvatarWait=_currentUser.avatar;
-  // Pre-fill existing song url if editing
-  const mySong=S.songs&&S.songs.find(s=>s.submittedBy===myUser);
-  if(mySong){
-    document.getElementById('vw-url').value=mySong.url||'';
-    document.getElementById('viewer-panel-title').textContent='Editează piesa ta';
-    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ PIESA';
-  } else {
-    document.getElementById('vw-url').value='';
-    document.getElementById('viewer-panel-title').textContent='Adaugă o piesă';
-    document.getElementById('vw-submit-btn').textContent='SALVEAZĂ PIESA';
+  const myUser=(_currentUser&&_currentUser.kick_username)||localStorage.getItem('ksb_user_'+S.room.id);
+  const spp=(S.room&&S.room.songsPerPlayer)||1;
+  const mySongs=(S.songs||[]).filter(s=>s.submittedBy===myUser);
+  if(myUser){
+    document.getElementById('vw-user').value=myUser;
+    const disp=document.getElementById('vw-user-display');
+    if(disp) disp.textContent='@'+myUser;
   }
+  if(_currentUser&&_currentUser.avatar) window._pickedAvatarWait=_currentUser.avatar;
+  // Title & sub
+  const titleEl=document.getElementById('viewer-panel-title');
+  const subEl=document.getElementById('viewer-panel-sub');
+  if(titleEl) titleEl.textContent=mySongs.length>0?'Editează piesele tale':'Adaugă piesele tale';
+  if(subEl) subEl.textContent=spp>1?(mySongs.length+'/'+spp+' piese adăugate'):'';
+  // Render song slots
+  const slotsEl=document.getElementById('vw-song-slots');
+  if(!slotsEl) return;
+  let html='';
+  for(let i=0;i<spp;i++){
+    const existing=mySongs[i];
+    const label=spp>1?'Piesa '+(i+1)+' din '+spp:'Song Link (YouTube / Spotify)';
+    const badge=existing
+      ?'<span style="color:var(--acc);font-size:9px;font-weight:800">✓ SALVATĂ</span>'
+      :'<span style="color:var(--t4);font-size:9px">GOALĂ</span>';
+    const val=existing?existing.url.replace(/"/g,'&quot;'):'';
+    html+=`<div class="inp-wrap" style="margin-bottom:10px">
+      <lbl style="display:flex;justify-content:space-between;align-items:center">
+        <span>${label}</span>${spp>1?badge:''}
+      </lbl>
+      <input id="vw-url-${i}" type="text" placeholder="https://youtube.com/watch?v=..." value="${val}"/>
+    </div>`;
+  }
+  slotsEl.innerHTML=html;
+  const btn=document.getElementById('vw-submit-btn');
+  if(btn) btn.textContent=mySongs.length>0?'ACTUALIZEAZĂ':'SALVEAZĂ';
 }
 async function submitSongFromWait(){
   if (_currentUser) {
@@ -1503,37 +1521,43 @@ async function submitSongFromWait(){
     if (_currentUser.avatar && !window._pickedAvatarWait) window._pickedAvatarWait = _currentUser.avatar;
   }
   const user=document.getElementById('vw-user').value.trim();
-  const url=document.getElementById('vw-url').value.trim();
   const err=document.getElementById('vw-err');
-  if(!user){err.textContent='Introdu username-ul tău Kick';return;}
-  if(!url){err.textContent='Introdu link-ul piesei';return;}
-  const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-  if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
+  if(!user){err.textContent='Username lipsă';return;}
+  const spp=(S.room&&S.room.songsPerPlayer)||1;
+  const avatar=window._pickedAvatarWait||null;
+  // Collect all URL inputs
+  const newUrls=[];
+  for(let i=0;i<spp;i++){
+    const inp=document.getElementById('vw-url-'+i);
+    const url=(inp?inp.value:'').trim();
+    if(url) newUrls.push(url);
+  }
+  if(!newUrls.length){err.textContent='Adaugă cel puțin un link';return;}
+  for(const url of newUrls){
+    const yt=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const sp=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
+    if(!yt&&!sp){err.textContent='Link invalid: '+url.substring(0,40)+'...';return;}
+  }
   err.textContent='Se salvează...';
-  const avatar=window._pickedAvatarWait||null;window._pickedAvatarWait=null;
   try{
     const remote=await redisGet('room_'+S.room.id);
     const existing=remote||load(S.room.id);
-    const songs=(existing&&existing.songs)?[...existing.songs]:[];
+    let songs=(existing&&existing.songs)?[...existing.songs]:[];
     const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
-    const spp=existing&&existing.room?existing.room.songsPerPlayer:S.room.songsPerPlayer||1;
-    const myExisting=songs.filter(s=>s.submittedBy===user);
-    const uniquePlayerCount=new Set(songs.map(s=>s.submittedBy)).size;
-    // If editing: remove old song first
-    const editIdx=songs.findIndex(s=>s.submittedBy===user);
-    const newSong={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
-      ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
-      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
-      submittedBy:user,avatar:avatar};
-    if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{newSong.title=d.title||newSong.title;newSong.artist=d.author_name||'';updateSong(newSong);}).catch(()=>{});}
-    if(editIdx>=0){
-      // Replace existing song
-      songs[editIdx]=newSong;
-    } else {
-      // New song — check if room is full
-      if(uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină!';return;}
-      songs.push(newSong);
+    const uniquePlayerCount=new Set(songs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy)).size;
+    if(!songs.find(s=>s.submittedBy===user)&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină!';return;}
+    // Remove all existing songs from this user
+    songs=songs.filter(s=>s.submittedBy!==user);
+    // Add new songs
+    for(const url of newUrls){
+      const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
+      const song={id:'s'+Date.now()+Math.random(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+        ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
+        thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
+        submittedBy:user,avatar};
+      if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
+      songs.push(song);
     }
     const wasHost=S.isHost;
     const base=existing||S;
@@ -1544,9 +1568,8 @@ async function submitSongFromWait(){
     try{localStorage.setItem('ksb_user_'+S.room.id,user);}catch(e){}
     err.style.color='var(--acc)';err.textContent='✓ Salvat!';
     setTimeout(()=>{err.textContent='';err.style.color='';},2000);
-    // Update title button
-    document.getElementById('viewer-panel-title').textContent='Editează piesa ta';
-    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ PIESA';
+    document.getElementById('viewer-panel-title').textContent='Editează piesele tale';
+    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ';
   }catch(e){err.textContent='Eroare. Încearcă din nou.';}
 }
 function initWait(){
