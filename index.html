@@ -532,7 +532,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
   <!-- STÂNGA: Update-uri -->
   <div class="corner-box left">
     <div class="corner-box-title">Update-uri</div>
-    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Login cu Google pentru host</span><span class="cl-date">06 mar</span></div>
+    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Login cu Google + Kick username</span><span class="cl-date">06 mar</span></div>
     <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Selector: 4, 8, 16, 32, 64, 128</span><span class="cl-date">05 mar</span></div>
     <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Coinflip la egalitate între piese</span><span class="cl-date">05 mar</span></div>
     <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bara de voturi dispare la winner</span><span class="cl-date">04 mar</span></div>
@@ -1255,15 +1255,9 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
   if(!rid){
-    if (!_currentUser) {
-      showScreen('s-login');
-      _pendingAction = { action: 'landing' };
-      return;
-    }
     showScreen('s-landing');
     updateLandingUserBadge();
-    // Show history in login screen if user navigates back
-    showLoginHistory(_currentUser.kick_username);
+    if(_currentUser) showLoginHistory(_currentUser.kick_username);
     try{
       if(!localStorage.getItem('ksb_tut')){
         showTut();
@@ -1275,6 +1269,9 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     try{updateSliders();}catch(e){}
     return;
   }
+  // Cu ?room= în URL — arată loader imediat, nu login screen
+  const roomLoader = document.getElementById('page-loader');
+  if(roomLoader) roomLoader.classList.add('show');
   // Cu ?room= în URL
   try{cleanOldLocalStorage();}catch(e){}
   try{updateSliders();}catch(e){}
@@ -1282,6 +1279,7 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   let saved=null;
   try{saved=await loadRemote(rid);}catch(e){}
   if(!saved){try{saved=load(rid);}catch(e){}}
+  if(roomLoader) roomLoader.classList.remove('show');
   if(saved&&saved.battleStarted){
     S=saved;S.isHost=false;
     // Viewer poate vedea battle-ul fără login
@@ -1295,14 +1293,12 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     let myUser=null;try{myUser=localStorage.getItem('ksb_user_'+rid);}catch(e){}
     if (_currentUser) myUser = _currentUser.kick_username;
     if(myUser&&saved.songs&&saved.songs.find(s=>s.submittedBy===myUser)){showScreen('s-wait');initWait();if(_currentUser)updateHeaderBadge();return;}
-    // Submit necesită login
-    if (!_currentUser) { _pendingAction={action:'submit',rid}; showScreen('s-login'); return; }
+    // Submit fără login
     showScreen('s-submit');prefillSubmitForm();return;
   }
   const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
   S=tmp;
-  // Submit necesită login
-  if (!_currentUser) { _pendingAction={action:'submit',rid}; showScreen('s-login'); return; }
+  // Submit fără login
   showScreen('s-submit');prefillSubmitForm();
 });
 function showTut(){document.getElementById('tbg').classList.add('open');}
@@ -1853,8 +1849,8 @@ function showDone(){
     try{localStorage.removeItem('ksb_user_'+roomId);}catch(e){}
     // Curăță URL-ul (scoate ?room= din bara de adrese)
     try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
-    // Hostul șterge din Redis
-    if(S.isHost) redisDel('room_'+roomId);
+    // Șterge din Redis — toți utilizatorii (nu doar hostul)
+    redisDel('room_'+roomId);
   }
 }
 function castVote(user,side){
