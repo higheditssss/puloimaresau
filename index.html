@@ -728,7 +728,6 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
     <div id="wait-host-btns">
       <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
-      <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
     </div>
   </div>
 </div>
@@ -1709,6 +1708,9 @@ async function pollWait(){
   if(state.battleStarted){clearInterval(waitPoll);if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}S=Object.assign({},state,{isHost:S.isHost});try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}showScreen('s-battle');initBattle();}
 }
 function forceLaunch(){
+  const needed=S.room&&S.room.playersNeeded||4;
+  const joined=(S.songs||[]).length;
+  if(joined<needed) return; // block start if not enough players
   clearInterval(waitPoll);const state=load(S.room.id)||S;
   state.battleStarted=true;
   const wasHost=S.isHost;
