@@ -458,6 +458,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         </span>
       </button>
       <div class="login-err" id="login-err"></div>
+      <button class="btn" onclick="_pendingAction=null;sessionStorage.removeItem('ksb_pending');showScreen('s-landing');updateLandingUserBadge();" style="margin-top:10px;font-size:11px;color:var(--t3)">← Înapoi</button>
     </div>
 
     <!-- STEP 2: Set Kick Username (after Google login) -->
@@ -1257,6 +1258,9 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   // ── LOAD PERSISTED USER ──
   _currentUser = loadCurrentUser();
 
+  // ── RESTORE PENDING ACTION after OAuth redirect ──
+  try{const p=sessionStorage.getItem('ksb_pending');if(p){_pendingAction=JSON.parse(p);sessionStorage.removeItem('ksb_pending');}}catch(e){}
+
   // ── CHECK FOR GOOGLE OAUTH CALLBACK (access_token in URL hash) ──
   if (window.location.hash && window.location.hash.includes('access_token')) {
     const loader = document.getElementById('page-loader');
@@ -1276,6 +1280,8 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
   if(!rid){
+    // Dacă revenim dintr-un OAuth redirect cu pending action, nu arăta landing
+    if(_pendingAction) return;
     showScreen('s-landing');
     updateLandingUserBadge();
     if(_currentUser) showLoginHistory(_currentUser.kick_username);
@@ -1377,7 +1383,20 @@ function startDemo(){
   initBattle();
 }
 function createRoom(){
-  if (!_currentUser) { _pendingAction={action:'create'}; showScreen('s-login'); return; }
+  if (!_currentUser) {
+    _pendingAction={action:'create'};
+    // Save form values so they survive the OAuth redirect
+    try{
+      sessionStorage.setItem('ksb_pending',JSON.stringify({
+        action:'create',
+        name:document.getElementById('l-name').value.trim(),
+        kick:document.getElementById('l-kick').value.trim(),
+        players:_pillPlayers||4,
+        spp:_pillSpp||1
+      }));
+    }catch(e){}
+    showScreen('s-login'); return;
+  }
   const name=document.getElementById('l-name').value.trim()||'Battle';
   const kick=document.getElementById('l-kick').value.trim();
   const np=_pillPlayers||4;
@@ -2507,6 +2526,8 @@ async function loginWithGoogle() {
     });
     const d = await r.json();
     if (d && d.url) {
+      // Save pending action before redirect (memory is lost on redirect)
+      if(window._pendingAction){try{sessionStorage.setItem('ksb_pending',JSON.stringify(window._pendingAction));}catch(e){}}
       window.location.href = d.url; // redirect — spinner rămâne până pleacă pagina
     } else {
       throw new Error('no url');
@@ -2784,10 +2805,23 @@ async function showLoginHistory(username) {
 let _pendingAction = null;
 function proceedAfterLogin() {
   if (!_pendingAction) { showScreen('s-landing'); updateLandingUserBadge(); return; }
-  const { action, rid } = _pendingAction;
+  const pd = Object.assign({}, _pendingAction);
+  const { action, rid } = pd;
   _pendingAction = null;
   if (action === 'landing') { showScreen('s-landing'); updateLandingUserBadge(); }
-  else if (action === 'create') { createRoom(); }
+  else if (action === 'create') {
+    // Use saved form values from before the OAuth redirect
+    const name = (pd.name !== undefined && pd.name !== null ? pd.name : null) || document.getElementById('l-name').value.trim() || 'Battle';
+    const kick = (pd.kick !== undefined && pd.kick !== null ? pd.kick : null) || document.getElementById('l-kick').value.trim() || '';
+    const np = pd.players || _pillPlayers || 4;
+    const spp = pd.spp || _pillSpp || 1;
+    const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const rand=n=>Array.from({length:n},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+    const id=rand(6);
+    S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
+    pushUrl(id);save();initSync(id);
+    showScreen('s-wait');initWait();updateHeaderBadge();
+  }
   else if (action === 'submit') { showScreen('s-submit'); prefillSubmitForm(); }
   else if (action === 'battle') { showScreen('s-battle'); }
 }
