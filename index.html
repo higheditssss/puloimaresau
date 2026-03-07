@@ -1490,8 +1490,8 @@ async function submitSong(){
     err.textContent='Eroare la salvare. Încearcă din nou.';
   }
 }
-function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){// Merge — preserve existing fields (like slotIndex, avatar) and only update title/artist
-state.songs[i]=Object.assign({},state.songs[i],{title:s.title,artist:s.artist});localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,Object.assign({},state,{isHost:false}));}}
+async function updateSong(s){if(!S.room||!s.submittedBy)return;const user=s.submittedBy;const roomId=S.room.id;// Update only in this user's per-user key
+const existing=await redisGet('songs_'+roomId+'_'+user);if(!existing||!Array.isArray(existing))return;const i=existing.findIndex(x=>x.id===s.id);if(i>=0){existing[i]=Object.assign({},existing[i],{title:s.title,artist:s.artist});redisSet('songs_'+roomId+'_'+user,existing);try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(existing));}catch(e){}}}
 let _userAcWaitTimer=null;
 function userSearchWait(q){
   const ac=document.getElementById('user-ac-wait');q=(q||'').trim();
@@ -1564,6 +1564,32 @@ function showViewerSongPanel(){
   const btn=document.getElementById('vw-submit-btn');
   if(btn) btn.textContent=mySongs.length>0?'ACTUALIZEAZĂ':'SALVEAZĂ';
 }
+// Aggregate all users' songs from their individual Redis keys
+async function aggregateSongs(roomId){
+  // Get list of users who submitted from main room state
+  const remote=await redisGet('room_'+roomId);
+  const local=load(roomId);
+  const state=remote||local;
+  // Collect known usernames from existing songs array + localStorage keys
+  const users=new Set();
+  if(state&&state.songs){state.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));}
+  // Also scan localStorage for per-user song keys
+  try{Object.keys(localStorage).forEach(k=>{
+    const m=k.match(/^ksb_songs_[^_]+_(.+)$/);
+    if(m&&k.startsWith('ksb_songs_'+roomId+'_'))users.add(m[1]);
+  });}catch(e){}
+  if(!users.size&&state&&state.songs)return state.songs; // fallback to old format
+  // Fetch each user's songs from Redis in parallel
+  const results=await Promise.all([...users].map(async u=>{
+    const r=await redisGet('songs_'+roomId+'_'+u);
+    if(r&&Array.isArray(r))return r;
+    // fallback to localStorage
+    try{const l=localStorage.getItem('ksb_songs_'+roomId+'_'+u);if(l)return JSON.parse(l);}catch(e){}
+    return [];
+  }));
+  return results.flat().filter(Boolean);
+}
+
 async function submitSongFromWait(){
   if (_currentUser) {
     const el = document.getElementById('vw-user');
@@ -1575,7 +1601,6 @@ async function submitSongFromWait(){
   if(!user){err.textContent='Username lipsă';return;}
   const spp=(S.room&&S.room.songsPerPlayer)||1;
   const avatar=window._pickedAvatarWait||null;
-  // Collect all URL inputs
   const newUrls=[];
   for(let i=0;i<spp;i++){
     const inp=document.getElementById('vw-url-'+i);
@@ -1588,40 +1613,54 @@ async function submitSongFromWait(){
     const sp=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
     if(!yt&&!sp){err.textContent='Link invalid: '+url.substring(0,40)+'...';return;}
   }
+  // Check room capacity using aggregated songs
+  const remote=await redisGet('room_'+S.room.id);
+  const roomState=remote||load(S.room.id);
+  const maxPlayers=(roomState&&roomState.room&&roomState.room.playersNeeded)||S.room.playersNeeded||4;
+  const allSongs=await aggregateSongs(S.room.id);
+  const otherUsers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
+  const alreadyIn=allSongs.some(s=>s.submittedBy===user);
+  if(!alreadyIn&&otherUsers.size>=maxPlayers){err.textContent='Camera e plină!';return;}
   err.textContent='Se salvează...';
   try{
-    const remote=await redisGet('room_'+S.room.id);
-    const existing=remote||load(S.room.id);
-    let songs=(existing&&existing.songs)?[...existing.songs]:[];
-    const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
-    const uniquePlayerCount=new Set(songs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy)).size;
-    if(!songs.find(s=>s.submittedBy===user)&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină!';return;}
-    // Remove all existing songs from this user
-    songs=songs.filter(s=>s.submittedBy!==user);
-    // Add new songs (with slotIndex to preserve order)
+    // Build this user's songs array
+    const userSongs=[];
     for(let si=0;si<newUrls.length;si++){
       const url=newUrls[si];
       const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
       const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-      const song={id:'s'+Date.now()+Math.random(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+      const song={id:'s'+Date.now()+Math.random().toString(36).slice(2),
+        title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
         ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
         thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
         submittedBy:user,avatar,slotIndex:si};
-      if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
-      songs.push(song);
+      // Fetch title async and update only this user's key
+      if(ytMatch){
+        const songId=song.id;const roomId=S.room.id;
+        fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json')
+          .then(r=>r.json()).then(async d=>{
+            const existing=await redisGet('songs_'+roomId+'_'+user);
+            if(!existing)return;
+            const idx=existing.findIndex(x=>x.id===songId);
+            if(idx>=0){existing[idx].title=d.title||existing[idx].title;existing[idx].artist=d.author_name||'';}
+            redisSet('songs_'+roomId+'_'+user,existing);
+          }).catch(()=>{});
+      }
+      userSongs.push(song);
     }
-    const wasHost=S.isHost;
-    const base=existing||S;
-    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],tournamentDone:base.tournamentDone||false,chatroomId:base.chatroomId||null,battleStarted:false,isHost:wasHost};
-    S=state;
-    try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
-    redisSet('room_'+S.room.id,Object.assign({},state,{isHost:false}));
+    // Save ONLY this user's songs to their own key — no read-modify-write of main state
+    await redisSet('songs_'+S.room.id+'_'+user, userSongs);
+    // Also save locally for restore on refresh
+    try{localStorage.setItem('ksb_songs_'+S.room.id+'_'+user,JSON.stringify(userSongs));}catch(e){}
     try{localStorage.setItem('ksb_user_'+S.room.id,user);}catch(e){}
+    // Update local S.songs by aggregating (for immediate UI refresh)
+    S.songs=await aggregateSongs(S.room.id);
     clearViewerDrafts();err.style.color='var(--acc)';err.textContent='✓ Salvat!';
     setTimeout(()=>{err.textContent='';err.style.color='';},2000);
     document.getElementById('viewer-panel-title').textContent='Editează piesele tale';
     document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ';
-  }catch(e){err.textContent='Eroare. Încearcă din nou.';}
+    showViewerSongPanel();
+  }catch(e){console.error(e);err.textContent='Eroare. Încearcă din nou.';}
 }
 function initWait(){
   document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';
@@ -1675,7 +1714,10 @@ async function pollWait(){
   if(!state||!state.room)return;
   // Check again after async — may have navigated away
   if(!document.getElementById('s-wait').classList.contains('active')){clearInterval(waitPoll);return;}
-  const songs=Array.isArray(state.songs)?state.songs:[];
+  // Aggregate songs from all per-user keys (prevents race conditions)
+  const songs=await aggregateSongs(S.room.id);
+  // Persist aggregated songs into main state so forceLaunch/battle have them
+  state.songs=songs;
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
   const wasHost=S.isHost;
   const prevSpp=(S.room&&S.room.songsPerPlayer)||1;
@@ -1707,14 +1749,18 @@ async function pollWait(){
   if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
   if(state.battleStarted){clearInterval(waitPoll);if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}S=Object.assign({},state,{isHost:S.isHost});try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}showScreen('s-battle');initBattle();}
 }
-function forceLaunch(){
+async function forceLaunch(){
   const needed=S.room&&S.room.playersNeeded||4;
-  const joined=(S.songs||[]).length;
+  // Aggregate fresh songs before launching
+  const freshSongs=await aggregateSongs(S.room.id);
+  S.songs=freshSongs;
+  const joined=freshSongs.length;
   if(joined<needed) return; // block start if not enough players
   clearInterval(waitPoll);const state=load(S.room.id)||S;
   state.battleStarted=true;
+  state.songs=freshSongs; // bake aggregated songs into main state
   const wasHost=S.isHost;
-  S=Object.assign({},state,{isHost:wasHost});
+  S=Object.assign({},state,{songs:freshSongs,isHost:wasHost});
   // Save battleStarted immediately to localStorage before navigating
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}
   save();
