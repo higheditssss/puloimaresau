@@ -1459,7 +1459,7 @@ async function submitSong(){
 
     const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
-      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user,avatar:avatar};
+      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user,avatar:avatar,slotIndex:mySongs.length};
     if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
     songs.push(song);
     const wasHost=S.isHost;
@@ -1529,7 +1529,7 @@ function showViewerSongPanel(){
   panel.style.display='';
   const myUser=(_currentUser&&_currentUser.kick_username)||localStorage.getItem('ksb_user_'+S.room.id);
   const spp=(S.room&&S.room.songsPerPlayer)||1;
-  const mySongs=(S.songs||[]).filter(s=>s.submittedBy===myUser);
+  const mySongs=(S.songs||[]).filter(s=>s.submittedBy===myUser).sort((a,b)=>(a.slotIndex||0)-(b.slotIndex||0));
   if(myUser){
     document.getElementById('vw-user').value=myUser;
     const disp=document.getElementById('vw-user-display');
@@ -1604,14 +1604,15 @@ async function submitSongFromWait(){
     if(!songs.find(s=>s.submittedBy===user)&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină!';return;}
     // Remove all existing songs from this user
     songs=songs.filter(s=>s.submittedBy!==user);
-    // Add new songs
-    for(const url of newUrls){
+    // Add new songs (with slotIndex to preserve order)
+    for(let si=0;si<newUrls.length;si++){
+      const url=newUrls[si];
       const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
       const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
       const song={id:'s'+Date.now()+Math.random(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
         ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
         thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
-        submittedBy:user,avatar};
+        submittedBy:user,avatar,slotIndex:si};
       if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
       songs.push(song);
     }
@@ -1899,32 +1900,23 @@ function endPoll(){
   const winner=ws==='left'?pair[0]:pair[1];
   S.winners.push(winner);
   advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
+  // Re-sync S.pairs from tournamentRounds so future rounds have fresh data
+  S.pairs=S.tournamentRounds[S.currentTournamentRound].filter(p=>p[0]&&p[1]);
   renderHist();save();
   nextRound();
 }
 
-function advanceWinnerInBracket(winner,roundIdx,matchIdx){
-  const nextRound=roundIdx+1;
-  if(!S.tournamentRounds[nextRound])return;
-  // Each pair of matches feeds into one slot of next round
+function advanceWinnerInBracket(winner,tourneyRound,matchIdx){
+  const nextTRound=tourneyRound+1;
+  if(!S.tournamentRounds[nextTRound])return;
+  // matchIdx is the index among non-bye matches in this tournament round
+  // Each pair of matchIdx feeds into one slot of next round
+  // matchIdx 0,1 -> nextMatch 0 slots 0,1
+  // matchIdx 2,3 -> nextMatch 1 slots 0,1
   const nextMatchIdx=Math.floor(matchIdx/2);
   const nextSlot=matchIdx%2;
-  // Find position in full tournament round (accounting for byes)
-  const fullRound=S.tournamentRounds[roundIdx];
-  // Count which non-bye match this is
-  let nonByeCount=0;
-  for(let i=0;i<fullRound.length;i++){
-    if(fullRound[i][0]&&fullRound[i][1]){
-      if(nonByeCount===matchIdx){
-        const nextMatchGlobal=Math.floor(i/2);
-        const nextSlotGlobal=i%2;
-        if(S.tournamentRounds[nextRound][nextMatchGlobal])
-          S.tournamentRounds[nextRound][nextMatchGlobal][nextSlotGlobal]=winner;
-        break;
-      }
-      nonByeCount++;
-    }
-  }
+  if(S.tournamentRounds[nextTRound][nextMatchIdx])
+    S.tournamentRounds[nextTRound][nextMatchIdx][nextSlot]=winner;
 }
 function showWinner(song,side){
   document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';
@@ -1956,9 +1948,9 @@ function advanceTournamentRound(){
   if(!S.tournamentRounds[nextRnd]||S.tournamentRounds[nextRnd].length===0){
     showDone();return;
   }
+  // Always use fresh pairs from tournamentRounds (not cached S.pairs)
   const nextPairs=S.tournamentRounds[nextRnd].filter(p=>p[0]&&p[1]);
   if(nextPairs.length===0){showDone();return;}
-  // If next round has exactly topN-already_have slots left, we're done after this
   S.currentTournamentRound=nextRnd;
   S.pairs=nextPairs;
   S.roundIdx=0;
@@ -2281,6 +2273,8 @@ function manualWin(side){
   const winner=side==='left'?pair[0]:pair[1];
   S.winners.push(winner);
   advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
+  // Re-sync S.pairs from tournamentRounds so future rounds have fresh data
+  S.pairs=S.tournamentRounds[S.currentTournamentRound].filter(p=>p[0]&&p[1]);
   renderHist();
   save();
   // Go directly to next battle
