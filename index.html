@@ -1377,7 +1377,7 @@ function startDemo(){
   initBattle();
 }
 function createRoom(){
-  if (!_currentUser) { _pendingAction={action:'landing'}; showScreen('s-login'); return; }
+  if (!_currentUser) { _pendingAction={action:'create'}; showScreen('s-login'); return; }
   const name=document.getElementById('l-name').value.trim()||'Battle';
   const kick=document.getElementById('l-kick').value.trim();
   const np=_pillPlayers||4;
@@ -2787,6 +2787,7 @@ function proceedAfterLogin() {
   const { action, rid } = _pendingAction;
   _pendingAction = null;
   if (action === 'landing') { showScreen('s-landing'); updateLandingUserBadge(); }
+  else if (action === 'create') { createRoom(); }
   else if (action === 'submit') { showScreen('s-submit'); prefillSubmitForm(); }
   else if (action === 'battle') { showScreen('s-battle'); }
 }
