@@ -458,7 +458,6 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         </span>
       </button>
       <div class="login-err" id="login-err"></div>
-      <button class="btn" id="login-back-btn" onclick="_pendingAction=null;sessionStorage.removeItem('ksb_pending');showScreen('s-landing');updateLandingUserBadge();" style="margin-top:10px;font-size:11px;color:var(--t3);display:none">← Înapoi</button>
     </div>
 
     <!-- STEP 2: Set Kick Username (after Google login) -->
@@ -576,6 +575,9 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
           <div class="pill-row" id="pills-spp">
             <button class="pill on" onclick="setPill('spp',1,this)">1</button>
             <button class="pill" onclick="setPill('spp',2,this)">2</button>
+            <button class="pill" onclick="setPill('spp',3,this)">3</button>
+            <button class="pill" onclick="setPill('spp',4,this)">4</button>
+            <button class="pill" onclick="setPill('spp',5,this)">5</button>
           </div>
           <div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div>
         </div>
@@ -700,6 +702,9 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
           <div class="pill-row" id="wait-pills-spp">
             <button class="pill on" onclick="setWaitPill('spp',1,this)">1</button>
             <button class="pill" onclick="setWaitPill('spp',2,this)">2</button>
+            <button class="pill" onclick="setWaitPill('spp',3,this)">3</button>
+            <button class="pill" onclick="setWaitPill('spp',4,this)">4</button>
+            <button class="pill" onclick="setWaitPill('spp',5,this)">5</button>
           </div>
         </div>
       </div>
@@ -728,6 +733,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
     <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
     <div id="wait-host-btns">
       <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
+      <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
     </div>
   </div>
 </div>
@@ -1160,8 +1166,6 @@ function applyRemoteState(data, roomId) {
   try { localStorage.setItem('ksb_' + roomId, JSON.stringify(S)); } catch(e) {}
   if (!prevStarted && S.battleStarted && !wasHost) {
     clearInterval(waitPoll); clearInterval(_pollTimer);
-    if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
-    try{localStorage.setItem('ksb_'+roomId,JSON.stringify(S));}catch(e){}
     showScreen('s-battle'); initBattle(); return;
   }
   const ws = document.getElementById('s-wait');
@@ -1251,9 +1255,6 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   // ── LOAD PERSISTED USER ──
   _currentUser = loadCurrentUser();
 
-  // ── RESTORE PENDING ACTION after OAuth redirect ──
-  try{const p=sessionStorage.getItem('ksb_pending');if(p){_pendingAction=JSON.parse(p);sessionStorage.removeItem('ksb_pending');}}catch(e){}
-
   // ── CHECK FOR GOOGLE OAUTH CALLBACK (access_token in URL hash) ──
   if (window.location.hash && window.location.hash.includes('access_token')) {
     const loader = document.getElementById('page-loader');
@@ -1273,10 +1274,6 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
   if(!rid){
-    // Dacă revenim dintr-un OAuth redirect cu pending action, nu arăta landing
-    if(_pendingAction) return;
-    // Dacă nu e logat, arată login screen mai întâi
-    if(!_currentUser){ showScreen('s-login'); return; }
     showScreen('s-landing');
     updateLandingUserBadge();
     if(_currentUser) showLoginHistory(_currentUser.kick_username);
@@ -1300,17 +1297,17 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   try{initSync(rid);}catch(e){}
   let saved=null;
   try{saved=await loadRemote(rid);}catch(e){}
-  let localState=null;try{localState=load(rid);}catch(e){}
-  // If remote failed or doesn't have battleStarted, trust localStorage
-  if(!saved) saved=localState;
-  else if(!saved.battleStarted && localState && localState.battleStarted) saved=localState;
+  if(!saved){try{saved=load(rid);}catch(e){}}
   if(roomLoader) roomLoader.classList.remove('show');
   if(saved&&saved.battleStarted){
+    let localState=null;try{localState=load(rid);}catch(e){}
     const amHost=!!(localState&&localState.isHost);
     S=Object.assign({},saved,{isHost:amHost});
+    // Viewer poate vedea battle-ul fără login
     showScreen('s-battle');initBattle();if(_currentUser)updateHeaderBadge();return;
   }
   if(saved&&saved.room){
+    let localState=null;try{localState=load(rid);}catch(e){}
     const amHost=!!(localState&&localState.isHost);
     S=Object.assign({},saved,{isHost:amHost});
     if(amHost){showScreen('s-wait');initWait();updateHeaderBadge();return;}
@@ -1378,21 +1375,7 @@ function startDemo(){
   initBattle();
 }
 function createRoom(){
-  if (!_currentUser) {
-    _pendingAction={action:'create'};
-    // Save form values so they survive the OAuth redirect
-    try{
-      sessionStorage.setItem('ksb_pending',JSON.stringify({
-        action:'create',
-        name:document.getElementById('l-name').value.trim(),
-        kick:document.getElementById('l-kick').value.trim(),
-        players:_pillPlayers||4,
-        spp:_pillSpp||1
-      }));
-    }catch(e){}
-    const backBtn=document.getElementById('login-back-btn');if(backBtn)backBtn.style.display='';
-    showScreen('s-login'); return;
-  }
+  if (!_currentUser) { _pendingAction={action:'landing'}; showScreen('s-login'); return; }
   const name=document.getElementById('l-name').value.trim()||'Battle';
   const kick=document.getElementById('l-kick').value.trim();
   const np=_pillPlayers||4;
@@ -1416,8 +1399,56 @@ async function joinRoom(){
   document.getElementById('jerr').textContent='';
   pushUrl(code);initSync(code);showScreen('s-submit');
 }
+// ── PER-USER SONG STORAGE ─────────────────────────────────────────
+// Each user saves their songs to a separate Redis key: songs_{roomId}_{user}
+// This prevents race conditions when multiple users submit simultaneously.
+
+async function getUserSongs(roomId, user){
+  // Try Redis first, fall back to localStorage
+  try{
+    const r=await redisGet('songs_'+roomId+'_'+user);
+    if(r&&Array.isArray(r))return r;
+  }catch(e){}
+  try{
+    const l=localStorage.getItem('ksb_songs_'+roomId+'_'+user);
+    if(l)return JSON.parse(l);
+  }catch(e){}
+  return [];
+}
+
+async function aggregateSongs(roomId){
+  // Collect all known usernames from: main room state + localStorage song keys
+  const users=new Set();
+  // From main room state
+  try{
+    const state=await redisGet('room_'+roomId);
+    if(state&&Array.isArray(state.songs))state.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));
+    // Also check local state
+    const local=load(roomId);
+    if(local&&Array.isArray(local.songs))local.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));
+  }catch(e){}
+  // From localStorage per-user keys
+  try{
+    Object.keys(localStorage).forEach(k=>{
+      if(k.startsWith('ksb_songs_'+roomId+'_')){
+        const u=k.slice(('ksb_songs_'+roomId+'_').length);
+        if(u)users.add(u);
+      }
+    });
+  }catch(e){}
+  if(!users.size){
+    // Fallback: return songs from main state as-is (old format)
+    try{
+      const state=await redisGet('room_'+roomId)||load(roomId);
+      return(state&&Array.isArray(state.songs))?state.songs:[];
+    }catch(e){return[];}
+  }
+  // Fetch each user's songs in parallel
+  const results=await Promise.all([...users].map(u=>getUserSongs(roomId,u)));
+  return results.flat().filter(Boolean);
+}
+
 async function submitSong(){
-  // Auto-fill username from logged-in user
   if (_currentUser) {
     const el = document.getElementById('su-user');
     if (el && !el.value.trim()) el.value = _currentUser.kick_username;
@@ -1434,64 +1465,77 @@ async function submitSong(){
   if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
   err.textContent='Se salvează...';
   try {
-    const remote=await redisGet('room_'+S.room.id);
-    const existing=remote||load(S.room.id);
-    const songs=(existing&&existing.songs)?[...existing.songs]:[];
-    const maxPlayers=existing&&existing.room?existing.room.playersNeeded:S.room.playersNeeded;
-    const spp=(existing&&existing.room?existing.room.songsPerPlayer:S.room.songsPerPlayer)||1;
-    const mySongs=songs.filter(s=>s.submittedBy===user);
-    const uniquePlayerCount=new Set(songs.map(s=>s.submittedBy)).size;
-
-    // Dacă am deja toate piesele permise → du-mă la waiting room
-    if(mySongs.length>=spp){
-      const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost});
+    const roomId=S.room.id;
+    const remote=await redisGet('room_'+roomId);
+    const existing=remote||load(roomId);
+    const maxPlayers=(existing&&existing.room&&existing.room.playersNeeded)||S.room.playersNeeded||4;
+    const spp=(existing&&existing.room&&existing.room.songsPerPlayer)||S.room.songsPerPlayer||1;
+    // Read this user's existing songs from per-user key
+    const myExisting=await getUserSongs(roomId,user);
+    // Count unique other players
+    const allSongs=await aggregateSongs(roomId);
+    const otherPlayers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
+    if(myExisting.length===0&&otherPlayers.size>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
+    if(myExisting.length>=spp){
+      const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost,songs:allSongs});
       err.textContent='';showScreen('s-wait');initWait();return;
     }
-    // Dacă sunt nou și camera e plină → eroare
-    if(mySongs.length===0&&uniquePlayerCount>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
-
-    const song={id:'s'+Date.now(),title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+    // slotIndex = current count of my songs
+    const slotIndex=myExisting.length;
+    const songId='s'+Date.now()+Math.random().toString(36).slice(2);
+    const song={id:songId,title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
       ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
-      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',submittedBy:user,avatar:avatar,slotIndex:mySongs.length};
-    if(ytMatch){fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json').then(r=>r.json()).then(d=>{song.title=d.title||song.title;song.artist=d.author_name||'';updateSong(song);}).catch(()=>{});}
-    songs.push(song);
+      thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
+      submittedBy:user,avatar,slotIndex};
+    const newMySongs=[...myExisting,song];
+    // Save only to this user's key — no race condition
+    await redisSet('songs_'+roomId+'_'+user,newMySongs);
+    try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(newMySongs));}catch(e){}
+    try{localStorage.setItem('ksb_user_'+roomId,user);}catch(e){}
+    // Fetch title async, update only user's key
+    if(ytMatch){
+      fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json')
+        .then(r=>r.json()).then(async d=>{
+          const cur=await getUserSongs(roomId,user);
+          const idx=cur.findIndex(x=>x.id===songId);
+          if(idx>=0){cur[idx].title=d.title||cur[idx].title;cur[idx].artist=d.author_name||'';}
+          await redisSet('songs_'+roomId+'_'+user,cur);
+          try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(cur));}catch(e){}
+        }).catch(()=>{});
+    }
     const wasHost=S.isHost;
-    const base=existing||S;
-    const state={room:base.room||S.room,songs,pairs:base.pairs||[],roundIdx:base.roundIdx||0,votes:base.votes||{left:0,right:0},voters:base.voters||{},voterCount:base.voterCount||{},phase:base.phase||'idle',pollActive:base.pollActive||false,autoNext:base.autoNext!==undefined?base.autoNext:true,shuffleMode:base.shuffleMode||false,winners:base.winners||[],tournamentDone:base.tournamentDone||false,chatroomId:base.chatroomId||null,battleStarted:base.battleStarted||false,isHost:wasHost};
-    S=state;
-    try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
-    redisSet('room_'+S.room.id,state);
-    try{localStorage.setItem('ksb_user_'+S.room.id, user);}catch(e){}
-
-    const nowHave=mySongs.length+1;
+    S=Object.assign({},existing||S,{isHost:wasHost,songs:await aggregateSongs(roomId)});
+    const nowHave=newMySongs.length;
     if(nowHave<spp){
-      // Mai are piese de adăugat — arată feedback și resetează URL
       err.style.color='var(--acc)';
       err.textContent=`✓ Piesa ${nowHave}/${spp} salvată! Adaugă piesa ${nowHave+1}.`;
       setTimeout(()=>{err.style.color='';},100);
       document.getElementById('su-url').value='';
       document.getElementById('dup-warn').classList.remove('show');
-      // Lock username (nu mai poate fi schimbat după prima piesă)
       const userEl=document.getElementById('su-user');
       if(userEl){userEl.readOnly=true;userEl.style.opacity='.6';userEl.style.cursor='default';}
-      // Update titlu
       const title=document.querySelector('#s-submit .card div');
       if(title)title.textContent=`Piesa ${nowHave+1} din ${spp}`;
     } else {
-      // A trimis toate piesele → waiting room
-      err.textContent='';
-      clearViewerDrafts();
-      // Reset username lock
+      err.textContent='';clearViewerDrafts();
       const userEl=document.getElementById('su-user');
       if(userEl){userEl.readOnly=false;userEl.style.opacity='';userEl.style.cursor='';}
       showScreen('s-wait');initWait();
     }
   } catch(e) {
-    err.textContent='Eroare la salvare. Încearcă din nou.';
+    console.error(e);err.textContent='Eroare la salvare. Încearcă din nou.';
   }
 }
-async function updateSong(s){if(!S.room||!s.submittedBy)return;const user=s.submittedBy;const roomId=S.room.id;// Update only in this user's per-user key
-const existing=await redisGet('songs_'+roomId+'_'+user);if(!existing||!Array.isArray(existing))return;const i=existing.findIndex(x=>x.id===s.id);if(i>=0){existing[i]=Object.assign({},existing[i],{title:s.title,artist:s.artist});redisSet('songs_'+roomId+'_'+user,existing);try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(existing));}catch(e){}}}
+async function updateSong(s){
+  if(!S.room||!s||!s.submittedBy||!s.id)return;
+  const roomId=S.room.id;const user=s.submittedBy;
+  const cur=await getUserSongs(roomId,user);
+  const idx=cur.findIndex(x=>x.id===s.id);
+  if(idx<0)return;
+  cur[idx]=Object.assign({},cur[idx],{title:s.title,artist:s.artist});
+  await redisSet('songs_'+roomId+'_'+user,cur);
+  try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(cur));}catch(e){}
+}
 let _userAcWaitTimer=null;
 function userSearchWait(q){
   const ac=document.getElementById('user-ac-wait');q=(q||'').trim();
@@ -1564,32 +1608,6 @@ function showViewerSongPanel(){
   const btn=document.getElementById('vw-submit-btn');
   if(btn) btn.textContent=mySongs.length>0?'ACTUALIZEAZĂ':'SALVEAZĂ';
 }
-// Aggregate all users' songs from their individual Redis keys
-async function aggregateSongs(roomId){
-  // Get list of users who submitted from main room state
-  const remote=await redisGet('room_'+roomId);
-  const local=load(roomId);
-  const state=remote||local;
-  // Collect known usernames from existing songs array + localStorage keys
-  const users=new Set();
-  if(state&&state.songs){state.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));}
-  // Also scan localStorage for per-user song keys
-  try{Object.keys(localStorage).forEach(k=>{
-    const m=k.match(/^ksb_songs_[^_]+_(.+)$/);
-    if(m&&k.startsWith('ksb_songs_'+roomId+'_'))users.add(m[1]);
-  });}catch(e){}
-  if(!users.size&&state&&state.songs)return state.songs; // fallback to old format
-  // Fetch each user's songs from Redis in parallel
-  const results=await Promise.all([...users].map(async u=>{
-    const r=await redisGet('songs_'+roomId+'_'+u);
-    if(r&&Array.isArray(r))return r;
-    // fallback to localStorage
-    try{const l=localStorage.getItem('ksb_songs_'+roomId+'_'+u);if(l)return JSON.parse(l);}catch(e){}
-    return [];
-  }));
-  return results.flat().filter(Boolean);
-}
-
 async function submitSongFromWait(){
   if (_currentUser) {
     const el = document.getElementById('vw-user');
@@ -1601,6 +1619,7 @@ async function submitSongFromWait(){
   if(!user){err.textContent='Username lipsă';return;}
   const spp=(S.room&&S.room.songsPerPlayer)||1;
   const avatar=window._pickedAvatarWait||null;
+  const roomId=S.room.id;
   const newUrls=[];
   for(let i=0;i<spp;i++){
     const inp=document.getElementById('vw-url-'+i);
@@ -1613,48 +1632,42 @@ async function submitSongFromWait(){
     const sp=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
     if(!yt&&!sp){err.textContent='Link invalid: '+url.substring(0,40)+'...';return;}
   }
-  // Check room capacity using aggregated songs
-  const remote=await redisGet('room_'+S.room.id);
-  const roomState=remote||load(S.room.id);
-  const maxPlayers=(roomState&&roomState.room&&roomState.room.playersNeeded)||S.room.playersNeeded||4;
-  const allSongs=await aggregateSongs(S.room.id);
-  const otherUsers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
-  const alreadyIn=allSongs.some(s=>s.submittedBy===user);
-  if(!alreadyIn&&otherUsers.size>=maxPlayers){err.textContent='Camera e plină!';return;}
   err.textContent='Se salvează...';
   try{
-    // Build this user's songs array
+    const allSongs=await aggregateSongs(roomId);
+    const maxPlayers=(S.room&&S.room.playersNeeded)||4;
+    const otherPlayers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
+    const alreadyIn=allSongs.some(s=>s.submittedBy===user);
+    if(!alreadyIn&&otherPlayers.size>=maxPlayers){err.textContent='Camera e plină!';return;}
+    // Build new songs array for this user with slotIndex
     const userSongs=[];
     for(let si=0;si<newUrls.length;si++){
       const url=newUrls[si];
       const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
       const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-      const song={id:'s'+Date.now()+Math.random().toString(36).slice(2),
-        title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
+      const songId='s'+Date.now()+Math.random().toString(36).slice(2);
+      const song={id:songId,title:ytMatch?'YouTube Song':'Spotify Song',artist:'',url,
         ytId:ytMatch?ytMatch[1]:null,spId:spMatch?spMatch[1]:null,
         thumb:ytMatch?'https://img.youtube.com/vi/'+ytMatch[1]+'/hqdefault.jpg':'',
         submittedBy:user,avatar,slotIndex:si};
-      // Fetch title async and update only this user's key
       if(ytMatch){
-        const songId=song.id;const roomId=S.room.id;
         fetch('https://www.youtube.com/oembed?url=https://youtube.com/watch?v='+ytMatch[1]+'&format=json')
           .then(r=>r.json()).then(async d=>{
-            const existing=await redisGet('songs_'+roomId+'_'+user);
-            if(!existing)return;
-            const idx=existing.findIndex(x=>x.id===songId);
-            if(idx>=0){existing[idx].title=d.title||existing[idx].title;existing[idx].artist=d.author_name||'';}
-            redisSet('songs_'+roomId+'_'+user,existing);
+            const cur=await getUserSongs(roomId,user);
+            const idx=cur.findIndex(x=>x.id===songId);
+            if(idx>=0){cur[idx].title=d.title||cur[idx].title;cur[idx].artist=d.author_name||'';}
+            await redisSet('songs_'+roomId+'_'+user,cur);
+            try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(cur));}catch(e){}
           }).catch(()=>{});
       }
       userSongs.push(song);
     }
-    // Save ONLY this user's songs to their own key — no read-modify-write of main state
-    await redisSet('songs_'+S.room.id+'_'+user, userSongs);
-    // Also save locally for restore on refresh
-    try{localStorage.setItem('ksb_songs_'+S.room.id+'_'+user,JSON.stringify(userSongs));}catch(e){}
-    try{localStorage.setItem('ksb_user_'+S.room.id,user);}catch(e){}
-    // Update local S.songs by aggregating (for immediate UI refresh)
-    S.songs=await aggregateSongs(S.room.id);
+    // Save ONLY this user's songs — no race condition
+    await redisSet('songs_'+roomId+'_'+user,userSongs);
+    try{localStorage.setItem('ksb_songs_'+roomId+'_'+user,JSON.stringify(userSongs));}catch(e){}
+    try{localStorage.setItem('ksb_user_'+roomId,user);}catch(e){}
+    // Update local S.songs by re-aggregating
+    S.songs=await aggregateSongs(roomId);
     clearViewerDrafts();err.style.color='var(--acc)';err.textContent='✓ Salvat!';
     setTimeout(()=>{err.textContent='';err.style.color='';},2000);
     document.getElementById('viewer-panel-title').textContent='Editează piesele tale';
@@ -1680,9 +1693,6 @@ function initWait(){
     showViewerSongPanel();
   }
   pollWait();waitPoll=setInterval(pollWait,2000);
-  // Show tab warning only for viewers
-  const tabWarn=document.getElementById('wait-tab-warning');
-  if(tabWarn) tabWarn.style.display=S.isHost?'none':'flex';
   // Warn viewer before closing/navigating away
   if(!S.isHost){
     window._waitBeforeUnload=function(e){e.preventDefault();e.returnValue='';};
@@ -1706,62 +1716,66 @@ function setWaitPill(type, val, el){
 }
 async function pollWait(){
   if(!S.room)return;
-  // Stop if we left the waiting room
   const ws=document.getElementById('s-wait');
   if(!ws||!ws.classList.contains('active')){clearInterval(waitPoll);return;}
   const remote=await redisGet('room_'+S.room.id);
   const state=remote||load(S.room.id);
   if(!state||!state.room)return;
-  // Check again after async — may have navigated away
   if(!document.getElementById('s-wait').classList.contains('active')){clearInterval(waitPoll);return;}
-  // Aggregate songs from all per-user keys (prevents race conditions)
+  // Aggregate songs from all per-user keys (no race condition)
   const songs=await aggregateSongs(S.room.id);
-  // Persist aggregated songs into main state so forceLaunch/battle have them
   state.songs=songs;
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
   const wasHost=S.isHost;
   const prevSpp=(S.room&&S.room.songsPerPlayer)||1;
   const prevNeeded=(S.room&&S.room.playersNeeded)||4;
   S=Object.assign({},state,{songs,isHost:wasHost});
-  const joined=songs.length,needed=state.room.playersNeeded||4;
+  // Count unique players (not songs) for join counter
+  const uniquePlayers=new Set(songs.map(s=>s.submittedBy)).size;
+  const needed=state.room.playersNeeded||4;
   const newSpp=(state.room&&state.room.songsPerPlayer)||1;
   const elJ=document.getElementById('wc-joined');const elN=document.getElementById('wc-needed');
-  const elM=document.getElementById('wait-missing');const elP=document.getElementById('wait-player-list');
+  const elM=document.getElementById('wait-missing');
   const elNote=document.getElementById('wait-note');const btn=document.getElementById('wait-start-btn');
-  if(elJ)elJ.textContent=joined;if(elN)elN.textContent=needed;
-  if(elM)elM.textContent=Math.max(0,needed-joined);
+  if(elJ)elJ.textContent=uniquePlayers;if(elN)elN.textContent=needed;
+  if(elM)elM.textContent=Math.max(0,needed-uniquePlayers);
   renderWaitPlayerList(songs);
-  // If viewer and host changed songsPerPlayer or playersNeeded → refresh panel
   if(!wasHost){
     if(newSpp!==prevSpp||needed!==prevNeeded){
       showViewerSongPanel();
     } else {
-      // Always keep the subtitle in sync (song count may have changed)
       const subEl=document.getElementById('viewer-panel-sub');
       if(subEl){
         const myUser=(_currentUser&&_currentUser.kick_username)||localStorage.getItem('ksb_user_'+S.room.id);
-        const mySongs=songs.filter(s=>s.submittedBy===myUser);
+        const mySongs=songs.filter(s=>s.submittedBy===myUser).sort((a,b)=>(a.slotIndex||0)-(b.slotIndex||0));
         if(newSpp>1) subEl.textContent=mySongs.length+'/'+newSpp+' piese adăugate';
         else subEl.textContent='';
       }
     }
   }
-  if(btn){if(joined>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
-  if(state.battleStarted){clearInterval(waitPoll);if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}S=Object.assign({},state,{isHost:S.isHost});try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}showScreen('s-battle');initBattle();}
+  if(btn){if(uniquePlayers>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
+  if(state.battleStarted){
+    clearInterval(waitPoll);
+    if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
+    S=Object.assign({},state,{songs,isHost:wasHost});
+    try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}
+    showScreen('s-battle');initBattle();
+  }
 }
 async function forceLaunch(){
-  const needed=S.room&&S.room.playersNeeded||4;
-  // Aggregate fresh songs before launching
+  const needed=(S.room&&S.room.playersNeeded)||4;
+  // Aggregate fresh songs before launch
   const freshSongs=await aggregateSongs(S.room.id);
+  // Count unique players
+  const uniquePlayers=new Set(freshSongs.map(s=>s.submittedBy)).size;
+  if(uniquePlayers<needed)return; // guard — not enough players
   S.songs=freshSongs;
-  const joined=freshSongs.length;
-  if(joined<needed) return; // block start if not enough players
-  clearInterval(waitPoll);const state=load(S.room.id)||S;
+  clearInterval(waitPoll);
+  const state=load(S.room.id)||S;
   state.battleStarted=true;
-  state.songs=freshSongs; // bake aggregated songs into main state
+  state.songs=freshSongs;
   const wasHost=S.isHost;
   S=Object.assign({},state,{songs:freshSongs,isHost:wasHost});
-  // Save battleStarted immediately to localStorage before navigating
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(S));}catch(e){}
   save();
   if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
@@ -1772,7 +1786,7 @@ function initBattle(){
   document.getElementById('h-players').textContent=S.songs.length+' players';
   document.getElementById('h-live').textContent=S.room.kickChannel?'LIVE — '+S.room.kickChannel:'OFFLINE';
   document.getElementById('share-inp').value=buildUrl(S.room.id);
-  if(!S.pairs.length)buildPairs();
+  if(!S.pairs||!S.pairs.length)buildPairs();
   applyHostUI();renderRound(true);renderHist();connectChat();
 }
 function applyHostUI(){
@@ -1792,51 +1806,23 @@ function applyHostUI(){
     if(wnb)wnb.style.display='none';
   }
 }
-function spreadByUser(songs){
-  // Group songs by submittedBy
-  const byUser={};
-  songs.forEach(s=>{const u=s.submittedBy||'?';(byUser[u]=byUser[u]||[]).push(s);});
-  const users=Object.keys(byUser);
-  // Interleave: pick one song per user in rotation, so same-user songs are far apart
-  const result=[];
-  let added=true;
-  while(added){
-    added=false;
-    users.forEach(u=>{
-      if(byUser[u].length){result.push(byUser[u].shift());added=true;}
-    });
-  }
-  // Verify round-1 pairs have different users; if not, swap to fix
-  for(let i=0;i<result.length-1;i+=2){
-    const a=result[i],b=result[i+1];
-    if(a&&b&&a.submittedBy===b.submittedBy){
-      // Find nearest song with different user to swap with
-      for(let j=i+2;j<result.length;j++){
-        if(result[j]&&result[j].submittedBy!==a.submittedBy){
-          const tmp=result[i+1];result[i+1]=result[j];result[j]=tmp;
-          break;
-        }
-      }
-    }
-  }
-  return result;
-}
 function buildPairs(){
-  // Filter out any null/undefined songs first
   let songs=[...S.songs].filter(Boolean);
   if(!songs.length)return;
-  // Always shuffle + spread by user
+  // Always shuffle + spread users so same user doesn't face themselves
   songs.sort(()=>Math.random()-.5);
   songs=spreadByUser(songs);
+  // Edge case: only 1 song
+  if(songs.length===1){songs.push(songs[0]);}
   // Pad to power of 2 with nulls (byes)
   let size=1;while(size<songs.length)size*=2;
   while(songs.length<size)songs.push(null);
   S.tournamentRounds=[];
-  // Round 0 pairs
+  // Build round 0
   const r0=[];
   for(let i=0;i<songs.length;i+=2)r0.push([songs[i],songs[i+1]]);
   S.tournamentRounds.push(r0);
-  // Build all future round placeholders
+  // Build placeholder rounds
   let n=r0.length;
   while(n>1){
     n=Math.ceil(n/2);
@@ -1845,27 +1831,43 @@ function buildPairs(){
     S.tournamentRounds.push(round);
   }
   S.currentTournamentRound=0;
-  // Auto-advance byes: for each pair in r0 where one side is null, advance the real song to next round
+  // Auto-advance byes using exact bracket position
   r0.forEach((pair,i)=>{
-    if(pair[0]&&!pair[1]){
-      // pair[0] gets a bye — advance to round 1
+    const byeSong=(pair[0]&&!pair[1])?pair[0]:(!pair[0]&&pair[1])?pair[1]:null;
+    if(byeSong&&S.tournamentRounds[1]){
       const nextMatch=Math.floor(i/2);
       const nextSlot=i%2;
-      if(S.tournamentRounds[1])S.tournamentRounds[1][nextMatch][nextSlot]=pair[0];
-    } else if(!pair[0]&&pair[1]){
-      const nextMatch=Math.floor(i/2);
-      const nextSlot=i%2;
-      if(S.tournamentRounds[1])S.tournamentRounds[1][nextMatch][nextSlot]=pair[1];
+      if(S.tournamentRounds[1][nextMatch])
+        S.tournamentRounds[1][nextMatch][nextSlot]=byeSong;
     }
   });
-  // S.pairs = only real matches (both sides non-null) from round 0
+  // S.pairs = only real matches (both sides present) from round 0
   S.pairs=r0.filter(p=>p[0]&&p[1]);
-  // Edge case: 1 song
-  if(!S.pairs.length&&songs.filter(Boolean).length>=1){
+  if(!S.pairs.length){
     const real=songs.filter(Boolean);
-    S.pairs=[[real[0],real[real.length>1?1:0]]];
+    if(real.length>=2)S.pairs=[[real[0],real[1]]];
   }
   S.roundIdx=0;
+}
+
+function spreadByUser(songs){
+  const byUser={};
+  songs.forEach(s=>{const u=s.submittedBy||'?';(byUser[u]=byUser[u]||[]).push(s);});
+  const users=Object.keys(byUser);
+  const result=[];
+  let added=true;
+  while(added){added=false;users.forEach(u=>{if(byUser[u].length){result.push(byUser[u].shift());added=true;}});}
+  // Verify pairs have different users; swap to fix if needed
+  for(let i=0;i<result.length-1;i+=2){
+    if(result[i]&&result[i+1]&&result[i].submittedBy===result[i+1].submittedBy){
+      for(let j=i+2;j<result.length;j++){
+        if(result[j]&&result[j].submittedBy!==result[i].submittedBy){
+          [result[i+1],result[j]]=[result[j],result[i+1]];break;
+        }
+      }
+    }
+  }
+  return result;
 }
 function renderRound(reset){
   const pair=S.pairs[S.roundIdx];
@@ -1945,23 +1947,33 @@ function endPoll(){
   const winner=ws==='left'?pair[0]:pair[1];
   S.winners.push(winner);
   advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
-  // Re-sync S.pairs from tournamentRounds so future rounds have fresh data
+  // Re-sync S.pairs from tournamentRounds so it always reflects latest bracket state
   S.pairs=S.tournamentRounds[S.currentTournamentRound].filter(p=>p[0]&&p[1]);
   renderHist();save();
   nextRound();
 }
 
 function advanceWinnerInBracket(winner,tourneyRound,matchIdx){
+  // matchIdx = index within S.pairs (non-bye matches only)
+  // We need the global index of this match in tournamentRounds[tourneyRound]
   const nextTRound=tourneyRound+1;
   if(!S.tournamentRounds[nextTRound])return;
-  // matchIdx is the index among non-bye matches in this tournament round
-  // Each pair of matchIdx feeds into one slot of next round
-  // matchIdx 0,1 -> nextMatch 0 slots 0,1
-  // matchIdx 2,3 -> nextMatch 1 slots 0,1
-  const nextMatchIdx=Math.floor(matchIdx/2);
-  const nextSlot=matchIdx%2;
-  if(S.tournamentRounds[nextTRound][nextMatchIdx])
-    S.tournamentRounds[nextTRound][nextMatchIdx][nextSlot]=winner;
+  const fullRound=S.tournamentRounds[tourneyRound];
+  // Find the i-th non-bye match (i === matchIdx)
+  let nonByeCount=0;
+  for(let i=0;i<fullRound.length;i++){
+    if(fullRound[i][0]&&fullRound[i][1]){
+      if(nonByeCount===matchIdx){
+        // Global position i in this round feeds into Math.floor(i/2) in next round, slot i%2
+        const nextMatch=Math.floor(i/2);
+        const nextSlot=i%2;
+        if(S.tournamentRounds[nextTRound][nextMatch])
+          S.tournamentRounds[nextTRound][nextMatch][nextSlot]=winner;
+        return;
+      }
+      nonByeCount++;
+    }
+  }
 }
 function showWinner(song,side){
   document.getElementById('winner-wrap').style.display='block';document.getElementById('arena').style.display='none';
@@ -1993,7 +2005,7 @@ function advanceTournamentRound(){
   if(!S.tournamentRounds[nextRnd]||S.tournamentRounds[nextRnd].length===0){
     showDone();return;
   }
-  // Always use fresh pairs from tournamentRounds (not cached S.pairs)
+  // Always read fresh from tournamentRounds (not stale S.pairs)
   const nextPairs=S.tournamentRounds[nextRnd].filter(p=>p[0]&&p[1]);
   if(nextPairs.length===0){showDone();return;}
   S.currentTournamentRound=nextRnd;
@@ -2313,16 +2325,13 @@ function manualWin(side){
   closePollPopup();
   if(side==='left'){S.votes={left:1,right:0};}
   else{S.votes={left:0,right:1};}
-  // Record winner and advance without showing winner screen
   const pair=S.pairs[S.roundIdx];
   const winner=side==='left'?pair[0]:pair[1];
   S.winners.push(winner);
   advanceWinnerInBracket(winner,S.currentTournamentRound,S.roundIdx);
-  // Re-sync S.pairs from tournamentRounds so future rounds have fresh data
+  // Re-sync S.pairs from tournamentRounds
   S.pairs=S.tournamentRounds[S.currentTournamentRound].filter(p=>p[0]&&p[1]);
-  renderHist();
-  save();
-  // Go directly to next battle
+  renderHist();save();
   nextRound();
 }
 function openChooser(side){if(!S.isHost)return;chooserSide=side;document.getElementById('chooser-list').innerHTML=S.songs.map(s=>'<div class="sli" onclick="pickSong(\''+s.id+'\')"><img class="sli-thumb" src="'+(s.thumb||'')+'" onerror="this.style.display=\'none\'" alt=""/><div><div class="sli-t">'+s.title+'</div><div class="sli-s">'+(s.artist?s.artist+' · ':'')+'@'+s.submittedBy+'</div></div></div>').join('');document.getElementById('chooser-bg').classList.add('open');}
@@ -2601,8 +2610,6 @@ async function loginWithGoogle() {
     });
     const d = await r.json();
     if (d && d.url) {
-      // Save pending action before redirect (memory is lost on redirect)
-      if(window._pendingAction){try{sessionStorage.setItem('ksb_pending',JSON.stringify(window._pendingAction));}catch(e){}}
       window.location.href = d.url; // redirect — spinner rămâne până pleacă pagina
     } else {
       throw new Error('no url');
@@ -2880,23 +2887,9 @@ async function showLoginHistory(username) {
 let _pendingAction = null;
 function proceedAfterLogin() {
   if (!_pendingAction) { showScreen('s-landing'); updateLandingUserBadge(); return; }
-  const pd = Object.assign({}, _pendingAction);
-  const { action, rid } = pd;
+  const { action, rid } = _pendingAction;
   _pendingAction = null;
   if (action === 'landing') { showScreen('s-landing'); updateLandingUserBadge(); }
-  else if (action === 'create') {
-    // Use saved form values from before the OAuth redirect
-    const name = (pd.name !== undefined && pd.name !== null ? pd.name : null) || document.getElementById('l-name').value.trim() || 'Battle';
-    const kick = (pd.kick !== undefined && pd.kick !== null ? pd.kick : null) || document.getElementById('l-kick').value.trim() || '';
-    const np = pd.players || _pillPlayers || 4;
-    const spp = pd.spp || _pillSpp || 1;
-    const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const rand=n=>Array.from({length:n},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-    const id=rand(6);
-    S=mkState();S.isHost=true;S.room={id,name,kickChannel:kick,playersNeeded:np,songsPerPlayer:spp};
-    pushUrl(id);save();initSync(id);
-    showScreen('s-wait');initWait();updateHeaderBadge();
-  }
   else if (action === 'submit') { showScreen('s-submit'); prefillSubmitForm(); }
   else if (action === 'battle') { showScreen('s-battle'); }
 }
