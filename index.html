@@ -1491,7 +1491,8 @@ async function submitSong(){
     err.textContent='Eroare la salvare. Încearcă din nou.';
   }
 }
-function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){state.songs[i]=s;localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,S);}}
+function updateSong(s){const state=load(S.room.id);if(!state)return;const i=state.songs.findIndex(x=>x.id===s.id);if(i>=0){// Merge — preserve existing fields (like slotIndex, avatar) and only update title/artist
+state.songs[i]=Object.assign({},state.songs[i],{title:s.title,artist:s.artist});localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));S=state;redisSet('room_'+S.room.id,Object.assign({},state,{isHost:false}));}}
 let _userAcWaitTimer=null;
 function userSearchWait(q){
   const ac=document.getElementById('user-ac-wait');q=(q||'').trim();
@@ -1776,23 +1777,19 @@ function buildPairs(){
   // Filter out any null/undefined songs first
   let songs=[...S.songs].filter(Boolean);
   if(!songs.length)return;
-  if(S.shuffleMode)songs.sort(()=>Math.random()-.5);
-  else songs.sort(()=>Math.random()-.5); // always shuffle to avoid same-user matchups
-  // Separate songs by user so we can spread them out
-  // Ensure no same-user vs same-user in round 1
+  // Always shuffle + spread by user
+  songs.sort(()=>Math.random()-.5);
   songs=spreadByUser(songs);
-  // If odd number, duplicate last song as bye placeholder
-  if(songs.length===1){songs.push(songs[0]);}
-  // Pad to power of 2
+  // Pad to power of 2 with nulls (byes)
   let size=1;while(size<songs.length)size*=2;
-  while(songs.length<size)songs.push(null); // byes
+  while(songs.length<size)songs.push(null);
   S.tournamentRounds=[];
-  // Round 1 pairs
-  const r1=[];
-  for(let i=0;i<songs.length;i+=2)r1.push([songs[i],songs[i+1]]);
-  S.tournamentRounds.push(r1);
-  // Placeholder future rounds
-  let n=r1.length;
+  // Round 0 pairs
+  const r0=[];
+  for(let i=0;i<songs.length;i+=2)r0.push([songs[i],songs[i+1]]);
+  S.tournamentRounds.push(r0);
+  // Build all future round placeholders
+  let n=r0.length;
   while(n>1){
     n=Math.ceil(n/2);
     const round=[];
@@ -1800,20 +1797,26 @@ function buildPairs(){
     S.tournamentRounds.push(round);
   }
   S.currentTournamentRound=0;
-  // Set current pairs from round 0, skip byes (one side null)
-  S.pairs=S.tournamentRounds[0].filter(p=>p[0]&&p[1]);
-  // If no valid pairs at all (e.g. 1 song), make it battle itself
+  // Auto-advance byes: for each pair in r0 where one side is null, advance the real song to next round
+  r0.forEach((pair,i)=>{
+    if(pair[0]&&!pair[1]){
+      // pair[0] gets a bye — advance to round 1
+      const nextMatch=Math.floor(i/2);
+      const nextSlot=i%2;
+      if(S.tournamentRounds[1])S.tournamentRounds[1][nextMatch][nextSlot]=pair[0];
+    } else if(!pair[0]&&pair[1]){
+      const nextMatch=Math.floor(i/2);
+      const nextSlot=i%2;
+      if(S.tournamentRounds[1])S.tournamentRounds[1][nextMatch][nextSlot]=pair[1];
+    }
+  });
+  // S.pairs = only real matches (both sides non-null) from round 0
+  S.pairs=r0.filter(p=>p[0]&&p[1]);
+  // Edge case: 1 song
   if(!S.pairs.length&&songs.filter(Boolean).length>=1){
     const real=songs.filter(Boolean);
     S.pairs=[[real[0],real[real.length>1?1:0]]];
   }
-  // Auto-advance byes
-  const byeWinners=S.tournamentRounds[0].filter(p=>p[0]&&!p[1]).map(p=>p[0]);
-  byeWinners.forEach((w,i)=>{
-    const nextRoundIdx=Math.floor(i/2);
-    const slot=i%2;
-    if(S.tournamentRounds[1])S.tournamentRounds[1][nextRoundIdx][slot]=w;
-  });
   S.roundIdx=0;
 }
 function renderRound(reset){
