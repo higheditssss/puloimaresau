@@ -458,7 +458,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         </span>
       </button>
       <div class="login-err" id="login-err"></div>
-      <button class="btn" onclick="_pendingAction=null;sessionStorage.removeItem('ksb_pending');showScreen('s-landing');updateLandingUserBadge();" style="margin-top:10px;font-size:11px;color:var(--t3)">← Înapoi</button>
+      <button class="btn" id="login-back-btn" onclick="_pendingAction=null;sessionStorage.removeItem('ksb_pending');showScreen('s-landing');updateLandingUserBadge();" style="margin-top:10px;font-size:11px;color:var(--t3);display:none">← Înapoi</button>
     </div>
 
     <!-- STEP 2: Set Kick Username (after Google login) -->
@@ -1282,6 +1282,8 @@ document.addEventListener('DOMContentLoaded',async ()=>{
   if(!rid){
     // Dacă revenim dintr-un OAuth redirect cu pending action, nu arăta landing
     if(_pendingAction) return;
+    // Dacă nu e logat, arată login screen mai întâi
+    if(!_currentUser){ showScreen('s-login'); return; }
     showScreen('s-landing');
     updateLandingUserBadge();
     if(_currentUser) showLoginHistory(_currentUser.kick_username);
@@ -1395,6 +1397,7 @@ function createRoom(){
         spp:_pillSpp||1
       }));
     }catch(e){}
+    const backBtn=document.getElementById('login-back-btn');if(backBtn)backBtn.style.display='';
     showScreen('s-login'); return;
   }
   const name=document.getElementById('l-name').value.trim()||'Battle';
@@ -1745,11 +1748,44 @@ function applyHostUI(){
     if(wnb)wnb.style.display='none';
   }
 }
+function spreadByUser(songs){
+  // Group songs by submittedBy
+  const byUser={};
+  songs.forEach(s=>{const u=s.submittedBy||'?';(byUser[u]=byUser[u]||[]).push(s);});
+  const users=Object.keys(byUser);
+  // Interleave: pick one song per user in rotation, so same-user songs are far apart
+  const result=[];
+  let added=true;
+  while(added){
+    added=false;
+    users.forEach(u=>{
+      if(byUser[u].length){result.push(byUser[u].shift());added=true;}
+    });
+  }
+  // Verify round-1 pairs have different users; if not, swap to fix
+  for(let i=0;i<result.length-1;i+=2){
+    const a=result[i],b=result[i+1];
+    if(a&&b&&a.submittedBy===b.submittedBy){
+      // Find nearest song with different user to swap with
+      for(let j=i+2;j<result.length;j++){
+        if(result[j]&&result[j].submittedBy!==a.submittedBy){
+          const tmp=result[i+1];result[i+1]=result[j];result[j]=tmp;
+          break;
+        }
+      }
+    }
+  }
+  return result;
+}
 function buildPairs(){
   // Filter out any null/undefined songs first
   let songs=[...S.songs].filter(Boolean);
   if(!songs.length)return;
   if(S.shuffleMode)songs.sort(()=>Math.random()-.5);
+  else songs.sort(()=>Math.random()-.5); // always shuffle to avoid same-user matchups
+  // Separate songs by user so we can spread them out
+  // Ensure no same-user vs same-user in round 1
+  songs=spreadByUser(songs);
   // If odd number, duplicate last song as bye placeholder
   if(songs.length===1){songs.push(songs[0]);}
   // Pad to power of 2
