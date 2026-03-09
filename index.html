@@ -1272,9 +1272,14 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     }
   }
 
-  // Arată landing IMEDIAT — nu mai așteptăm nimic
   const rid=getRoomUrl();
   if(!rid){
+    // Dacă nu e logat → du-l la login înainte de landing
+    if(!_currentUser){
+      _pendingAction={action:'landing'};
+      showScreen('s-login');
+      return;
+    }
     showScreen('s-landing');
     updateLandingUserBadge();
     if(_currentUser) showLoginHistory(_currentUser.kick_username);
@@ -2890,7 +2895,15 @@ function proceedAfterLogin() {
   if (!_pendingAction) { showScreen('s-landing'); updateLandingUserBadge(); return; }
   const { action, rid } = _pendingAction;
   _pendingAction = null;
-  if (action === 'landing') { showScreen('s-landing'); updateLandingUserBadge(); }
+  if (action === 'landing') {
+    showScreen('s-landing'); updateLandingUserBadge();
+    if(_currentUser) showLoginHistory(_currentUser.kick_username);
+    try{
+      if(!localStorage.getItem('ksb_tut')){showTut();}
+      else{setTimeout(()=>document.getElementById('beta-bg').classList.add('open'),300);}
+    }catch(e){}
+    try{updateSliders();}catch(e){}
+  }
   else if (action === 'submit') { showScreen('s-submit'); prefillSubmitForm(); }
   else if (action === 'battle') { showScreen('s-battle'); }
 }
