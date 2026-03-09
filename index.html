@@ -423,11 +423,11 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 </head>
 <body>
 
-<!-- PAGE LOADER (apare când revii de la Google OAuth) -->
+<!-- PAGE LOADER -->
 <div id="page-loader">
   <div class="page-loader-logo">HIGHSB</div>
   <div class="page-loader-spin"></div>
-  <div class="page-loader-text">Se procesează login-ul...</div>
+  <div class="page-loader-text">Processing login...</div>
 </div>
 
 <!-- LOGIN SCREEN -->
@@ -446,11 +446,11 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         <div class="g-avatar-ring"><span>🎵</span></div>
       </div>
       <div class="login-title">Bine ai venit!</div>
-      <div class="login-sub" style="margin-bottom:28px">autentifică-te pentru a continua</div>
+      <div class="login-sub" style="margin-bottom:28px">sign in to continue</div>
       <button class="btn-google" id="btn-google" onclick="loginWithGoogle()">
         <span id="btn-google-inner" style="display:flex;align-items:center;gap:10px">
           <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58Z"/></svg>
-          Continuă cu Google
+          Continue with Google
         </span>
         <span id="btn-google-loading" style="display:none;align-items:center;gap:10px">
           <svg width="18" height="18" viewBox="0 0 18 18" style="animation:spin .8s linear infinite"><circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2"/><path d="M9 2a7 7 0 0 1 7 7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
@@ -469,11 +469,11 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
       <div class="login-avatar-wrap">
         <div class="g-avatar-ring" id="step2-av-wrap"><span>👤</span></div>
       </div>
-      <div class="login-title" id="step2-title">Un pas în plus</div>
-      <div class="login-sub" style="margin-bottom:22px">care e username-ul tău pe Kick?</div>
+      <div class="login-title" id="step2-title">One more step</div>
+      <div class="login-sub" style="margin-bottom:22px">what's your Kick username?</div>
       <div class="inp-wrap" style="position:relative">
         <lbl>Kick Username</lbl>
-        <input id="login-kick-input" type="text" placeholder="Caută username Kick..." autocomplete="off"
+        <input id="login-kick-input" type="text" placeholder="Search Kick username..." autocomplete="off"
           oninput="loginUserSearch(this.value)" onblur="setTimeout(hideLoginAC,200)"
           onfocus="if(this.value.trim().length>=2)loginUserSearch(this.value)"
           onkeydown="if(event.key==='Enter')doLogin()"/>
@@ -485,7 +485,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 
     <!-- History (shown after login) -->
     <div class="hist-wrap" id="login-hist-wrap" style="display:none">
-      <div class="hist-title">Ultimele battle-uri</div>
+      <div class="hist-title">Recent Battles</div>
       <div id="login-hist-list"></div>
     </div>
   </div>
@@ -494,17 +494,17 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 
 <div class="tbg" id="tbg">
   <div class="tbox">
-    <h2>Cum funcționează</h2>
+    <h2>How it works</h2>
     <div class="tsub">ghid rapid</div>
     <div class="vdemo">
-      <div class="vd"><div class="vd-cmd">!1</div><div class="vd-lbl">Votează stânga</div></div>
-      <div class="vd"><div class="vd-cmd">!2</div><div class="vd-lbl">Votează dreapta</div></div>
+      <div class="vd"><div class="vd-cmd">!1</div><div class="vd-lbl">Vote left</div></div>
+      <div class="vd"><div class="vd-cmd">!2</div><div class="vd-lbl">Vote right</div></div>
     </div>
     <div style="margin-bottom:20px">
-      <div class="tstep"><div class="tn">1</div><p>Trimite linkul battle-ului către participanți</p></div>
-      <div class="tstep"><div class="tn">2</div><p>Așteaptă să se adune toți în <strong>Waiting Room</strong></p></div>
-      <div class="tstep"><div class="tn">3</div><p>Apasă <strong>START BATTLE</strong> când toți sunt prezenți</p></div>
-      <div class="tstep"><div class="tn">4</div><p>Chat votează <strong>!1</strong> sau <strong>!2</strong></p></div>
+      <div class="tstep"><div class="tn">1</div><p>Share the battle link with participants</p></div>
+      <div class="tstep"><div class="tn">2</div><p>Wait for everyone to join the <strong>Waiting Room</strong></p></div>
+      <div class="tstep"><div class="tn">3</div><p>Press <strong>START BATTLE</strong> when everyone is ready</p></div>
+      <div class="tstep"><div class="tn">4</div><p>Chat votes <strong>!1</strong> or <strong>!2</strong></p></div>
     </div>
     <button class="btn primary" onclick="closeTut()">AM ÎNȚELES</button>
   </div>
@@ -529,15 +529,15 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 <!-- LANDING -->
 <div id="s-landing" class="screen active">
 
-  <!-- STÂNGA: Update-uri -->
+  <!-- STÂNGA: Updates -->
   <div class="corner-box left">
-    <div class="corner-box-title">Update-uri</div>
-    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Piese salvate la user greșit (race condition eliminat)</span><span class="cl-date">09 mar</span></div>
-    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bracket: runde repetate sau sărite</span><span class="cl-date">09 mar</span></div>
-    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bye-uri propagate greșit în turneu</span><span class="cl-date">09 mar</span></div>
-    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Counter jucători număra piese, nu useri</span><span class="cl-date">09 mar</span></div>
-    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Login cu Google + Kick username</span><span class="cl-date">06 mar</span></div>
-    <div class="cl-item"><span class="cl-badge new">nou</span><span class="cl-text">Coinflip la egalitate între piese</span><span class="cl-date">05 mar</span></div>
+    <div class="corner-box-title">Updates</div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Songs saved to wrong user (race condition fixed)</span><span class="cl-date">09 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Bracket: repeated or skipped rounds</span><span class="cl-date">09 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Byes propagated incorrectly in tournament</span><span class="cl-date">09 mar</span></div>
+    <div class="cl-item"><span class="cl-badge fix">fix</span><span class="cl-text">Player counter counted songs, not users</span><span class="cl-date">09 mar</span></div>
+    <div class="cl-item"><span class="cl-badge new">new</span><span class="cl-text">Google login + Kick username</span><span class="cl-date">06 mar</span></div>
+    <div class="cl-item"><span class="cl-badge new">new</span><span class="cl-text">Coinflip on tied songs</span><span class="cl-date">05 mar</span></div>
   </div>
 
   <!-- CENTRU -->
@@ -551,16 +551,16 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         <button class="tab" onclick="switchTab('join')">Join Battle</button>
       </div>
       <div id="tc">
-        <div class="inp-wrap"><lbl>Nume cameră</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
+        <div class="inp-wrap"><lbl>Room name</lbl><input id="l-name" type="text" placeholder="Epic Music Battle"/></div>
         <div class="inp-wrap" id="kick-channel-wrap">
           <lbl>Kick Channel</lbl>
           <div id="kick-channel-logged" style="display:none;padding:10px 14px;background:rgba(0,0,0,.5);border:1px solid var(--t4);border-radius:8px;color:var(--acc);font-size:14px;font-weight:700"></div>
-          <input id="l-kick" type="text" placeholder="Caută username Kick..." autocomplete="off"
+          <input id="l-kick" type="text" placeholder="Search Kick username..." autocomplete="off"
             oninput="kickSearch(this.value)" onblur="setTimeout(hideAC,200)" onfocus="if(this.value.trim().length>=2)kickSearch(this.value)"/>
           <div class="ac-list" id="kick-ac" style="display:none"></div>
         </div>
         <div class="sld-wrap">
-          <lbl>Câte persoane?</lbl>
+          <lbl>How many players?</lbl>
           <div class="pill-row" id="pills-players">
             <button class="pill on" onclick="setPill('players',4,this)">4</button>
             <button class="pill" onclick="setPill('players',8,this)">8</button>
@@ -569,10 +569,10 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
             <button class="pill" onclick="setPill('players',64,this)">64</button>
             <button class="pill" onclick="setPill('players',128,this)">128</button>
           </div>
-          <div class="s-val" id="sv-p">4 persoane</div>
+          <div class="s-val" id="sv-p">4 players</div>
         </div>
         <div class="sld-wrap">
-          <lbl>Piese per participant?</lbl>
+          <lbl>Songs per player?</lbl>
           <div class="pill-row" id="pills-spp">
             <button class="pill on" onclick="setPill('spp',1,this)">1</button>
             <button class="pill" onclick="setPill('spp',2,this)">2</button>
@@ -580,7 +580,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
             <button class="pill" onclick="setPill('spp',4,this)">4</button>
             <button class="pill" onclick="setPill('spp',5,this)">5</button>
           </div>
-          <div class="s-val" id="sv-s">1 piesă · max <span id="sv-total">4</span></div>
+          <div class="s-val" id="sv-s">1 song · max <span id="sv-total">4</span></div>
         </div>
         <button class="btn primary" onclick="createRoom()">CREATE BATTLE ROOM</button>
       </div>
@@ -592,7 +592,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
     </div>
   </div>
 
-  <!-- DREAPTA: În curând -->
+  <!-- RIGHT PANEL: Coming soon -->
   </div>
 
   <!-- SUPPORT BUTTON -->
@@ -613,19 +613,19 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
   <div class="disc-body">
     <div class="disc-tabs">
       <button class="disc-tab on" onclick="switchDiscTab('live',this)">🔴 Live & Waiting</button>
-      <button class="disc-tab" onclick="switchDiscTab('winners',this)">🏆 Câștigători</button>
+      <button class="disc-tab" onclick="switchDiscTab('winners',this)">🏆 Winners</button>
     </div>
 
     <!-- LIVE TAB -->
     <div id="disc-live-tab">
       <div class="disc-section-title"><div class="disc-live-dot"></div>Battle-uri active acum</div>
-      <div id="disc-live-list"><div class="disc-empty">Se încarcă...</div></div>
+      <div id="disc-live-list"><div class="disc-empty">Loading...</div></div>
     </div>
 
     <!-- WINNERS TAB -->
     <div id="disc-winners-tab" style="display:none">
-      <div class="disc-section-title">Ultimele piese câștigătoare</div>
-      <div id="disc-winners-list"><div class="disc-empty">Se încarcă...</div></div>
+      <div class="disc-section-title">Latest winning songs</div>
+      <div id="disc-winners-list"><div class="disc-empty">Loading...</div></div>
     </div>
   </div>
 </div>
@@ -645,13 +645,13 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 
 <!-- SUBMIT -->
 <div id="s-submit" class="screen">
-  <div class="warn">Folosește același username ca în chat-ul Kick</div>
+  <div class="warn">Use the same username as in Kick chat</div>
   <div class="card">
-    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px" id="submit-title">Trimite piesa ta</div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase" id="submit-sub">intrare în battle</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px" id="submit-title">Submit your song</div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase" id="submit-sub">entry to the battle</div>
     <div class="inp-wrap" style="position:relative">
         <lbl>Kick Username</lbl>
-        <input id="su-user" type="text" placeholder="Caută username Kick..." autocomplete="off"
+        <input id="su-user" type="text" placeholder="Search Kick username..." autocomplete="off"
           oninput="userSearch(this.value);saveViewerDraft('su-user',this.value)" onblur="setTimeout(hideUserAC,200)" onfocus="if(this.value.trim().length>=2)userSearch(this.value)"/>
         <div class="ac-list" id="user-ac" style="display:none"></div>
       </div>
@@ -671,11 +671,14 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
     <div class="wait-h"><h2>Waiting Room</h2><p id="wait-room-name">Battle Room</p></div>
     <div id="wait-tab-warning" style="display:flex;align-items:center;gap:8px;background:rgba(255,180,0,.07);border:1px solid rgba(255,180,0,.25);border-radius:8px;padding:9px 13px;margin-bottom:18px;font-size:12px;color:#ffd060;">
       <span style="font-size:15px;flex-shrink:0">⚠️</span>
-      <span>Ține acest tab deschis! Dacă îl închizi, poți pierde locul în battle.</span>
+      <span>Keep this tab open! Closing it may lose your spot in the battle.</span>
     </div>
     <div class="wcount-row">
       <div class="wcount"><div class="wc-n" id="wc-joined">0</div><div class="wc-l">joined</div></div>
-      <div class="wsep">/</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <button id="wait-coinflip-btn" onclick="doWaitCoinflip()" title="Coinflip!" style="padding:8px 12px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.3);border-radius:10px;color:#ffb800;font-size:18px;cursor:pointer;transition:all .2s;line-height:1">🪙</button>
+        <div id="wait-coinflip-result" style="display:none;font-size:10px;font-weight:800;color:#ffb800;letter-spacing:1px;white-space:nowrap"></div>
+      </div>
       <div class="wcount"><div class="wc-n" id="wc-needed">4</div><div class="wc-l">needed</div></div>
     </div>
     <div id="wait-host-only">
@@ -684,11 +687,11 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         <input class="share-inp" id="wait-link" type="text" readonly onclick="this.select()"/>
         <button class="copy-btn" id="wait-copy" onclick="copyWait()">Copy</button>
       </div>
-      <!-- Editare setări room -->
+      <!-- Edit room settings -->
       <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
         <div style="font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:600">Setări room</div>
         <div class="sld-wrap" style="margin-bottom:10px">
-          <lbl>Câte persoane?</lbl>
+          <lbl>How many players?</lbl>
           <div class="pill-row" id="wait-pills-players">
             <button class="pill on" onclick="setWaitPill('players',4,this)">4</button>
             <button class="pill" onclick="setWaitPill('players',8,this)">8</button>
@@ -699,7 +702,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
           </div>
         </div>
         <div class="sld-wrap" style="margin-bottom:0">
-          <lbl>Piese per participant?</lbl>
+          <lbl>Songs per player?</lbl>
           <div class="pill-row" id="wait-pills-spp">
             <button class="pill on" onclick="setWaitPill('spp',1,this)">1</button>
             <button class="pill" onclick="setWaitPill('spp',2,this)">2</button>
@@ -710,10 +713,10 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         </div>
       </div>
     </div>
-    <div class="wplayers-t">Participanți</div>
+    <div class="wplayers-t">Participants</div>
     <div id="wait-player-list" style="margin-bottom:14px"></div>
 
-    <!-- VIEWER: adaugă / editează piesă -->
+    <!-- VIEWER: add / edit song -->
     <div id="viewer-song-panel" style="display:none;margin-bottom:14px;padding:14px;background:rgba(46,204,74,.04);border:1px solid rgba(46,204,74,.15);border-radius:10px">
       <div style="font-size:10px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:4px" id="viewer-panel-title">Piesele tale</div>
       <div style="font-size:11px;color:var(--t3);margin-bottom:12px" id="viewer-panel-sub"></div>
@@ -722,19 +725,19 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         <div id="vw-user-display" style="padding:10px 14px;background:rgba(0,0,0,.4);border:1px solid var(--t4);border-radius:8px;color:var(--t3);font-size:13px;font-weight:600">—</div>
         <input id="vw-user" type="hidden"/>
       </div>
-      <!-- Slot-uri piese — generate dinamic -->
+      <!-- Song slots — generated dynamically -->
       <div id="vw-song-slots"></div>
       <div class="err" id="vw-err" style="margin-bottom:8px"></div>
-      <button class="btn primary" onclick="submitSongsFromWait()" style="font-size:12px;padding:10px" id="vw-submit-btn">SALVEAZĂ</button>
+      <button class="btn primary" onclick="submitSongsFromWait()" style="font-size:12px;padding:10px" id="vw-submit-btn">SAVE</button>
     </div>
     <div id="dup-host-section" style="display:none;margin-bottom:14px">
       <div style="font-size:9px;color:#ffd060;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">⚠️ Duplicate detectate</div>
       <div id="dup-host-list"></div>
     </div>
-    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Așteptăm <span id="wait-missing">4</span> persoane...</div>
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px" id="wait-note">Waiting for <span id="wait-missing">4</span> more players...</div>
     <div id="wait-host-btns">
       <button class="btn primary" id="wait-start-btn" onclick="forceLaunch()" disabled style="margin-bottom:8px">START BATTLE</button>
-      <button class="btn" onclick="forceLaunch()" style="font-size:11px;color:var(--t3)">Pornește oricum (host)</button>
+
     </div>
   </div>
 </div>
@@ -743,7 +746,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 <div id="poll-popup-bg" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:28px;width:90%;max-width:620px;text-align:center;position:relative">
     <button onclick="closePollPopup()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.05);border:1px solid var(--t4);color:var(--t2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center">✕</button>
-    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:16px">Care piesă câștigă?</div>
+    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:16px">Which song wins?</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
       <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--s2)">
         <img id="poll-thumb-l" src="" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block"/>
@@ -909,13 +912,13 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
 
       <div class="total-box" id="total-box-wrap">
         <strong id="total-voters-num">0</strong>
-        <span>persoane au votat</span>
+        <span>people voted</span>
       </div>
 
       <!-- LIVE STATS -->
       <div class="live-stats" id="live-stats-panel">
         <div class="ls-header">
-          <span class="ls-title">Evoluție voturi</span>
+          <span class="ls-title">Vote history</span>
           <span class="ls-live-dot">LIVE</span>
         </div>
         <canvas id="vote-chart"></canvas>
@@ -928,7 +931,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
           <div class="momentum-bar-wrap">
             <div class="momentum-bar-l" id="momentum-bar" style="width:50%"></div>
           </div>
-          <div class="momentum-sublabel" id="momentum-sublabel">Ultimele 10 voturi</div>
+          <div class="momentum-sublabel" id="momentum-sublabel">Last 10 votes</div>
         </div>
       </div>
 
@@ -937,7 +940,7 @@ if (window.location.hash && window.location.hash.includes('access_token')) {
         <button class="pb next" id="btn-next" onclick="nextRound()" style="display:none">NEXT BATTLE ▶</button>
       </div>
       <div id="viewer-notice" class="viewer-notice" style="display:none">
-        Votează în chat cu <strong>!1</strong> sau <strong>!2</strong><br>
+        Vote in chat with <strong>!1</strong> or <strong>!2</strong><br>
         <span style="font-size:11px;color:var(--t3)">Așteaptă hostul să pornească poll-ul</span>
       </div>
 
@@ -1035,9 +1038,9 @@ function setPill(type, val, el){
   const row=document.getElementById('pills-'+type);
   row.querySelectorAll('.pill').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
-  if(type==='players'){_pillPlayers=val;document.getElementById('sv-p').textContent=val+' persoane';}
-  else{_pillSpp=val;document.getElementById('sv-s').innerHTML=val+(val===1?' piesă':' piese')+' · max <span id="sv-total">'+(_pillPlayers*val)+'</span>';}
-  document.getElementById('sv-s').innerHTML=_pillSpp+(_pillSpp===1?' piesă':' piese')+' · max <span id="sv-total">'+(_pillPlayers*_pillSpp)+'</span>';
+  if(type==='players'){_pillPlayers=val;document.getElementById('sv-p').textContent=val+' players';}
+  else{_pillSpp=val;document.getElementById('sv-s').innerHTML=val+(val===1?' song':' songs')+' · max <span id="sv-total">'+(_pillPlayers*val)+'</span>';}
+  document.getElementById('sv-s').innerHTML=_pillSpp+(_pillSpp===1?' song':' songs')+' · max <span id="sv-total">'+(_pillPlayers*_pillSpp)+'</span>';
 }
 function updateSliders(){}
 // ╔══════════════════════════════════════════════════════════════╗
@@ -1097,7 +1100,7 @@ function save() {
   try { localStorage.setItem('ksb_' + S.room.id, JSON.stringify(S)); } catch(e) {}
   clearTimeout(_saveTimer);
   const toSave = Object.assign({}, S, {isHost: false});
-  _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, toSave), 300);
+  _saveTimer = setTimeout(() => redisSet('room_' + S.room.id, toSave), 1000);
 }
 
 // Curăță localStorage de date mai vechi de 2 ore
@@ -1174,7 +1177,7 @@ function applyRemoteState(data, roomId) {
     const joined = S.songs ? S.songs.length : 0, needed = S.room.playersNeeded || 4;
     document.getElementById('wc-joined').textContent = joined;
     renderWaitPlayerList(S.songs||[]);
-    document.getElementById('wait-note').innerHTML = joined >= needed ? 'Toți sunt prezenți! Poți începe.' : 'Așteptăm <span>' + Math.max(0, needed - joined) + '</span> persoane...';
+    document.getElementById('wait-note').innerHTML = joined >= needed ? 'Everyone is here! You can start.' : 'Waiting for <span>' + Math.max(0, needed - joined) + '</span> more...';
     if (S.isHost) { const btn = document.getElementById('wait-start-btn'); if (btn) btn.disabled = joined < needed; }
   }
   const bs = document.getElementById('s-battle');
@@ -1188,7 +1191,7 @@ function startPolling(roomId) {
   _pollTimer = setInterval(async () => {
     const remote = await redisGet('room_' + roomId);
     if (remote) applyRemoteState(remote, roomId);
-  }, 1500);
+  }, 5000);
 }
 
 function initSync(roomId) {
@@ -1323,7 +1326,7 @@ document.addEventListener('DOMContentLoaded',async ()=>{
     // Viewer care era deja in waiting room (are sesiune in localStorage) -> restore
     let hadSession=false;try{hadSession=!!localStorage.getItem('ksb_user_'+rid);}catch(e){}
     if(hadSession||(_currentUser&&myUser)){showScreen('s-wait');initWait();if(_currentUser)updateHeaderBadge();return;}
-    // Submit fara login / sesiune noua
+    // Submit fara login / sesiune newa
     showScreen('s-submit');prefillSubmitForm();return;
   }
   const tmp=mkState();tmp.room={id:rid,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
@@ -1394,14 +1397,14 @@ function createRoom(){
 }
 async function joinRoom(){
   const code=document.getElementById('l-code').value.trim().toUpperCase();
-  if(!code){document.getElementById('jerr').textContent='Introdu codul camerei';return;}
-  document.getElementById('jerr').textContent='Se caută camera...';
+  if(!code){document.getElementById('jerr').textContent='Enter room code';return;}
+  document.getElementById('jerr').textContent='Searching for room...';
   const remote=await redisGet('room_'+code);
   const saved=remote||load(code);
   if(saved&&saved.battleStarted){S=Object.assign({},saved,{isHost:false});pushUrl(code);showScreen('s-battle');initBattle();return;}
   S=mkState();S.isHost=false;S.room={id:code,name:'Battle',kickChannel:'',playersNeeded:4,songsPerPlayer:1};
   if(saved&&saved.room)S.room=saved.room;
-  if(!saved){document.getElementById('jerr').textContent='Camera nu a fost găsită';return;}
+  if(!saved){document.getElementById('jerr').textContent='Room not found';return;}
   document.getElementById('jerr').textContent='';
   pushUrl(code);initSync(code);showScreen('s-submit');
 }
@@ -1422,18 +1425,14 @@ async function getUserSongs(roomId, user){
   return [];
 }
 
+const _songCache={};
 async function aggregateSongs(roomId){
-  // Collect all known usernames from: main room state + localStorage song keys
+  // Cache for 4s to avoid multiple Redis calls per poll tick
+  const now=Date.now();
+  if(_songCache[roomId]&&(now-_songCache[roomId].ts)<4000)return _songCache[roomId].songs;
+
+  // Collect known usernames from localStorage only (no extra redisGet for main state)
   const users=new Set();
-  // From main room state
-  try{
-    const state=await redisGet('room_'+roomId);
-    if(state&&Array.isArray(state.songs))state.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));
-    // Also check local state
-    const local=load(roomId);
-    if(local&&Array.isArray(local.songs))local.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));
-  }catch(e){}
-  // From localStorage per-user keys
   try{
     Object.keys(localStorage).forEach(k=>{
       if(k.startsWith('ksb_songs_'+roomId+'_')){
@@ -1441,17 +1440,31 @@ async function aggregateSongs(roomId){
         if(u)users.add(u);
       }
     });
+    // Also scan main state in localStorage (no Redis call)
+    const local=load(roomId);
+    if(local&&Array.isArray(local.songs))local.songs.forEach(s=>s&&s.submittedBy&&users.add(s.submittedBy));
   }catch(e){}
+
   if(!users.size){
-    // Fallback: return songs from main state as-is (old format)
-    try{
-      const state=await redisGet('room_'+roomId)||load(roomId);
-      return(state&&Array.isArray(state.songs))?state.songs:[];
-    }catch(e){return[];}
+    // Fallback: return songs from local state only
+    const local=load(roomId);
+    const songs=(local&&Array.isArray(local.songs))?local.songs:[];
+    _songCache[roomId]={songs,ts:now};
+    return songs;
   }
-  // Fetch each user's songs in parallel
-  const results=await Promise.all([...users].map(u=>getUserSongs(roomId,u)));
-  return results.flat().filter(Boolean);
+
+  // Fetch each user's songs — prefer localStorage, only hit Redis if missing
+  const results=await Promise.all([...users].map(async u=>{
+    try{
+      const l=localStorage.getItem('ksb_songs_'+roomId+'_'+u);
+      if(l){const p=JSON.parse(l);if(p&&p.length)return p;}
+    }catch(e){}
+    // Only fall back to Redis if not in localStorage
+    return getUserSongs(roomId,u);
+  }));
+  const songs=results.flat().filter(Boolean);
+  _songCache[roomId]={songs,ts:now};
+  return songs;
 }
 
 async function submitSong(){
@@ -1463,13 +1476,13 @@ async function submitSong(){
   const user=document.getElementById('su-user').value.trim();
   const url=document.getElementById('su-url').value.trim();
   const err=document.getElementById('serr');
-  if(!user){err.textContent='Introdu username-ul tău Kick';return;}
-  if(!url){err.textContent='Introdu link-ul piesei';return;}
+  if(!user){err.textContent='Enter your Kick username';return;}
+  if(!url){err.textContent='Enter song link';return;}
   const avatar=window._pickedAvatar||null;window._pickedAvatar=null;
   const ytMatch=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   const spMatch=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-  if(!ytMatch&&!spMatch){err.textContent='Link invalid. Folosește YouTube sau Spotify';return;}
-  err.textContent='Se salvează...';
+  if(!ytMatch&&!spMatch){err.textContent='Invalid link. Use YouTube or Spotify';return;}
+  err.textContent='Saving...';
   try {
     const roomId=S.room.id;
     const remote=await redisGet('room_'+roomId);
@@ -1481,7 +1494,7 @@ async function submitSong(){
     // Count unique other players
     const allSongs=await aggregateSongs(roomId);
     const otherPlayers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
-    if(myExisting.length===0&&otherPlayers.size>=maxPlayers){err.textContent='Camera e plină! ('+maxPlayers+'/'+maxPlayers+' jucători)';return;}
+    if(myExisting.length===0&&otherPlayers.size>=maxPlayers){err.textContent='Room is full! ('+maxPlayers+'/'+maxPlayers+' players)';return;}
     if(myExisting.length>=spp){
       const wasHost=S.isHost;S=Object.assign({},existing||S,{isHost:wasHost,songs:allSongs});
       err.textContent='';showScreen('s-wait');initWait();return;
@@ -1514,14 +1527,14 @@ async function submitSong(){
     const nowHave=newMySongs.length;
     if(nowHave<spp){
       err.style.color='var(--acc)';
-      err.textContent=`✓ Piesa ${nowHave}/${spp} salvată! Adaugă piesa ${nowHave+1}.`;
+      err.textContent=`✓ Song ${nowHave}/${spp} saved! Add song ${nowHave+1}.`;
       setTimeout(()=>{err.style.color='';},100);
       document.getElementById('su-url').value='';
       document.getElementById('dup-warn').classList.remove('show');
       const userEl=document.getElementById('su-user');
       if(userEl){userEl.readOnly=true;userEl.style.opacity='.6';userEl.style.cursor='default';}
       const title=document.querySelector('#s-submit .card div');
-      if(title)title.textContent=`Piesa ${nowHave+1} din ${spp}`;
+      if(title)title.textContent=`Song ${nowHave+1} of ${spp}`;
     } else {
       err.textContent='';clearViewerDrafts();
       const userEl=document.getElementById('su-user');
@@ -1529,7 +1542,7 @@ async function submitSong(){
       showScreen('s-wait');initWait();
     }
   } catch(e) {
-    console.error(e);err.textContent='Eroare la salvare. Încearcă din nou.';
+    console.error(e);err.textContent='Save error. Please try again.';
   }
 }
 async function updateSong(s){
@@ -1583,8 +1596,8 @@ function showViewerSongPanel(){
   // Title & sub
   const titleEl=document.getElementById('viewer-panel-title');
   const subEl=document.getElementById('viewer-panel-sub');
-  if(titleEl) titleEl.textContent=mySongs.length>0?'Editează piesele tale':'Adaugă piesele tale';
-  if(subEl) subEl.textContent=spp>1?(mySongs.length+'/'+spp+' piese adăugate'):'';
+  if(titleEl) titleEl.textContent=mySongs.length>0?'Edit your songs':'Add your songs';
+  if(subEl) subEl.textContent=spp>1?(mySongs.length+'/'+spp+' songs added'):'';
   // Render song slots
   const slotsEl=document.getElementById('vw-song-slots');
   if(!slotsEl) return;
@@ -1594,7 +1607,7 @@ function showViewerSongPanel(){
   let html='';
   for(let i=0;i<spp;i++){
     const existing=mySongs[i];
-    const label=spp>1?'Piesa '+(i+1)+' din '+spp:'Song Link (YouTube / Spotify)';
+    const label=spp>1?'Song '+(i+1)+' of '+spp:'Song Link (YouTube / Spotify)';
     const badge=existing
       ?'<span style="color:var(--acc);font-size:9px;font-weight:800">✓ SALVATĂ</span>'
       :'<span style="color:var(--t4);font-size:9px">GOALĂ</span>';
@@ -1612,7 +1625,7 @@ function showViewerSongPanel(){
   }
   slotsEl.innerHTML=html;
   const btn=document.getElementById('vw-submit-btn');
-  if(btn) btn.textContent=mySongs.length>0?'ACTUALIZEAZĂ':'SALVEAZĂ';
+  if(btn) btn.textContent=mySongs.length>0?'UPDATE':'SAVE';
 }
 async function submitSongFromWait(){
   if (_currentUser) {
@@ -1622,7 +1635,7 @@ async function submitSongFromWait(){
   }
   const user=document.getElementById('vw-user').value.trim();
   const err=document.getElementById('vw-err');
-  if(!user){err.textContent='Username lipsă';return;}
+  if(!user){err.textContent='Username missing';return;}
   const spp=(S.room&&S.room.songsPerPlayer)||1;
   const avatar=window._pickedAvatarWait||null;
   const roomId=S.room.id;
@@ -1632,19 +1645,19 @@ async function submitSongFromWait(){
     const url=(inp?inp.value:'').trim();
     if(url) newUrls.push(url);
   }
-  if(!newUrls.length){err.textContent='Adaugă cel puțin un link';return;}
+  if(!newUrls.length){err.textContent='Add at least one link';return;}
   for(const url of newUrls){
     const yt=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     const sp=url.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
     if(!yt&&!sp){err.textContent='Link invalid: '+url.substring(0,40)+'...';return;}
   }
-  err.textContent='Se salvează...';
+  err.textContent='Saving...';
   try{
     const allSongs=await aggregateSongs(roomId);
     const maxPlayers=(S.room&&S.room.playersNeeded)||4;
     const otherPlayers=new Set(allSongs.filter(s=>s.submittedBy!==user).map(s=>s.submittedBy));
     const alreadyIn=allSongs.some(s=>s.submittedBy===user);
-    if(!alreadyIn&&otherPlayers.size>=maxPlayers){err.textContent='Camera e plină!';return;}
+    if(!alreadyIn&&otherPlayers.size>=maxPlayers){err.textContent='Room is full!';return;}
     // Build new songs array for this user with slotIndex
     const userSongs=[];
     for(let si=0;si<newUrls.length;si++){
@@ -1674,12 +1687,12 @@ async function submitSongFromWait(){
     try{localStorage.setItem('ksb_user_'+roomId,user);}catch(e){}
     // Update local S.songs by re-aggregating
     S.songs=await aggregateSongs(roomId);
-    clearViewerDrafts();err.style.color='var(--acc)';err.textContent='✓ Salvat!';
+    clearViewerDrafts();err.style.color='var(--acc)';err.textContent='✓ Saved!';
     setTimeout(()=>{err.textContent='';err.style.color='';},2000);
-    document.getElementById('viewer-panel-title').textContent='Editează piesele tale';
-    document.getElementById('vw-submit-btn').textContent='ACTUALIZEAZĂ';
+    document.getElementById('viewer-panel-title').textContent='Edit your songs';
+    document.getElementById('vw-submit-btn').textContent='UPDATE';
     showViewerSongPanel();
-  }catch(e){console.error(e);err.textContent='Eroare. Încearcă din nou.';}
+  }catch(e){console.error(e);err.textContent='Error. Please try again.';}
 }
 function initWait(){
   document.getElementById('wait-room-name').textContent=S.room.name||'Battle Room';
@@ -1698,7 +1711,7 @@ function initWait(){
     hostOnly.style.display='none';hostBtns.style.display='none';
     showViewerSongPanel();
   }
-  pollWait();waitPoll=setInterval(pollWait,2000);
+  pollWait();waitPoll=setInterval(pollWait,5000);
   // Warn viewer before closing/navigating away
   if(!S.isHost){
     window._waitBeforeUnload=function(e){e.preventDefault();e.returnValue='';};
@@ -1720,6 +1733,7 @@ function setWaitPill(type, val, el){
   else{S.room.songsPerPlayer=val;}
   save();
 }
+let _lastPollHash='';
 async function pollWait(){
   if(!S.room)return;
   const ws=document.getElementById('s-wait');
@@ -1728,8 +1742,12 @@ async function pollWait(){
   const state=remote||load(S.room.id);
   if(!state||!state.room)return;
   if(!document.getElementById('s-wait').classList.contains('active')){clearInterval(waitPoll);return;}
-  // Aggregate songs from all per-user keys (no race condition)
-  const songs=await aggregateSongs(S.room.id);
+  // Skip heavy work if nothing changed in room state
+  const stateHash=JSON.stringify({sc:(state.songs||[]).length,spp:state.room&&state.room.songsPerPlayer,np:state.room&&state.room.playersNeeded,bs:state.battleStarted});
+  const unchanged=stateHash===_lastPollHash;
+  _lastPollHash=stateHash;
+  // Aggregate songs from per-user keys
+  const songs=unchanged?S.songs:await aggregateSongs(S.room.id);
   state.songs=songs;
   try{localStorage.setItem('ksb_'+S.room.id,JSON.stringify(state));}catch(e){}
   const wasHost=S.isHost;
@@ -1754,12 +1772,12 @@ async function pollWait(){
       if(subEl){
         const myUser=(_currentUser&&_currentUser.kick_username)||localStorage.getItem('ksb_user_'+S.room.id);
         const mySongs=songs.filter(s=>s.submittedBy===myUser).sort((a,b)=>(a.slotIndex||0)-(b.slotIndex||0));
-        if(newSpp>1) subEl.textContent=mySongs.length+'/'+newSpp+' piese adăugate';
+        if(newSpp>1) subEl.textContent=mySongs.length+'/'+newSpp+' songs added';
         else subEl.textContent='';
       }
     }
   }
-  if(btn){if(uniquePlayers>=needed){btn.disabled=false;if(elNote)elNote.textContent='Toți sunt prezenți! Poți începe.';}else btn.disabled=true;}
+  if(btn){if(uniquePlayers>=needed){btn.disabled=false;if(elNote)elNote.textContent='Everyone is here! You can start.';}else btn.disabled=true;}
   if(state.battleStarted){
     clearInterval(waitPoll);
     if(window._waitBeforeUnload){window.removeEventListener('beforeunload',window._waitBeforeUnload);window._waitBeforeUnload=null;}
@@ -1774,7 +1792,7 @@ async function forceLaunch(){
   const freshSongs=await aggregateSongs(S.room.id);
   // Count unique players
   const uniquePlayers=new Set(freshSongs.map(s=>s.submittedBy)).size;
-  if(uniquePlayers<needed)return; // guard — not enough players
+  if(uniquePlayers<needed)return; // guard — not enewgh players
   S.songs=freshSongs;
   clearInterval(waitPoll);
   const state=load(S.room.id)||S;
@@ -2047,7 +2065,7 @@ function showDone(){
   const wUser=winner?'@'+winner.submittedBy:'';
   document.getElementById('winner-wrap').innerHTML=`<div class="winner-box">
     <div class="w-trophy">🏆</div>
-    <div class="w-lbl">CÂȘTIGĂTOR</div>
+    <div class="w-lbl">CHAMPION</div>
     <div class="w-title" style="font-size:clamp(18px,3vw,26px);margin-bottom:6px">${wTitle}</div>
     <div class="w-artist">${wArtist?wArtist+' · ':''}<span style="color:var(--acc)">${wUser}</span></div>
     <div style="font-size:40px;margin-top:14px">🎊</div>
@@ -2116,7 +2134,7 @@ function renderChart(){
     ctx.fillStyle='rgba(255,255,255,.06)';
     ctx.font='11px Inter,sans-serif';
     ctx.textAlign='center';
-    ctx.fillText('Voturile vor apărea aici...', W/2, H/2+4);
+    ctx.fillText('Votes will appear here...', W/2, H/2+4);
     return;
   }
 
@@ -2200,13 +2218,13 @@ function updateMomentum(){
     bar.style.boxShadow='0 0 12px rgba(46,204,74,.35)';
     tl.style.background='rgba(46,204,74,.2)';tl.style.color='var(--acc)';
     tr.style.background='rgba(255,255,255,.05)';tr.style.color='rgba(255,255,255,.3)';
-    if(sub)sub.textContent=`⚡ !1 domină — ${lCount}/${recent.length} voturi recente`;
+    if(sub)sub.textContent=`⚡ !1 leading — ${lCount}/${recent.length} recent votes`;
   } else if(rCount>lCount){
     bar.style.background='linear-gradient(90deg,rgba(255,255,255,.3),rgba(255,255,255,.5))';
     bar.style.boxShadow='none';
     tr.style.background='rgba(255,255,255,.12)';tr.style.color='rgba(255,255,255,.8)';
     tl.style.background='rgba(46,204,74,.06)';tl.style.color='rgba(46,204,74,.4)';
-    if(sub)sub.textContent=`⚡ !2 domină — ${rCount}/${recent.length} voturi recente`;
+    if(sub)sub.textContent=`⚡ !2 leading — ${rCount}/${recent.length} recent votes`;
   } else {
     bar.style.background='linear-gradient(90deg,var(--acc),rgba(255,255,255,.4))';
     if(sub)sub.textContent=`⚖ Egalitate — ${recent.length} voturi recente`;
@@ -2234,6 +2252,33 @@ function updateLead(){
     cfBtn.classList.toggle('visible',tied&&S.isHost);
   }
 }
+function doWaitCoinflip(){
+  const btn=document.getElementById('wait-coinflip-btn');
+  const res=document.getElementById('wait-coinflip-result');
+  if(!btn||!res)return;
+  // Animate spin
+  btn.style.transform='scale(0.85)';
+  btn.style.pointerEvents='none';
+  res.style.display='none';
+  let ticks=0;
+  const faces=['🪙','⚡','🪙','⚡'];
+  const spin=setInterval(()=>{
+    btn.textContent=faces[ticks%faces.length];
+    ticks++;
+    if(ticks>10){
+      clearInterval(spin);
+      const isHeads=Math.random()<0.5;
+      btn.textContent='🪙';
+      btn.style.transform='';
+      btn.style.pointerEvents='';
+      res.style.display='block';
+      res.textContent=isHeads?'HEADS 🟡':'TAILS ⚫';
+      res.style.color=isHeads?'#ffb800':'#aaa';
+      setTimeout(()=>{res.style.display='none';},3000);
+    }
+  },80);
+}
+
 function doCoinflip(){
   if(!S.isHost)return;
   const btn=document.getElementById('coinflip-btn');
@@ -2597,7 +2642,7 @@ function clearCurrentUser() {
 // GOOGLE AUTH — Supabase OAuth
 // ══════════════════════════════════════════════════════
 
-// Called when user clicks "Continuă cu Google"
+// Called when user clicks "Continue with Google"
 async function loginWithGoogle() {
   const btn = document.getElementById('btn-google');
   const inner = document.getElementById('btn-google-inner');
@@ -2625,7 +2670,7 @@ async function loginWithGoogle() {
     if (btn) btn.disabled = false;
     if (inner) inner.style.display = 'flex';
     if (loading) loading.style.display = 'none';
-    if (err) err.textContent = 'Eroare la Google login. Încearcă direct cu username Kick.';
+    if (err) err.textContent = 'Google login error. Try with Kick username directly.';
   }
 }
 
@@ -2634,8 +2679,8 @@ async function loginDirectKick() {
   const input = document.getElementById('login-user-direct');
   const err = document.getElementById('login-err');
   const username = (input ? input.value : '').trim();
-  if (!username) { if(err) err.textContent = 'Introdu username-ul Kick'; return; }
-  if (err) err.textContent = 'Se verifică...';
+  if (!username) { if(err) err.textContent = 'Enter your Kick username'; return; }
+  if (err) err.textContent = 'Checking...';
   // Fetch avatar from Kick API
   let avatar = null;
   try {
@@ -2758,8 +2803,8 @@ async function doLogin() {
   const inp = document.getElementById('login-kick-input');
   const err = document.getElementById('login-err2') || document.getElementById('login-err');
   const username = (inp ? inp.value : '').trim();
-  if (!username) { if(err) err.textContent = 'Introdu username-ul tău Kick'; return; }
-  if (err) err.textContent = 'Se salvează...';
+  if (!username) { if(err) err.textContent = 'Enter your Kick username'; return; }
+  if (err) err.textContent = 'Saving...';
 
   const kickAvatar = window._loginPickedAvatar || null;
   const g = window._pendingGoogleUser || {};
@@ -2846,7 +2891,7 @@ async function showProfilePanel() {
           <div class="hist-badge ${h.won ? 'won' : 'played'}">${h.won ? '🏆 WON' : 'JUCAT'}</div>
         </div>`;
       }).join('')
-    : '<div class="hist-empty">Niciun battle înregistrat încă.</div>';
+    : '<div class="hist-empty">No battles recorded yet.</div>';
 
   const existing = document.getElementById('profile-panel');
   if (existing) existing.remove();
@@ -2866,7 +2911,7 @@ async function showProfilePanel() {
       </div>
       <button onclick="document.getElementById('profile-panel').remove()" style="margin-left:auto;background:none;border:1px solid var(--t4);border-radius:6px;color:var(--t3);padding:4px 9px;cursor:pointer;font-family:Inter,sans-serif;font-size:12px">✕</button>
     </div>
-    <div class="hist-title">Istoricul battle-urilor</div>
+    <div class="hist-title">Battle History</div>
     <div>${histHtml}</div>
     <button onclick="logoutUser();document.getElementById('profile-panel').remove()" class="btn" style="margin-top:16px;color:var(--red);border-color:rgba(255,68,68,.2)">Delogare</button>
   </div>`;
@@ -2931,8 +2976,8 @@ function prefillSubmitForm() {
   const spp = (S.room && S.room.songsPerPlayer) || 1;
   const titleEl = document.getElementById('submit-title');
   const subEl = document.getElementById('submit-sub');
-  if (titleEl) titleEl.textContent = spp > 1 ? `Piesa 1 din ${spp}` : 'Trimite piesa ta';
-  if (subEl) subEl.textContent = spp > 1 ? `adaugă ${spp} piese pentru a intra` : 'intrare în battle';
+  if (titleEl) titleEl.textContent = spp > 1 ? `Song 1 of ${spp}` : 'Submit your song';
+  if (subEl) subEl.textContent = spp > 1 ? `add ${spp} songs to join` : 'entry to the battle';
 }
 
 async function saveBattleResult(won, songTitle) {
@@ -2985,14 +3030,14 @@ async function loadDiscoveryTab(tab) {
 async function loadLiveBattles() {
   const el = document.getElementById('disc-live-list');
   if (!el) return;
-  el.innerHTML = '<div class="disc-empty">Se încarcă...</div>';
+  el.innerHTML = '<div class="disc-empty">Loading...</div>';
 
   // Poll Redis keys for active rooms — we ask our API
   const res = await _supaCall('discovery_live', {});
   const rooms = (res && res.rooms) || [];
 
   if (!rooms.length) {
-    el.innerHTML = '<div class="disc-empty">Niciun battle activ acum 😴<br><span style="font-size:11px;color:var(--t4)">Creează tu primul!</span></div>';
+    el.innerHTML = '<div class="disc-empty">No active battles right now 😴<br><span style="font-size:11px;color:var(--t4)">Be the first to create one!</span></div>';
     return;
   }
 
@@ -3005,7 +3050,7 @@ async function loadLiveBattles() {
       <div style="width:36px;height:36px;border-radius:8px;background:${isLive ? 'rgba(255,68,68,.1)' : 'rgba(255,180,0,.08)'};border:1px solid ${isLive ? 'rgba(255,68,68,.25)' : 'rgba(255,180,0,.2)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${isLive ? '⚔️' : '⏳'}</div>
       <div class="disc-battle-info">
         <div class="disc-battle-name">${r.room.name || 'Battle'}</div>
-        <div class="disc-battle-meta">${kick}${players}/${needed} jucători · cod: <strong style="color:var(--t)">${r.room.id}</strong></div>
+        <div class="disc-battle-meta">${kick}${players}/${needed} players · code: <strong style="color:var(--t)">${r.room.id}</strong></div>
       </div>
       <div class="disc-battle-badge ${isLive ? 'live' : 'waiting'}">${isLive ? '● LIVE' : '⏳ WAITING'}</div>
     </a>`;
@@ -3015,13 +3060,13 @@ async function loadLiveBattles() {
 async function loadWinners() {
   const el = document.getElementById('disc-winners-list');
   if (!el) return;
-  el.innerHTML = '<div class="disc-empty">Se încarcă...</div>';
+  el.innerHTML = '<div class="disc-empty">Loading...</div>';
 
   const res = await _supaCall('discovery_winners', {});
   const winners = (res && res.winners) || [];
 
   if (!winners.length) {
-    el.innerHTML = '<div class="disc-empty">Niciun câștigător înregistrat încă 🏆</div>';
+    el.innerHTML = '<div class="disc-empty">No winners recorded yet 🏆</div>';
     return;
   }
 
@@ -3031,10 +3076,10 @@ async function loadWinners() {
     return `<div class="disc-winner-card">
       ${thumb ? `<img class="disc-winner-thumb" src="${thumb}" onerror="this.style.display='none'"/>` : '<div class="disc-winner-thumb" style="display:flex;align-items:center;justify-content:center;font-size:18px">🎵</div>'}
       <div class="disc-winner-info">
-        <div class="disc-winner-title">${w.song_title || 'Piesă câștigătoare'}</div>
+        <div class="disc-winner-title">${w.song_title || 'Winning song'}</div>
         <div class="disc-winner-sub"><span style="color:var(--acc)">@${w.kick_username}</span> · ${w.room_name || 'Battle'}</div>
       </div>
-      <div class="disc-winner-battle" style="font-size:10px;color:var(--t3)">${date}<br><span style="color:var(--gold)">🏆 câștigat</span></div>
+      <div class="disc-winner-battle" style="font-size:10px;color:var(--t3)">${date}<br><span style="color:var(--gold)">🏆 won</span></div>
     </div>`;
   }).join('');
 }
